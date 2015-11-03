@@ -38,7 +38,7 @@ defmodule Ueberauth.Strategy.Helpers do
   def full_url(conn, path, options \\ []) do
     %URI{
       host: conn.host,
-      scheme: conn.scheme,
+      scheme: to_string(conn.scheme),
       port: conn.port,
       path: path,
       query: URI.encode_query(options)

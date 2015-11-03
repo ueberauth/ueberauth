@@ -51,7 +51,7 @@ defmodule Ueberauth do
     parts = Enum.map(opts[:providers], fn({ name, { strategy, options } }) ->
 
       request_path = Dict.get(options, :request_path, Path.join(["/", base_path, to_string(name)]))
-      callback_path = Dict.get(options, :callback_path, Path.join(["/", base_path, to_string(name), "calback"]))
+      callback_path = Dict.get(options, :callback_path, Path.join(["/", base_path, to_string(name), "callback"]))
       failure_path = Dict.get(options, :failure_path) || Dict.get(opts, :failure_path) || Path.join(["/", base_path, to_string(name), "failure"])
       methods = Dict.get(options, :methods, ["GET"]) |> Enum.map(&(String.upcase(to_string(&1))))
 
@@ -82,17 +82,23 @@ defmodule Ueberauth do
       end
     end)
 
+    quoted_parts = quote do
+      unquote(parts)
+    end
+
     module_contents = quote do
       def init(opts \\ []), do: []
       def call(conn, _), do: run!(conn, conn.request_path)
-      # unquote(parts)
+      unquote(quoted_parts)
       def run!(conn, _), do: conn # if we don't match anything just call through
     end
 
-    mod = Module.create(Ueberauth.Strategies.Builder, module_contents, Macro.Env.location(__ENV__))
+    module_name = Module.concat([Ueberauth, "Strategies", "Builder"])
+
+    Module.create(module_name, module_contents, Macro.Env.location(__ENV__))
 
     quote do
-      plug unquote(mod)
+      plug unquote(module_name)
     end
   end
 end

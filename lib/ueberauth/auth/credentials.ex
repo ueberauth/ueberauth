@@ -5,7 +5,8 @@ defmodule Ueberauth.Auth.Credentials do
             refresh_token: nil,
             secret: nil,
             expires: nil,
-            expires_at: nil
+            expires_at: nil,
+            other: %{}
 
   def from_params(params), do: struct_from_params(__MODULE__, params)
 end

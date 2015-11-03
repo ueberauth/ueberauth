@@ -42,7 +42,7 @@ defmodule Ueberauth.Strategy do
     end
   end
 
-  def run_request_phase(conn, strategy, opts) do
+  def run_request_phase(conn, strategy) do
     apply(strategy, :request_phase, [conn])
   end
 
