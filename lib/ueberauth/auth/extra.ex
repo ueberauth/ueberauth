@@ -1,7 +1,6 @@
 defmodule Ueberauth.Auth.Extra do
-  import Ueberauth.Utils
-
-  defstruct raw_info: %{}
-
-  def from_params(params), do: struct_from_params(__MODULE__, params)
+  @moduledoc """
+  Provides a place for all raw information that was accumulated during the processing of the callback phase.
+  """
+  defstruct raw_info: %{} # A map of all information gathered about a user in the format it was gathered. For example, for Twitter users this is a map representing the JSON hash returned from the Twitter API.
 end
