@@ -162,7 +162,7 @@ defmodule Ueberauth.Strategy do
   @doc """
   Provides the uid for the user. This is one of the component functions that is used to construct the auth struct. What you return here will be in the auth struct at the `uid` key.
   """
-  @callback uid(Plug.Conn.t) :: binary
+  @callback uid(Plug.Conn.t) :: binary | nil
 
   @doc """
   Provides the info for the user. This is one of the component functions that is used to construct the auth struct. What you return here will be in the auth struct at the `info` key.
