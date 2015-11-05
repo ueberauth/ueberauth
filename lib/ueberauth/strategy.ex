@@ -211,12 +211,15 @@ defmodule Ueberauth.Strategy do
 
       def default_options, do: unquote(opts)
 
+      def uid(conn), do: nil
+
       def info(conn), do: %Info{}
       def extra(conn), do: %Extra{}
       def credentials(conn), do: %Credentials{}
 
       def request_phase!(conn), do: conn
       def callback_phase!(conn), do: conn
+      def cleanup_phase!(conn), do: conn
 
       def auth(conn) do
         struct(
@@ -243,14 +246,14 @@ defmodule Ueberauth.Strategy do
   def run_callback_phase(conn, strategy) do
     new_conn = apply(strategy, :callback_phase!, [conn])
     |> handle_callback_phase_result(strategy)
-    apply(strategy, :cleanup_phase!, [conn])
+    apply(strategy, :cleanup_phase!, [new_conn])
   end
 
   @doc false
   defp handle_callback_phase_result(%{ halted: true } = conn, _), do: conn
   defp handle_callback_phase_result(%{ assigns: %{ ueberauth_failure: _ } } = conn, _), do: conn
   defp handle_callback_phase_result(%{ assigns: %{ ueberauth_auth: %{ } } } = conn, _), do: conn
-  defp handle_callback_phase_result(conn) do
+  defp handle_callback_phase_result(conn, strategy) do
     auth = apply(strategy, :auth, [conn])
     Plug.Conn.assign(conn, :ueberauth_auth, auth)
   end

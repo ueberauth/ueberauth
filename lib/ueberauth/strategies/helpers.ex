@@ -1,7 +1,7 @@
 defmodule Ueberauth.Strategy.Helpers do
   import Plug.Conn
-  alias Ueberauth.Strategy.Failure
-  alias Ueberauth.Strategy.Failure.Error
+  alias Ueberauth.Failure
+  alias Ueberauth.Failure.Error
 
   def strategy_name(conn), do: from_private(conn, :strategy_name)
   def strategy(conn), do: from_private(conn, :strategy)
@@ -33,7 +33,7 @@ defmodule Ueberauth.Strategy.Helpers do
       errors: map_errors(errors)
     )
 
-    Plug.assign(conn, :ueberauth_failure, failure)
+    Plug.Conn.assign(conn, :ueberauth_failure, failure)
   end
 
   def redirect!(conn, url) do
@@ -64,6 +64,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   defp map_errors(nil), do: []
   defp map_errors([]), do: []
+  defp map_errors(%Error{} = error), do: [error]
   defp map_errors(errors), do: Enum.map(errors, &p_error/1)
 
   defp p_error(%Error{} = error), do: error

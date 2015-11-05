@@ -160,7 +160,7 @@ defmodule Ueberauth do
       def run!(conn, _), do: conn # if we don't match anything just call through
     end
 
-    module_name = Module.concat([Ueberauth, "Strategies", "Builder"])
+    module_name = Module.concat([Ueberauth, "Strategies", "Builder#{String.replace(base_path, ~r/[^a-zA-Z0-9]/, "")}"])
 
     Module.create(module_name, module_contents, Macro.Env.location(__ENV__))
 
