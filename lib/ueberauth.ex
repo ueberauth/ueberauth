@@ -1,5 +1,4 @@
 defmodule Ueberauth do
-  require IEx
   @moduledoc """
   Ueberauth is an authentication framework that is heavily inspired by [Omniauth](https://github.com/intridea/omniauth)
   I would call it a port but it is significantly different in operation - but almost the same by concept. Huge hat tip to omniauth.
@@ -113,10 +112,63 @@ defmodule Ueberauth do
   @doc """
   Fetch a successful auth from the connection object after the callback phase has run
   """
+  @spec auth(Plug.Conn.t) :: Ueberauth.Auth.t
   def auth(conn) do
     conn.assigns[:ueberauth_auth]
   end
 
+  @doc """
+  Adds Ueberauth to your plug pipeline. `Ueberauth.plug/1` will find your providers from the environments configuration
+
+      config :ueberauth, Ueberauth,
+        providers: [
+          facebook: { Ueberauth.Strategy.Facebook, [ opt1: "value", opts2: "value" ] },
+          github: { Ueberauth.Strategy.Github, [ opt1: "value", opts2: "value" ] }
+        ]
+
+  From this configuration it will insert a plug into your pipeline that decorates requests that match
+  the `request_phase` path or `callback_phase` path. When one of these paths is found, the relevant strategy
+  will be inserted into the plug pipeline and may take whatever action is appropriate.
+
+  The `base_path` option provides a url prefix for your Ueberauth strategies.
+
+  ### Example
+
+      # In phoenix
+
+      pipeline :ueberauth do
+        Ueberauth.plug "/auth"
+      end
+
+  This will result in the following paths being decorated:
+
+      # request_phase
+      "/auth/facebook"
+      "/auth/github"
+
+      # callback_phase
+      "/auth/facebook/callback"
+      "/auth/github/callback"
+
+  To customize these paths see `Ueberauth.Strategy`
+
+  Note that in phoenix the 'scope' of the request path does not matter, the paths that Ueberauth matches against are absolute paths from the root.
+
+  ### Example
+
+      pipeline :ueberauth do
+        Ueberauth.plug "/auth"
+      end
+
+      scope "/foo" do
+        pipe_through [:browser, :ueberauth] do
+          # …
+        end
+      end
+
+  This is a useless case. Given that the router will always match on "/foo" the Ueberauth plugs that are matching at "/auth" will never fire.
+  """
+  @spec plug(String.t) :: {atom,[],[atom,...]}
   defmacro plug(base_path) do
     opts = Application.get_env(:ueberauth, Ueberauth)
 

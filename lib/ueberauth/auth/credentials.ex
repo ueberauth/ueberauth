@@ -2,6 +2,16 @@ defmodule Ueberauth.Auth.Credentials do
   @moduledoc """
   Provides information about the credentials of a request.
   """
+
+  @type t :: %__MODULE__{
+              token: binary | nil,
+              refresh_token: binary | nil,
+              secret: binary | nil,
+              expires: boolean | nil,
+              expires_at: number | nil,
+              other: map
+             }
+
   defstruct token: nil, # Supplied by OAuth and OAuth 2.0 providers, the access token.
             refresh_token: nil, # Supplied by OAuth 2.0 providers as the refresh token.
             secret: nil, # Supplied by OAuth providers, the access token secret.

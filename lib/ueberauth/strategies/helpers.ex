@@ -9,21 +9,25 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   Provides the name of the strategy or provider name. This is defined in your configuration as the provider name.
   """
+  @spec strategy_name(Plug.t) :: String.t
   def strategy_name(conn), do: from_private(conn, :strategy_name)
 
   @doc """
   The strategy module that is being used for the request.
   """
+  @spec strategy(Plug.t) :: Module.t
   def strategy(conn), do: from_private(conn, :strategy)
 
   @doc """
   The request path for the strategy to hit. Requests to this path will trigger the `request_phase` of the strategy.
   """
-  def request_path(conn), do: from_private(conn, :request_path_path)
+  @spec request_path(Plug.t) :: String.t
+  def request_path(conn), do: from_private(conn, :request_path)
 
   @doc """
   The callback path for the requests strategy. When a client hits this path, the callback phase will be triggered for the strategy.
   """
+  @spec callback_path(Plug.t) :: String.t
   def callback_path(conn), do: from_private(conn, :callback_path)
 
   @doc """
@@ -31,6 +35,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   The options will be encoded as query params.
   """
+  @spec request_url(Plug.t) :: String.t
   def request_url(conn, opts \\ []), do: full_url(conn, request_path(conn), opts)
 
   @doc """
@@ -38,16 +43,19 @@ defmodule Ueberauth.Strategy.Helpers do
 
   The options will be encoded as query params.
   """
+  @spec callback_url(Plug.t) :: String.t
   def callback_url(conn, opts \\ []), do: full_url(conn, callback_path(conn), opts)
 
   @doc """
   The configured allowed methods. This will use any supplied options from the configuration, but fallback to the default options
   """
+  @spec allowed_request_methods(Plug.t) :: list(String.t)
   def allowed_request_methods(conn), do: from_private(conn, :request_methods)
 
   @doc """
   Is the current request http method one of the allowed request methods?
   """
+  @spec allowed_request_method?(Plug.t) :: boolean
   def allowed_request_method?(%{method: method} = conn) do
     conn
     |> allowed_request_methods
@@ -57,6 +65,7 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   The full list of options passed to the strategy in the configuration.
   """
+  @spec options(Plug.t) :: Keyword.t
   def options(conn), do: from_private(conn, :options)
 
   @doc """
@@ -69,6 +78,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
       error("something_bad", "Something really bad happened")
   """
+  @spec error(String.t, String.t) :: Error.t
   def error(key, message), do: struct(Error, message_key: key, message: message)
 
   @doc """
@@ -78,6 +88,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   Note this changes the conn object and should be part of your returned connection of the `callback_phase!`.
   """
+  @spec error(Plug.Conn.t, list(Error.t)) :: Plug.Conn
   def set_errors!(conn, errors) do
     failure = struct(
       Failure,
@@ -92,6 +103,7 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   Redirects to a url and halts the plug pipeline.
   """
+  @spec redirect!(Plug.Conn.t, String.t) :: Plug.Conn.t
   def redirect!(conn, url) do
     html = Plug.HTML.html_escape(url)
     body = "<html><body>You are being <a href=\"#{html}\">redirected</a>.</body></html>"
@@ -102,28 +114,37 @@ defmodule Ueberauth.Strategy.Helpers do
     |> halt
   end
 
+  @doc false
   defp from_private(conn, key) do
     opts = conn.private[:ueberauth_request_options]
     if opts, do: opts[key], else: nil
   end
 
-  defp full_url(conn, path, options \\ []) do
+  @doc false
+  defp full_url(conn, path, opts \\ []) do
     %URI{
       host: conn.host,
       scheme: to_string(conn.scheme),
       port: conn.port,
       path: path,
-      query: URI.encode_query(options)
+      query: URI.encode_query(opts)
     }
     |> to_string
   end
 
+  @doc false
   defp map_errors(nil), do: []
+  @doc false
   defp map_errors([]), do: []
+  @doc false
   defp map_errors(%Error{} = error), do: [error]
+  @doc false
   defp map_errors(errors), do: Enum.map(errors, &p_error/1)
 
+  @doc false
   defp p_error(%Error{} = error), do: error
+  @doc false
   defp p_error(%{} = error), do: struct(Error, error)
+  @doc false
   defp p_error(error) when is_list(error), do: struct(Error, error)
 end

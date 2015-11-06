@@ -11,6 +11,16 @@ defmodule Ueberauth.Auth do
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
 
+
+  @type t :: %__MODULE__{
+              uid: String.t,
+              provider: String.t | atom,
+              strategy: Module.t,
+              info: Info.t,
+              credentials: Credentials.t,
+              extra: Extra.t
+             }
+
   defstruct uid: nil, # An identifier unique to the given provider, such as a Twitter user ID. Should be stored as a string.
             provider: nil, # The provider name as defined in the configuration.
             strategy: nil, # The strategy module used

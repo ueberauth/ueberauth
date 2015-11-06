@@ -4,6 +4,18 @@ defmodule Ueberauth.Auth.Info do
   """
   alias Ueberauth.Auth.Info
 
+  @type t :: %__MODULE__{
+              name: binary | nil,
+              first_name: binary | nil,
+              last_name: binary | nil,
+              nickname: binary | nil,
+              email: binary | nil,
+              location: binary | nil,
+              description: binary | nil,
+              phone: binary | nil,
+              urls: map
+             }
+
   defstruct name: nil, # The best display name known to the strategy. Usually a concatenation of first and last name, but may also be an arbitrary designator or nickname for some strategies
             first_name: nil,
             last_name: nil,
