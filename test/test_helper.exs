@@ -5,6 +5,4 @@ Code.require_file "./support/redirector.exs", __DIR__
 Code.require_file "./support/default_options.exs", __DIR__
 Code.require_file "./support/with_errors.exs", __DIR__
 
-
 ExUnit.start()
-Application.ensure_all_started(:bypass)

@@ -3,7 +3,7 @@
 > An Elixir Authentication System for Plug-based Web Applications
 
 Ueberauth is an authentication framework that is heavily inspired by [Omniauth](https://github.com/intridea/omniauth)
-I would call it a port but it is significantly different in operation - but almost the same by concept. Huge hat tip to omniauth.
+You could call it a port but it is significantly different in operation - but almost the same by concept. Huge hat tip to omniauth.
 
 It is a two-phase authentication framework that provides a clear API - allowing for many strategies to be created and shared within the community.
 
