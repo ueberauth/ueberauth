@@ -1,6 +1,6 @@
 defmodule Ueberauth.Strategy do
   @moduledoc """
-  The Stragey is the work-horse of the system.
+  The Strategy is the work-horse of the system.
   Strategies are implemented outside this library to meet your needs, the strategy provides a consistent API and behaviour.
 
   Each strategy operates through two phases.
@@ -58,7 +58,7 @@ defmodule Ueberauth.Strategy do
         end
       end
 
-  After the strategy has runn through the `callback_phase!` function, since there are no errors added, Ueberauth will add the constructed auth struct to the connection.
+  After the strategy has run through the `callback_phase!` function, since there are no errors added, Ueberauth will add the constructed auth struct to the connection.
 
   The Auth struct is constructed like:
 
@@ -74,7 +74,7 @@ defmodule Ueberauth.Strategy do
         )
       end
 
-  Each component of the struct is a seperate function and receives the connection object. From this Ueberauth will construct and assign the struct for processing in your own controller.
+  Each component of the struct is a separate function and receives the connection object. From this Ueberauth will construct and assign the struct for processing in your own controller.
 
   ### Redirecting during the request phase
 
@@ -177,7 +177,7 @@ defmodule Ueberauth.Strategy do
   @callback extra(Plug.Conn.t) :: Extra.t
 
   @doc """
-  Provides the credentals for the user. This is one of the component functions that is used to construct the auth struct. What you return here will be in the auth struct at the `credentials` key.
+  Provides the credentials for the user. This is one of the component functions that is used to construct the auth struct. What you return here will be in the auth struct at the `credentials` key.
   """
   @callback credentials(Plug.Conn.t) :: Credentials.t
 

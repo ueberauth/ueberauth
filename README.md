@@ -21,19 +21,19 @@ and allowed to carry on through the pipeline.
 ### Request Phase
 
 The request phase is where you request information about the user. This could be a redirect to an OAuth2 authorization url
-or a form for collecting username and password. The request phase may be very asynchronous and should be concered with
+or a form for collecting username and password. The request phase is concerned with
 only the collection of information. When a request comes in on the request phase url the relevant strategy will receive the `request_phase!` call.
 
 In some cases (default) the application using Ueberauth is responsible for implementing the request phase.
 That is, you should setup a route to receive the request phase and provide a form etc.
-In some cases, like OAuth, the request phase is used to redirect your user to a 3rd party site to fullfil the request.
+In some cases, like OAuth, the request phase is used to redirect your user to a 3rd party site to fulfill the request.
 
-For example, an OAuth strategy for Github will receive the request phase url and stop the request, redirecting you to Githubs OAuth challenge url with some query parameters.
-Once you complete the Github OAuth flow, the user will be redirected back to the host site to the callback URL.
+For example, an OAuth strategy for GitHub will receive the request phase url and stop the request, redirecting you to GitHub’s OAuth challenge url with some query parameters.
+Once you complete the GitHub OAuth flow, the user will be redirected back to the host site to the callback URL.
 
 Another example is simple email/password authentication.
 A request is made by the client to the request phase path and the host application displays a form.
-The strategy will likely not do anything with the incomming request_phase request and simply pass through to the application.
+The strategy will likely not do anything with the incoming `request_phase` request and simply pass through to the application.
 Once the form is completed, the POST should go to the callback url where it is handled (passwords checked, users created / authenticated).
 
 ### Callback Phase
@@ -74,7 +74,7 @@ In phoenix setup a pipeline:
 
 Its url matching is done via pattern matching rather than explicit runtime checks so your strategies will only fire for relevant requests.
 
-Now that you have this, your strategies will intercept relevant requests for each strategy for both request and callback phases. The default urls are (for our facebook and github example)
+Now that you have this, your strategies will intercept relevant requests for each strategy for both request and callback phases. The default urls are (for our Facebook & GitHub example)
 
     # Request phase paths
     /auth/facebook
@@ -98,7 +98,7 @@ Example:
 
 #### Http Methods
 
-By default, all callback urls are only avaialble via the GET method. You can override this via options to your strategy.
+By default, all callback urls are only available via the GET method. You can override this via options to your strategy.
 
     providers: [
       identity: { Ueberauth.Strategies.Identity, [ methods: ["POST"] ] }

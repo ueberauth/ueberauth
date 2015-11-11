@@ -26,7 +26,7 @@ defmodule Ueberauth.Auth do
             strategy: nil, # The strategy module used
             info: %Info{}, # An info struct about the user. See Ueberauth.Auth.Info
             credentials: %Credentials{}, # A struct containing information on the credentials. See Ueberauth.Auth.Credentials
-            extra: %Extra{} # Any additional information that may be avaialble. See Ueberauth.Auth.Extra
+            extra: %Extra{} # Any additional information that may be available. See Ueberauth.Auth.Extra
 
   def valid?(%Auth{} = auth), do: !!(auth.uid && auth.provider && auth.info && Info.valid?(auth.info))
   def valid?(_), do: false
