@@ -2,7 +2,7 @@
 
 > An Elixir Authentication System for Plug-based Web Applications
 
-Ueberauth is an authentication framework that is heavily inspired by [Omniauth](https://github.com/intridea/omniauth)
+Ueberauth is an authentication framework that is heavily inspired by [Omniauth](https://github.com/intridea/omniauth).
 You could call it a port but it is significantly different in operation - but almost the same by concept. Huge hat tip to omniauth.
 
 It is a two-phase authentication framework that provides a clear API - allowing for many strategies to be created and shared within the community.
@@ -15,7 +15,7 @@ The two phases are `request` and `callback`. These phases are implemented by Str
 
 Strategies are plugs that decorate or intercept requests (or both).
 Strategies implement the two phases and then may allow the request to flow through to your downstream plugs.
-Implementing the request and callback phases is optional, and if not implemented the request will be decorated Ueberauth information
+Implementing the request and callback phases is optional, and if not implemented the request will be decorated with Ueberauth information
 and allowed to carry on through the pipeline.
 
 ### Request Phase
@@ -101,7 +101,7 @@ Example:
 By default, all callback urls are only available via the GET method. You can override this via options to your strategy.
 
     providers: [
-      identity: { Ueberauth.Strategies.Identity, [ methods: ["POST"] ] }
+      identity: { Ueberauth.Strategies.Identity, [ callback_methods: ["POST"] ] }
     ]
 
 #### Strategy Options

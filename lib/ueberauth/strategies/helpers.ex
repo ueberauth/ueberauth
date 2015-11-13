@@ -47,18 +47,18 @@ defmodule Ueberauth.Strategy.Helpers do
   def callback_url(conn, opts \\ []), do: full_url(conn, callback_path(conn), opts)
 
   @doc """
-  The configured allowed methods. This will use any supplied options from the configuration, but fallback to the default options
+  The configured allowed callback http methods. This will use any supplied options from the configuration, but fallback to the default options
   """
-  @spec allowed_request_methods(Plug.t) :: list(String.t)
-  def allowed_request_methods(conn), do: from_private(conn, :request_methods)
+  @spec allowed_callback_methods(Plug.t) :: list(String.t)
+  def allowed_callback_methods(conn), do: from_private(conn, :callback_methods)
 
   @doc """
-  Is the current request http method one of the allowed request methods?
+  Is the current request http method one of the allowed callback methods?
   """
-  @spec allowed_request_method?(Plug.t) :: boolean
-  def allowed_request_method?(%{method: method} = conn) do
+  @spec allowed_callback_method?(Plug.t) :: boolean
+  def allowed_callback_method?(%{method: method} = conn) do
     conn
-    |> allowed_request_methods
+    |> allowed_callback_methods
     |> Enum.member?(to_string(method) |> String.upcase)
   end
 

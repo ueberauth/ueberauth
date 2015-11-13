@@ -103,7 +103,7 @@ defmodule Ueberauth do
   By default, all callback urls are only available via the GET method. You can override this via options to your strategy.
 
       providers: [
-        identity: { Ueberauth.Strategies.Identity, [ methods: ["POST"] ] }
+        identity: { Ueberauth.Strategies.Identity, [ callback_methods: ["POST"] ] }
       ]
 
   #### Strategy Options
@@ -180,7 +180,7 @@ defmodule Ueberauth do
 
       request_path = Dict.get(options, :request_path, Path.join(["/", base_path, to_string(name)]))
       callback_path = Dict.get(options, :callback_path, Path.join(["/", base_path, to_string(name), "callback"]))
-      methods = Dict.get(options, :methods, ["GET"]) |> Enum.map(&(String.upcase(to_string(&1))))
+      methods = Dict.get(options, :callback_methods, ["GET"]) |> Enum.map(&(String.upcase(to_string(&1))))
 
       quoted_method_opts = quote do
         %{
@@ -188,7 +188,7 @@ defmodule Ueberauth do
           strategy: unquote(strategy),
           callback_path: unquote(callback_path),
           request_path: unquote(request_path),
-          request_methods: unquote(methods),
+          callback_methods: unquote(methods),
           options: unquote(options)
         }
       end

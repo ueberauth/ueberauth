@@ -9,5 +9,5 @@ config :ueberauth, Ueberauth,
     using_default_options: { Support.DefaultOptions, [] },
     using_custom_options: { Support.DefaultOptions, [the_uid: "custom uid"] },
     with_errors: { Support.WithErrors, [] },
-    post_callback: { Support.SimpleCallback, [ methods: ["POST"] ] },
+    post_callback: { Support.SimpleCallback, [ callback_methods: ["POST"] ] },
   ]
