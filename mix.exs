@@ -31,7 +31,12 @@ defmodule Ueberauth.Mixfile do
   end
 
   defp docs do
-    [main: "Ueberauth"]
+    [extras: docs_extras,
+     main: "extra-readme"]
+  end
+
+  defp docs_extras do
+    ["README.md"]
   end
 
   defp description do
@@ -42,6 +47,6 @@ defmodule Ueberauth.Mixfile do
     [files: ["lib", "priv", "mix.exs", "README.md", "LICENSE"],
        maintainers: ["Sonny Scroggin", "Daniel Neighman"],
        licenses: ["MIT"],
-       links: %{github: "https://github.com/scrogson/ueberauth"}]
+       links: %{"GitHub" => "https://github.com/scrogson/ueberauth"}]
   end
 end
