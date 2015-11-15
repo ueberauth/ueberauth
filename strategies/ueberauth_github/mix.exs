@@ -34,7 +34,11 @@ defmodule UeberGithub.Mixfile do
   end
 
   defp docs do
-    [main: "Ueber Github"]
+    [extras: docs_extras, main: "extra-readme"]
+  end
+
+  defp docs_extras do
+    ["README.md"]
   end
 
   defp description do
@@ -42,9 +46,9 @@ defmodule UeberGithub.Mixfile do
   end
 
   defp package do
-    [files: ["lib", "priv", "mix.exs", "README.md", "LICENSE"],
+    [files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["Daniel Neighman"],
       licenses: ["MIT"],
-      links: %{github: "https://github.com/hassox/ueber_github"}]
+      links: %{"GitHub": "https://github.com/hassox/ueber_github"}]
   end
 end
