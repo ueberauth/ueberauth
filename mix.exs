@@ -23,7 +23,7 @@ defmodule Ueberauth.Mixfile do
   end
 
   defp deps do
-    [{:plug, "~>1.0"},
+    [{:plug, "~> 1.0"},
 
      # Docs dependencies
      {:earmark, "~> 0.1", only: :dev},
