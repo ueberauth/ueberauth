@@ -39,7 +39,7 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   defp description do
-    "An Überauth strategy for using Facebook to authenticate."
+    "An Überauth strategy Facebook authentication."
   end
 
   defp package do
