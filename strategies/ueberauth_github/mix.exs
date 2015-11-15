@@ -6,7 +6,7 @@ defmodule UeberauthGithub.Mixfile do
   def project do
     [app: :ueberauth_github,
      version: @version,
-     name: "Ueberauth Github",
+     name: "Üeberauth Github",
      package: package,
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
@@ -42,7 +42,7 @@ defmodule UeberauthGithub.Mixfile do
   end
 
   defp description do
-    "An Ueberauth strategy for using Github to authenticate your users."
+    "An Üeberauth strategy for using Github to authenticate your users."
   end
 
   defp package do
