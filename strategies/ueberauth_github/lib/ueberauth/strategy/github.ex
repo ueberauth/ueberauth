@@ -69,7 +69,8 @@ defmodule Ueberauth.Strategy.Github do
   Deafult is "user,public_repo"
   """
   use Ueberauth.Strategy, uid_field: :login,
-                          default_scope: "user,public_repo"
+                          default_scope: "user,public_repo",
+                          oauth2_module: Ueberauth.Strategy.Github.OAuth
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -89,8 +90,9 @@ defmodule Ueberauth.Strategy.Github do
     opts = [ scope: scopes ]
     if conn.params["state"], do: opts = Keyword.put(opts, :state, conn.params["state"])
     opts = Keyword.put(opts, :redirect_url, callback_url(conn))
+    module = option(conn, :oauth2_module)
 
-    redirect!(conn, Ueberauth.Strategy.Github.OAuth.authorize_url!(opts))
+    redirect!(conn, apply(module, :authorize_url!, [opts]))
   end
 
   @doc """
@@ -98,7 +100,8 @@ defmodule Ueberauth.Strategy.Github do
   `ueberauth_failure` struct. Otherwise the information returned from Github is returned in the `Ueberauth.Auth` struct.
   """
   def handle_callback!(%Plug.Conn{ params: %{ "code" => code } } = conn) do
-    token = Ueberauth.Strategy.Github.OAuth.get_token!(code: code)
+    module = option(conn, :oauth2_module)
+    token = apply(module, :get_token!, [[code: code]])
 
     if token.access_token == nil do
       set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])

@@ -1,6 +1,6 @@
-# UeberauthGithub
+# Überauth GitHub
 
-Provides an Ueberauth strategy for authenticating with Github.
+Provides an Üeberauth strategy for authenticating with Github.
 
 ### Setup
 
@@ -8,7 +8,7 @@ Create an application in Github for you to use.
 
 Register a new application at: [your github developer page](https://github.com/settings/developers) and get the `client_id` and `client_secret`.
 
-Include the provider in your configuration for Ueberauth
+Include the provider in your configuration for Üeberauth
 
     config :ueberauth, Ueberauth,
       providers: [
