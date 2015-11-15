@@ -1,18 +1,18 @@
-defmodule UeberGithub.Mixfile do
+defmodule UeberauthGithub.Mixfile do
   use Mix.Project
 
   @version "0.1.0"
 
   def project do
-    [app: :ueber_github,
+    [app: :ueberauth_github,
      version: @version,
-     name: "Ueber Github",
+     name: "Ueberauth Github",
      package: package,
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     source_url: "https://github.com/hassox/ueber_github",
-     homepage_url: "https://github.com/hassox/ueber_github",
+     source_url: "https://github.com/hassox/ueberauth_github",
+     homepage_url: "https://github.com/hassox/ueberauth_github",
      description: description,
      deps: deps,
      docs: docs]
@@ -49,6 +49,6 @@ defmodule UeberGithub.Mixfile do
     [files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["Daniel Neighman"],
       licenses: ["MIT"],
-      links: %{"GitHub": "https://github.com/hassox/ueber_github"}]
+      links: %{"GitHub": "https://github.com/hassox/ueberuth_github"}]
   end
 end

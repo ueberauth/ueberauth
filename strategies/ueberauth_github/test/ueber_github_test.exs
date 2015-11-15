@@ -1,6 +1,6 @@
-defmodule UeberGithubTest do
+defmodule UeberauthGithubTest do
   use ExUnit.Case
-  doctest UeberGithub
+  doctest UeberauthGithub
 
   test "the truth" do
     assert 1 + 1 == 2

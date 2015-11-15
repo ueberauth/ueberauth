@@ -1,2 +1,2 @@
-defmodule UeberGithub do
+defmodule UeberauthGithub do
 end

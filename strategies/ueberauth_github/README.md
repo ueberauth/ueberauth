@@ -1,4 +1,4 @@
-# UeberGithub
+# UeberauthGithub
 
 Provides an Ueberauth strategy for authenticating with Github.
 
@@ -75,11 +75,5 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
   1. Add ueber_github to your list of dependencies in `mix.exs`:
 
         def deps do
-          [{:ueber_github, "~> 0.0.1"}]
-        end
-
-  2. Ensure ueber_github is started before your application:
-
-        def application do
-          [applications: [:ueber_github]]
+          [{:ueberauth_github, "~> 0.0.1"}]
         end
