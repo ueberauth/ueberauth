@@ -20,7 +20,7 @@ defmodule Ueberauth do
 
   The request phase is where you request information about the user. This could be a redirect to an OAuth2 authorization url
   or a form for collecting username and password. The request phase is concerned with
-  only the collection of information. When a request comes in on the request phase url the relevant strategy will receive the `request_phase!` call.
+  only the collection of information. When a request comes in on the request phase url the relevant strategy will receive the `handle_request!` call.
 
   In some cases (default) the application using Ueberauth is responsible for implementing the request phase.
   That is, you should setup a route to receive the request phase and provide a form etc.
@@ -33,13 +33,13 @@ defmodule Ueberauth do
 
   Another example is simple email/password authentication.
   A request is made by the client to the request phase path and the host application displays a form.
-  The strategy will likely not do anything with the incoming request_phase request and simply pass through to the application.
+  The strategy will likely not do anything with the incoming `handle_request!` request and simply pass through to the application.
   Once the form is completed, the POST should go to the callback url where it is handled (passwords checked, users created / authenticated).
 
   ### Callback Phase
 
   The callback phase is where the fun happens. Once a successful request phase has been completed, the request phase provider (OAuth provider or host site etc)
-  should call the callback url. The strategy will intercept the request via the `callback_phase!`. If successful it should prepare the connection so the `Ueberauth.Auth` struct can be created, or set errors to indicate a failure.
+  should call the callback url. The strategy will intercept the request via the `handle_callback!`. If successful it should prepare the connection so the `Ueberauth.Auth` struct can be created, or set errors to indicate a failure.
 
   See `Ueberauth.Strategy` for more information on constructing the Ueberauth.Auth struct.
 
@@ -131,7 +131,7 @@ defmodule Ueberauth do
         ]
 
   From this configuration it will insert a plug into your pipeline that decorates requests that match
-  the `request_phase` path or `callback_phase` path. When one of these paths is found, the relevant strategy
+  the `handle_request!` path or `handle_callback!` path. When one of these paths is found, the relevant strategy
   will be inserted into the plug pipeline and may take whatever action is appropriate.
 
   The `base_path` option provides a url prefix for your Ueberauth strategies.
@@ -146,11 +146,11 @@ defmodule Ueberauth do
 
   This will result in the following paths being decorated:
 
-      # request_phase
+      # handle_request!
       "/auth/facebook"
       "/auth/github"
 
-      # callback_phase
+      # handle_callback!
       "/auth/facebook/callback"
       "/auth/github/callback"
 
@@ -197,13 +197,13 @@ defmodule Ueberauth do
         def run!(conn, unquote(request_path)) do
           conn
           |> Plug.Conn.put_private(:ueberauth_request_options, unquote(quoted_method_opts))
-          |> Strategy.run_request_phase(unquote(strategy))
+          |> Strategy.run_request(unquote(strategy))
         end
 
         def run!(%Plug.Conn{ method: method } = conn, unquote(callback_path)) when method in unquote(methods) do
           conn
           |> Plug.Conn.put_private(:ueberauth_request_options, unquote(quoted_method_opts))
-          |> Strategy.run_callback_phase(unquote(strategy))
+          |> Strategy.run_callback(unquote(strategy))
         end
       end
     end)

@@ -5,15 +5,15 @@ defmodule Ueberauth.Strategy do
 
   Each strategy operates through two phases.
 
-  1. `request_phase`
-  2. `callback_phase`
+  1. `request phase`
+  2. `callback phase`
 
   These phases can be understood with the following psuedocode.
 
   ### Request Phase
 
       request (for the request phase - default /auth/:provider)
-      |> relevant_strategy.request_phase!(conn)
+      |> relevant_strategy.handle_request!(conn)
       |> continue with request plug pipeline
 
   The request phase follows normal plug pipeline behaviour. The request will not continue if the strategy halted the connection.
@@ -21,10 +21,10 @@ defmodule Ueberauth.Strategy do
   ### Callback Phase
 
       request (for a callback phase - default /auth/:provider/callback)
-      |> relevant_strategy.callback_phase!(conn)
+      |> relevant_strategy.handle_auth!(conn)
       if connection does not have ueberauth failure
         |> set ueberauth auth with relevant_strategy.auth
-      |> cleanup from the strategy with relevant_strategy.cleanup_phase!
+      |> cleanup from the strategy with relevant_strategy.handle_cleanup!
       |> continue with plug pipeline
 
   The callback phase is essentially a decorator and does not usually redirect or halt the request.
@@ -58,7 +58,7 @@ defmodule Ueberauth.Strategy do
         end
       end
 
-  After the strategy has run through the `callback_phase!` function, since there are no errors added, Ueberauth will add the constructed auth struct to the connection.
+  After the strategy has run through the `handle_callback!` function, since there are no errors added, Ueberauth will add the constructed auth struct to the connection.
 
   The Auth struct is constructed like:
 
@@ -78,10 +78,11 @@ defmodule Ueberauth.Strategy do
 
   ### Redirecting during the request phase
 
-  Many strategies may require a redirect (looking at you OAuth). To do this, implement the `request_phase!` function.
+  Many strategies may require a redirect (looking at you OAuth). To do this, implement the `handle_request!` function.
 
-      def request_phase!(conn)
-        callback = callback_url(conn)
+      def handle_request!(conn)
+        callback_url = callback_url(conn)
+        redirect!(conn, callback_url)
       end
 
   ### Callback phase
@@ -89,9 +90,9 @@ defmodule Ueberauth.Strategy do
   The callback phase may not do anything other than instruct the strategy where to get the information to construct the auth struct.
   In that case define the functions for the components of the struct and fetch the information from the connection struct.
 
-  In the case where you do need to take some other step, the `callback_phase!` function is where its at.
+  In the case where you do need to take some other step, the `handle_callback!` function is where its at.
 
-      def callback_phase!(conn) do
+      def handle_callback!(conn) do
         conn
         |> call_external_service_and_assign_result_to_private
       end
@@ -100,7 +101,7 @@ defmodule Ueberauth.Strategy do
         fetch_from_my_private_area(conn, :username)
       end
 
-      def cleanup_phase!(conn) do
+      def handle_cleanup!(conn) do
         remove_my_private_area(conn)
       end
 
@@ -114,15 +115,15 @@ defmodule Ueberauth.Strategy do
   During the callback phase, you may need to temporarily store information in the private section of the conn struct.
   Once this is done, the cleanup phase exists to cleanup that temporary storage after the strategy has everything it needs.
 
-  Implement the `cleanup_phase!` function and return the cleaned conn struct.
+  Implement the `handle_cleanup!` function and return the cleaned conn struct.
 
   ### Adding errors during callback
 
   You have two options when you're in the callback phase. Either you can let the connection go through and Ueberauth will construct the auth hash for you, or you can add errors.
 
-  You should add errors before you leave your `callback_phase!` function.
+  You should add errors before you leave your `handle_callback!` function.
 
-      def callback_phase!(conn) do
+      def handle_callback!(conn) do
         errors = []
         if (something_bad), do: errors = [error("error_key", "Some message") | errors]
 
@@ -145,19 +146,19 @@ defmodule Ueberauth.Strategy do
   The request phase implementation for your strategy. Setup, redirect or otherwise in here.
   This is an information gathering phase and should provide the end user with a way to provide the information required for your application to authenticate them.
   """
-  @callback request_phase!(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_request!(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   The callback phase implementation for your strategy. In this function you should make any external calls you need, check for errors etc.
   The result of this phase is that either a failure (`Ueberauth.Failure`) will be assigned to the connections assigns at `ueberauth_failure` or an `Ueberauth.Auth` struct will
   be constrcted and added to the assigns at `:ueberauth_auth`.
   """
-  @callback callback_phase!(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_callback!(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   The cleanup phase runs after the callback phase and is present to provide a mechanism to cleanup any temporary data your strategy may have placed in the connection.
   """
-  @callback cleanup_phase!(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_cleanup!(Plug.Conn.t) :: Plug.Conn.t
 
   @doc """
   Provides the uid for the user. This is one of the component functions that is used to construct the auth struct. What you return here will be in the auth struct at the `uid` key.
@@ -217,9 +218,9 @@ defmodule Ueberauth.Strategy do
       def extra(conn), do: %Extra{}
       def credentials(conn), do: %Credentials{}
 
-      def request_phase!(conn), do: conn
-      def callback_phase!(conn), do: conn
-      def cleanup_phase!(conn), do: conn
+      def handle_request!(conn), do: conn
+      def handle_callback!(conn), do: conn
+      def handle_cleanup!(conn), do: conn
 
       def auth(conn) do
         struct(
@@ -233,27 +234,27 @@ defmodule Ueberauth.Strategy do
         )
       end
 
-      defoverridable [uid: 1, info: 1, extra: 1, credentials: 1, request_phase!: 1, callback_phase!: 1, cleanup_phase!: 1]
+      defoverridable [uid: 1, info: 1, extra: 1, credentials: 1, handle_request!: 1, handle_callback!: 1, handle_cleanup!: 1]
     end
   end
 
   @doc false
-  def run_request_phase(conn, strategy) do
-    apply(strategy, :request_phase!, [conn])
+  def run_request(conn, strategy) do
+    apply(strategy, :handle_request!, [conn])
   end
 
   @doc false
-  def run_callback_phase(conn, strategy) do
-    new_conn = apply(strategy, :callback_phase!, [conn])
-    |> handle_callback_phase_result(strategy)
-    apply(strategy, :cleanup_phase!, [new_conn])
+  def run_callback(conn, strategy) do
+    new_conn = apply(strategy, :handle_callback!, [conn])
+    |> handle_callback_result(strategy)
+    apply(strategy, :handle_cleanup!, [new_conn])
   end
 
   @doc false
-  defp handle_callback_phase_result(%{ halted: true } = conn, _), do: conn
-  defp handle_callback_phase_result(%{ assigns: %{ ueberauth_failure: _ } } = conn, _), do: conn
-  defp handle_callback_phase_result(%{ assigns: %{ ueberauth_auth: %{ } } } = conn, _), do: conn
-  defp handle_callback_phase_result(conn, strategy) do
+  defp handle_callback_result(%{ halted: true } = conn, _), do: conn
+  defp handle_callback_result(%{ assigns: %{ ueberauth_failure: _ } } = conn, _), do: conn
+  defp handle_callback_result(%{ assigns: %{ ueberauth_auth: %{ } } } = conn, _), do: conn
+  defp handle_callback_result(conn, strategy) do
     auth = apply(strategy, :auth, [conn])
     Plug.Conn.assign(conn, :ueberauth_auth, auth)
   end
