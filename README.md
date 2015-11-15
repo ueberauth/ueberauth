@@ -7,7 +7,7 @@ You could call it a port but it is significantly different in operation - but al
 
 It is a two-phase authentication framework that provides a clear API - allowing for many strategies to be created and shared within the community.
 
-Ueberauth provides only the initial authentication challenge. The initial OAuth flow, collecting the information from a login form etc. It does not authenticate each request, that's up to your application. You could issue a token or put the result into a session for your applications needs. Libraries like (Guardian)[https://github.com/hassox/guardian] can help you with that aspect of authentication. Ueberauth manages the initial challenge only.
+Ueberauth provides only the initial authentication challenge. The initial OAuth flow, collecting the information from a login form etc. It does not authenticate each request, that's up to your application. You could issue a token or put the result into a session for your applications needs. Libraries like [Guardian](https://github.com/hassox/guardian) can help you with that aspect of authentication. Ueberauth manages the initial challenge only.
 
 The two phases are `request` and `callback`. These phases are implemented by Strategies.
 
