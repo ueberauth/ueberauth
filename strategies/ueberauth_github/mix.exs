@@ -1,12 +1,12 @@
 defmodule UeberauthGithub.Mixfile do
   use Mix.Project
 
-  @version "0.1.1"
+  @version "0.1.2"
 
   def project do
     [app: :ueberauth_github,
      version: @version,
-     name: "Üeberauth Github",
+     name: "Ueberauth Github",
      package: package,
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
@@ -42,7 +42,7 @@ defmodule UeberauthGithub.Mixfile do
   end
 
   defp description do
-    "An Üeberauth strategy for using Github to authenticate your users."
+    "An Ueberauth strategy for using Github to authenticate your users."
   end
 
   defp package do
