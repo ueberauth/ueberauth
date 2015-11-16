@@ -26,9 +26,10 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
   def client(opts \\ []) do
     config = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)
 
-    opts = @defaults
-           |> Keyword.merge(config)
-           |> Keyword.merge(opts)
+    opts =
+      @defaults
+      |> Keyword.merge(config)
+      |> Keyword.merge(opts)
 
     OAuth2.Client.new(opts)
   end
@@ -37,7 +38,8 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
   Provides the authorize url for the request phase of Ueberauth. No need to call this usually.
   """
   def authorize_url!(params \\ [], opts \\ []) do
-    client(opts)
+    opts
+    |> client
     |> OAuth2.Client.authorize_url!(params)
   end
 

@@ -50,9 +50,10 @@ defmodule Ueberauth.Strategy.Facebook do
   Fetches the uid field from the response.
   """
   def uid(conn) do
-    uid_field = conn
-                |> option(:uid_field)
-                |> to_string
+    uid_field =
+      conn
+      |> option(:uid_field)
+      |> to_string
 
     conn.private.facebook_user[uid_field]
   end
