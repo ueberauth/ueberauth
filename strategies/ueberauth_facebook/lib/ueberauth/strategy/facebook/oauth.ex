@@ -14,7 +14,7 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
     strategy: __MODULE__,
     site: "https://graph.facebook.com",
     authorize_url: "https://www.facebook.com/dialog/oauth",
-    token_url: "oauth/access_token",
+    token_url: "/oauth/access_token",
   ]
 
   @doc """
@@ -43,11 +43,8 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
     |> OAuth2.Client.authorize_url!(params)
   end
 
-  def get_token!(params \\ [], options \\ %{}) do
-    headers = Dict.get(options, :headers, [])
-    options = Dict.get(options, :options, [])
-    client_options = Dict.get(options, :client_options, [])
-    OAuth2.Client.get_token!(client(client_options), params, headers, options)
+  def get_token!(params \\ [], headers \\ []) do
+    OAuth2.Client.get_token!(client, params)
   end
 
   # Strategy Callbacks
