@@ -1,18 +1,19 @@
 defmodule UeberauthFacebook.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
+  @url "https://github.com/doomspork/ueberauth_facebook"
 
   def project do
     [app: :ueberauth_facebook,
      version: @version,
-     name: "Überauth Facebook Strategy",
+     name: "Ueberauth Facebook Strategy",
      package: package,
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     source_url: "https://github.com/doomspork/ueberauth_facebook",
-     homepage_url: "https://github.com/doomspork/ueberauth_facebook",
+     source_url: @url,
+     homepage_url: @url,
      description: description,
      deps: deps,
      docs: docs]
@@ -40,7 +41,7 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   defp description do
-    "An Überauth strategy Facebook authentication."
+    "An Uberauth strategy for Facebook authentication."
   end
 
   defp package do
@@ -48,7 +49,7 @@ defmodule UeberauthFacebook.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["Sean Callan"],
       licenses: ["MIT"],
-      links: %{"GitHub": "https://github.com/doomspork/ueberauth_facebook"}
+      links: %{"GitHub": @url}
     ]
   end
 end
