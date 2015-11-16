@@ -26,7 +26,8 @@ defmodule UeberauthFacebook.Mixfile do
     [
      {:ueberauth, "~> 0.1"},
      {:oauth2, "~> 0.5"},
-     {:ex_doc, "~> 0.1", only: :dev}
+     {:ex_doc, "~> 0.1", only: :dev},
+     {:earmark, ">= 0.0.0", only: :dev}
     ]
   end
 
