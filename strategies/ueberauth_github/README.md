@@ -88,7 +88,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
 ````elixir
 def deps do
-  [{:ueberauth_github, "~> 0.0.1"}]
+  [{:ueberauth_github, "~> 0.1.0"}]
 end
 ````
 
