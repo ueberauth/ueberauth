@@ -10,12 +10,12 @@ defmodule Ueberauth.Strategy.Google.OAuth do
   """
   use OAuth2.Strategy
 
-  defp config do
-    [strategy: Google,
+  @defaults [
+     strategy: __MODULE__,
      site: "https://accounts.google.com",
      authorize_url: "/o/oauth2/auth",
-     token_url: "/o/oauth2/token"]
-  end
+     token_url: "/o/oauth2/token"
+   ]
 
   @doc """
   Construct a client for requests to Google.
@@ -44,7 +44,7 @@ defmodule Ueberauth.Strategy.Google.OAuth do
     |> OAuth2.Client.authorize_url!(params)
   end
 
-  def get_token!(params \\ [], headers \\ []) do
+  def get_token!(params \\ [], _headers \\ []) do
     OAuth2.Client.get_token!(client, params)
   end
 
