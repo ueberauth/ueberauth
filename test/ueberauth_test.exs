@@ -28,8 +28,8 @@ defmodule UeberauthTest do
     assert extra.raw_info.request_path == "/auth/simple"
     assert extra.raw_info.callback_path == "/auth/simple/callback"
 
-    assert extra.raw_info.request_url == "http://www.example.com/auth/simple?"
-    assert extra.raw_info.callback_url == "http://www.example.com/auth/simple/callback?"
+    assert extra.raw_info.request_url == "http://www.example.com/auth/simple"
+    assert extra.raw_info.callback_url == "http://www.example.com/auth/simple/callback"
   end
 
   test "redirecting a request phase" do

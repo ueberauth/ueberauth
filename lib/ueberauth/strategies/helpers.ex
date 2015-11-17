@@ -127,13 +127,16 @@ defmodule Ueberauth.Strategy.Helpers do
       scheme: to_string(conn.scheme),
       port: normalize_port(conn.scheme, conn.port),
       path: path,
-      query: URI.encode_query(opts)
+      query: encode_query(opts)
     }
     |> to_string
   end
 
   defp normalize_port(:https, 80), do: 443
   defp normalize_port(_, port), do: port
+
+  defp encode_query([]), do: nil
+  defp encode_query(opts), do: URI.encode_query(opts)
 
   @doc false
   defp map_errors(nil), do: []
