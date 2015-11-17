@@ -44,8 +44,10 @@ defmodule Ueberauth.Strategy.Google.OAuth do
     |> OAuth2.Client.authorize_url!(params)
   end
 
-  def get_token!(params \\ [], _headers \\ []) do
-    OAuth2.Client.get_token!(client, params)
+  def get_token!(params \\ [], opts \\ []) do
+    opts
+    |> client
+    |> OAuth2.Client.get_token!(params)
   end
 
   # Strategy Callbacks

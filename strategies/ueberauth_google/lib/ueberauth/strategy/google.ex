@@ -27,7 +27,8 @@ defmodule Ueberauth.Strategy.Google do
   Handles the callback from Google.
   """
   def handle_callback!(%Plug.Conn{ params: %{ "code" => code } } = conn) do
-    token = Ueberauth.Strategy.Google.OAuth.get_token!(code: code)
+    opts = [redirect_uri: callback_url(conn)]
+    token = Ueberauth.Strategy.Google.OAuth.get_token!([code: code], opts)
 
     if token.access_token == nil do
       set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])
@@ -111,7 +112,9 @@ defmodule Ueberauth.Strategy.Google do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :google_token, token)
-    case OAuth2.AccessToken.get(token, @token_url) do
+    resp = OAuth2.AccessToken.get(token, @token_url)
+    IO.inspect(resp)
+    case resp do
       { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
       { :ok, %OAuth2.Response{status_code: status_code, body: user} } when status_code in 200..399 ->
