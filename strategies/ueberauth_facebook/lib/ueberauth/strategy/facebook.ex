@@ -25,7 +25,8 @@ defmodule Ueberauth.Strategy.Facebook do
   Handles the callback from Facebook.
   """
   def handle_callback!(%Plug.Conn{ params: %{ "code" => code } } = conn) do
-    token = Ueberauth.Strategy.Facebook.OAuth.get_token!(code: code)
+    opts = [redirect_uri: callback_url(conn)]
+    token = Ueberauth.Strategy.Facebook.OAuth.get_token!([code: code], opts)
 
     if token.access_token == nil do
       set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])
