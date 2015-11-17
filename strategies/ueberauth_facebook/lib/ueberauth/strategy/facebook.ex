@@ -17,7 +17,7 @@ defmodule Ueberauth.Strategy.Facebook do
     opts = [ scope: scopes ]
     if conn.params["state"], do: opts = Keyword.put(opts, :state, conn.params["state"])
     opts = Keyword.put(opts, :redirect_uri, callback_url(conn))
-
+    IO.inspect opts
     redirect!(conn, Ueberauth.Strategy.Facebook.OAuth.authorize_url!(opts))
   end
 
