@@ -89,7 +89,7 @@ defmodule Ueberauth.Strategy.Github do
     scopes = conn.params["scope"] || option(conn, :default_scope)
     opts = [ scope: scopes ]
     if conn.params["state"], do: opts = Keyword.put(opts, :state, conn.params["state"])
-    opts = Keyword.put(opts, :redirect_url, callback_url(conn))
+    opts = Keyword.put(opts, :redirect_uri, callback_url(conn))
     module = option(conn, :oauth2_module)
 
     redirect!(conn, apply(module, :authorize_url!, [opts]))
