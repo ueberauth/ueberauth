@@ -113,7 +113,7 @@ defmodule Ueberauth.Strategy.Google do
   defp fetch_user(conn, token) do
     conn = put_private(conn, :google_token, token)
     resp = OAuth2.AccessToken.get(token, @token_url)
-    IO.inspect(resp)
+
     case resp do
       { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
