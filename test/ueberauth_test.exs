@@ -28,8 +28,8 @@ defmodule UeberauthTest do
     assert extra.raw_info.request_path == "/auth/simple"
     assert extra.raw_info.callback_path == "/auth/simple/callback"
 
-    assert extra.raw_info.request_url == "http://www.example.com/auth/simple?"
-    assert extra.raw_info.callback_url == "http://www.example.com/auth/simple/callback?"
+    assert extra.raw_info.request_url == "http://www.example.com/auth/simple"
+    assert extra.raw_info.callback_url == "http://www.example.com/auth/simple/callback"
   end
 
   test "redirecting a request phase" do
@@ -108,6 +108,13 @@ defmodule UeberauthTest do
 
     assert auth.provider == :post_callback
     assert auth.strategy == Support.SimpleCallback
+  end
+
+  test "callback_url port" do
+    conn = %{conn(:get, "/") | scheme: :https, port: 80}
+    conn = put_private(conn, :ueberauth_request_options, [callback_path: "/auth/provider/callback"])
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+      "https://www.example.com/auth/provider/callback"
   end
 
   defp assert_standard_info(auth) do
