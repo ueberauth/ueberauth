@@ -2,7 +2,7 @@ defmodule UeberauthGoogle.Mixfile do
   use Mix.Project
 
   @version "0.1.2"
-  @url "https://github.com/doomspork/ueberauth_google"
+  @url "https://github.com/Ueberauth/ueberauth_google"
 
   def project do
     [app: :ueberauth_google,
