@@ -11,8 +11,8 @@ defmodule Ueberauth.Mixfile do
      package: package,
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     source_url: "https://github.com/scrogson/ueberauth",
-     homepage_url: "https://github.com/scrogson/ueberauth",
+     source_url: "https://github.com/ueberauth/ueberauth",
+     homepage_url: "https://github.com/ueberauth/ueberauth",
      description: description,
      deps: deps,
      docs: docs]
@@ -47,6 +47,6 @@ defmodule Ueberauth.Mixfile do
     [files: ["lib", "priv", "mix.exs", "README.md", "LICENSE"],
        maintainers: ["Sonny Scroggin", "Daniel Neighman"],
        licenses: ["MIT"],
-       links: %{"GitHub" => "https://github.com/scrogson/ueberauth"}]
+       links: %{"GitHub" => "https://github.com/ueberauth/ueberauth"}]
   end
 end
