@@ -22,7 +22,7 @@ defmodule Ueberauth.Strategy.Github.OAuth do
 
   Optionally include any OAuth2 options here to be merged with the defaults.
 
-      Ueberauth.Strategy.Github.OAuth.client(redirect_url: "http://localhost:4000/auth/github/callback")
+      Ueberauth.Strategy.Github.OAuth.client(redirect_uri: "http://localhost:4000/auth/github/callback")
 
   This will be setup automatically for you in `Ueberauth.Strategy.Github`.
   These options are only useful for usage outside the normal callback phase of Ueberauth.
