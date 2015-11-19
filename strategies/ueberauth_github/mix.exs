@@ -11,26 +11,24 @@ defmodule UeberauthGithub.Mixfile do
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     source_url: "https://github.com/hassox/ueberauth_github",
-     homepage_url: "https://github.com/hassox/ueberauth_github",
+     source_url: "https://github.com/ueberauth/ueberauth_github",
+     homepage_url: "https://github.com/ueberauth/ueberauth_github",
      description: description,
      deps: deps,
      docs: docs]
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :ueberauth, :oauth2]]
   end
 
   defp deps do
-    [
-     {:ueberauth, "~>0.1"},
+    [{:ueberauth, "~> 0.1"},
      {:oauth2, "~> 0.5"},
 
      # docs dependencies
      {:earmark, "~>0.1", only: :dev},
-     {:ex_doc, "~>0.1", only: :dev}
-    ]
+     {:ex_doc, "~>0.1", only: :dev}]
   end
 
   defp docs do
