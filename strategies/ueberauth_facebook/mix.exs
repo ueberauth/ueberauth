@@ -20,16 +20,14 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [applications: [:logger, :oauth2, :ueberauth]]
   end
 
   defp deps do
-    [
-     {:ueberauth, "~> 0.1"},
+    [{:ueberauth, "~> 0.1"},
      {:oauth2, "~> 0.5"},
      {:ex_doc, "~> 0.1", only: :dev},
-     {:earmark, ">= 0.0.0", only: :dev}
-    ]
+     {:earmark, ">= 0.0.0", only: :dev}]
   end
 
   defp docs do
@@ -45,11 +43,9 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   defp package do
-    [
-      files: ["lib", "mix.exs", "README.md", "LICENSE"],
+    [files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["Sean Callan"],
       licenses: ["MIT"],
-      links: %{"GitHub": @url}
-    ]
+      links: %{"GitHub": @url}]
   end
 end
