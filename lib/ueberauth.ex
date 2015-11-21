@@ -141,7 +141,7 @@ defmodule Ueberauth do
       # In phoenix
 
       pipeline :ueberauth do
-        Ueberauth.plug "/auth"
+        plug Ueberauth, base_path: "/auth"
       end
 
   This will result in the following paths being decorated:
@@ -161,7 +161,7 @@ defmodule Ueberauth do
   ### Example
 
       pipeline :ueberauth do
-        Ueberauth.plug "/auth"
+        plug Ueberauth, base_path: "/auth"
       end
 
       scope "/foo" do
