@@ -69,7 +69,7 @@ defmodule Ueberauth do
   In phoenix setup a pipeline:
 
       pipeline :ueberauth do
-        Ueberauth.plug "/auth"
+        plug Ueberauth, base_path: "/auth"
       end
 
   Its url matching is done via pattern matching rather than explicit runtime checks so your strategies will only fire for relevant requests.
@@ -172,59 +172,72 @@ defmodule Ueberauth do
 
   This is a useless case. Given that the router will always match on "/foo" the Ueberauth plugs that are matching at "/auth" will never fire.
   """
-  @spec plug(String.t) :: {atom,[],[atom,...]}
-  defmacro plug(base_path) do
-    opts = Application.get_env(:ueberauth, Ueberauth)
+  def init(opts \\ []) do
+    opts = Keyword.merge(Application.get_env(:ueberauth, Ueberauth), opts)
 
-    parts = Enum.map(opts[:providers], fn({ name, { strategy, options } }) ->
+    {base_path, opts}  = Keyword.pop(opts, :base_path)
+    {providers, _opts} = Keyword.pop(opts, :providers)
 
-      request_path = Dict.get(options, :request_path, Path.join(["/", base_path, to_string(name)]))
-      callback_path = Dict.get(options, :callback_path, Path.join(["/", base_path, to_string(name), "callback"]))
-      methods = Dict.get(options, :callback_methods, ["GET"]) |> Enum.map(&(String.upcase(to_string(&1))))
+    Enum.reduce providers, %{}, fn {name, {module, opts}} = strategy, acc ->
+      request_path = request_path(base_path, strategy)
+      callback_path = callback_path(base_path, strategy)
+      callback_methods = callback_methods(opts)
 
-      quoted_method_opts = quote do
-        %{
-          strategy_name: unquote(name),
-          strategy: unquote(strategy),
-          callback_path: unquote(callback_path),
-          request_path: unquote(request_path),
-          callback_methods: unquote(methods),
-          options: unquote(options)
-        }
-      end
+      request_opts = strategy_opts(strategy, request_path, callback_path, callback_methods)
+      callback_opts = strategy_opts(strategy, request_path, callback_path, callback_methods)
 
-      quote do
-        def run!(conn, unquote(request_path)) do
-          conn
-          |> Plug.Conn.put_private(:ueberauth_request_options, unquote(quoted_method_opts))
-          |> Strategy.run_request(unquote(strategy))
-        end
-
-        def run!(%Plug.Conn{ method: method } = conn, unquote(callback_path)) when method in unquote(methods) do
-          conn
-          |> Plug.Conn.put_private(:ueberauth_request_options, unquote(quoted_method_opts))
-          |> Strategy.run_callback(unquote(strategy))
-        end
-      end
-    end)
-
-    quoted_parts = quote do
-      unquote(parts)
+      acc
+      |> Map.put(request_path, {module, :run_request, request_opts})
+      |> Map.put(callback_path, {module, :run_callback, callback_opts})
     end
+  end
 
-    module_contents = quote do
-      def init(opts \\ []), do: []
-      def call(conn, _), do: run!(conn, conn.request_path)
-      unquote(quoted_parts)
-      def run!(conn, _), do: conn # if we don't match anything just call through
+  def call(%{request_path: request_path} = conn, opts) do
+    if strategy = Map.get(opts, request_path) do
+      run!(conn, strategy)
+    else
+      conn
     end
+  end
 
-    module_name = Module.concat([Ueberauth, "Strategies", "Builder#{String.replace(base_path, ~r/[^a-zA-Z0-9]/, "")}"])
+  defp run!(conn, {module, :run_request, opts}) do
+    conn
+    |> Plug.Conn.put_private(:ueberauth_request_options, opts)
+    |> Strategy.run_request(module)
+  end
 
-    Module.create(module_name, module_contents, Macro.Env.location(__ENV__))
-
-    quote do
-      plug unquote(module_name)
+  defp run!(conn, {module, :run_callback, opts}) do
+    if conn.method in opts[:callback_methods] do
+      conn
+      |> Plug.Conn.put_private(:ueberauth_request_options, opts)
+      |> Strategy.run_callback(module)
+    else
+      conn
     end
+  end
+
+  defp strategy_opts({name, {module, opts}}, req_path, cb_path, cb_meths) do
+    %{strategy_name: name,
+      strategy: module,
+      callback_path: cb_path,
+      request_path: req_path,
+      callback_methods: cb_meths,
+      options: opts}
+  end
+
+  defp request_path(base_path, {name, {_, opts}}) do
+    default_path = Path.join(["/", base_path, to_string(name)])
+    Keyword.get(opts, :request_path, default_path)
+  end
+
+  defp callback_path(base_path, {name, {_, opts}}) do
+    default_path = Path.join(["/", base_path, to_string(name), "callback"])
+    Keyword.get(opts, :callback_path, default_path)
+  end
+
+  defp callback_methods(opts) do
+    opts
+    |> Keyword.get(:callback_methods, ["GET"])
+    |> Enum.map(&(String.upcase(to_string(&1))))
   end
 end
