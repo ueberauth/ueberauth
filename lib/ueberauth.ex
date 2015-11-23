@@ -175,7 +175,7 @@ defmodule Ueberauth do
   def init(opts \\ []) do
     opts = Keyword.merge(Application.get_env(:ueberauth, Ueberauth), opts)
 
-    {base_path, opts}  = Keyword.pop(opts, :base_path)
+    {base_path, opts}  = Keyword.pop(opts, :base_path, "/auth")
     {providers, _opts} = Keyword.pop(opts, :providers)
 
     Enum.reduce providers, %{}, fn {name, {module, opts}} = strategy, acc ->
