@@ -22,8 +22,9 @@ defmodule Ueberauth do
 
   Strategies implement the two phases and then may allow the request to flow
   through to your downstream plugs. Implementing the request and callback phases
-  is optional, and if not implemented the request will be decorated Ueberauth
-  information and allowed to carry on through the pipeline.
+  is optional depending on the strategies requirements. If a strategy does not
+  redirect, the request will be decorated with Ueberauth information and
+  allowed to carry on through the pipeline.
 
   ### Request Phase
 
