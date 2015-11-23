@@ -124,10 +124,12 @@ defmodule Ueberauth do
 
   #### Example
 
-      providers: [
-        identity: {Ueberauth.Strategies.Identity, [request_path: "/absolute/path",
-                                                   callback_path: "/absolute_path"]}
-      ]
+      config :ueberauth, Ueberauth,
+        base_path: "/login" # default is "/auth"
+        providers: [
+          identity: {Ueberauth.Strategies.Identity, [request_path: "/login/identity",
+                                                     callback_path: "/login/identity/callback"]}
+        ]
 
   #### Http Methods
 
