@@ -250,9 +250,9 @@ defmodule Ueberauth.Strategy do
     apply(strategy, :handle_cleanup!, [new_conn])
   end
 
-  defp handle_callback_result(%{ halted: true } = conn, _), do: conn
-  defp handle_callback_result(%{ assigns: %{ ueberauth_failure: _ } } = conn, _), do: conn
-  defp handle_callback_result(%{ assigns: %{ ueberauth_auth: %{ } } } = conn, _), do: conn
+  defp handle_callback_result(%{halted: true} = conn, _), do: conn
+  defp handle_callback_result(%{assigns: %{ueberauth_failure: _}} = conn, _), do: conn
+  defp handle_callback_result(%{assigns: %{ueberauth_auth: %{}}} = conn, _), do: conn
   defp handle_callback_result(conn, strategy) do
     auth = apply(strategy, :auth, [conn])
     Plug.Conn.assign(conn, :ueberauth_auth, auth)
