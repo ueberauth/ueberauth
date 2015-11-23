@@ -4,7 +4,7 @@ defmodule Support.SpecRouter do
 
   plug :fetch_query_params
 
-  Ueberauth.plug "/auth"
+  plug Ueberauth, base_path: "/auth"
 
   plug :match
   plug :dispatch

@@ -114,13 +114,11 @@ defmodule Ueberauth.Strategy.Helpers do
     |> halt
   end
 
-  @doc false
   defp from_private(conn, key) do
     opts = conn.private[:ueberauth_request_options]
     if opts, do: opts[key], else: nil
   end
 
-  @doc false
   defp full_url(conn, path, opts \\ []) do
     %URI{
       host: conn.host,
@@ -138,19 +136,12 @@ defmodule Ueberauth.Strategy.Helpers do
   defp encode_query([]), do: nil
   defp encode_query(opts), do: URI.encode_query(opts)
 
-  @doc false
   defp map_errors(nil), do: []
-  @doc false
   defp map_errors([]), do: []
-  @doc false
   defp map_errors(%Error{} = error), do: [error]
-  @doc false
   defp map_errors(errors), do: Enum.map(errors, &p_error/1)
 
-  @doc false
   defp p_error(%Error{} = error), do: error
-  @doc false
   defp p_error(%{} = error), do: struct(Error, error)
-  @doc false
   defp p_error(error) when is_list(error), do: struct(Error, error)
 end
