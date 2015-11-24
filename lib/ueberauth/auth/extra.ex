@@ -1,6 +1,7 @@
 defmodule Ueberauth.Auth.Extra do
   @moduledoc """
-  Provides a place for all raw information that was accumulated during the processing of the callback phase.
+  Provides a place for all raw information that was accumulated during the
+  processing of the callback phase.
   """
 
   @type t :: %__MODULE__{

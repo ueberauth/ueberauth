@@ -1,13 +1,19 @@
 defmodule Ueberauth.Strategy.Helpers do
   @moduledoc """
-  Provides helper methods for use within your strategy. These helpers are provided as a convenience for accessing the options passed to the specific pipelined strategy, considering the pipelined options and falling back to defaults.
+  Provides helper methods for use within your strategy.
+
+  These helpers are provided as a convenience for accessing the options passed
+  to the specific pipelined strategy, considering the pipelined options and
+  falling back to defaults.
   """
   import Plug.Conn
   alias Ueberauth.Failure
   alias Ueberauth.Failure.Error
 
   @doc """
-  Provides the name of the strategy or provider name. This is defined in your configuration as the provider name.
+  Provides the name of the strategy or provider name.
+
+  This is defined in your configuration as the provider name.
   """
   @spec strategy_name(Plug.t) :: String.t
   def strategy_name(conn), do: from_private(conn, :strategy_name)
@@ -19,35 +25,44 @@ defmodule Ueberauth.Strategy.Helpers do
   def strategy(conn), do: from_private(conn, :strategy)
 
   @doc """
-  The request path for the strategy to hit. Requests to this path will trigger the `request_phase` of the strategy.
+  The request path for the strategy to hit.
+
+  Requests to this path will trigger the `request_phase` of the strategy.
   """
   @spec request_path(Plug.t) :: String.t
   def request_path(conn), do: from_private(conn, :request_path)
 
   @doc """
-  The callback path for the requests strategy. When a client hits this path, the callback phase will be triggered for the strategy.
+  The callback path for the requests strategy.
+
+  When a client hits this path, the callback phase will be triggered for the strategy.
   """
   @spec callback_path(Plug.t) :: String.t
   def callback_path(conn), do: from_private(conn, :callback_path)
 
   @doc """
-  The full url (based on the current requests host, scheme) for the request phase for the requests strategy.
+  The full url for the request phase for the requests strategy.
 
-  The options will be encoded as query params.
+  The URL is based on the current requests host and scheme. The options will be
+  encoded as query params.
   """
   @spec request_url(Plug.t) :: String.t
   def request_url(conn, opts \\ []), do: full_url(conn, request_path(conn), opts)
 
   @doc """
-  The full url (based on the current requests host, scheme) for the callback phase for the requests strategy.
+  The full URL for the callback phase for the requests strategy.
 
-  The options will be encoded as query params.
+  The URL is based on the current requests host and scheme. The options will be
+  encoded as query params.
   """
   @spec callback_url(Plug.t) :: String.t
   def callback_url(conn, opts \\ []), do: full_url(conn, callback_path(conn), opts)
 
   @doc """
-  The configured allowed callback http methods. This will use any supplied options from the configuration, but fallback to the default options
+  The configured allowed callback http methods.
+
+  This will use any supplied options from the configuration, but fallback to the
+  default options
   """
   @spec allowed_callback_methods(Plug.t) :: list(String.t)
   def allowed_callback_methods(conn), do: from_private(conn, :callback_methods)
@@ -84,9 +99,11 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   Sets a failure onto the connection containing a List of errors.
 
-  During your callback phase, this should be called to 'fail' the authentication request and include a collection of errors outlining what the problem is.
+  During your callback phase, this should be called to 'fail' the authentication
+  request and include a collection of errors outlining what the problem is.
 
-  Note this changes the conn object and should be part of your returned connection of the `callback_phase!`.
+  Note this changes the conn object and should be part of your returned
+  connection of the `callback_phase!`.
   """
   @spec error(Plug.Conn.t, list(Error.t)) :: Plug.Conn
   def set_errors!(conn, errors) do
