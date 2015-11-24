@@ -2,8 +2,9 @@ defmodule Ueberauth.Auth do
   @moduledoc """
   The struct provided to indicate a success of the callback phase.
 
-  This struct is constructed by the strategy by using functions defined in the strategy
-  and is provided to the downstream plug in the connections assigns `:ueberauth_auth` key
+  This struct is constructed by the strategy by using functions defined in the
+  strategy and is provided to the downstream plug in the connections assigns
+  `:ueberauth_auth` key
   """
 
   alias Ueberauth.Auth

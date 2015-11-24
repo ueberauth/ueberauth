@@ -1,6 +1,8 @@
 defmodule Ueberauth.Failure do
   @moduledoc """
-  The struct provided to indicate a failure of authentication. All errors are provided by the relevant strategy.
+  The struct provided to indicate a failure of authentication.
+
+  All errors are provided by the relevant strategy.
   """
 
   @type t :: %__MODULE__{
