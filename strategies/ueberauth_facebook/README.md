@@ -2,30 +2,9 @@
 
 > Facebook OAuth2 strategy for Überauth.
 
-### Setup
-
-Include the provider in your configuration for Überauth:
-
-```elixir
-config :ueberauth, Ueberauth,
-  providers: [
-    facebook: [ { Ueberauth.Strategy.Facebook, [] } ]
-  ]
-```
-
-Then configure your provider:
-
-```elixir
-config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
-  client_id: System.get_env("FACEBOOK_APP_ID"),
-  client_secret: System.get_env("FACEBOOK_APP_SECRET")
-```
-
-For an example implementation see the [Überauth Example](https://github.com/doomspork/ueberauth_example) application.
-
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+1. Setup your application at [Facebook Developers](https://developers.facebook.com).
 
 1. Add `:ueberauth_facebook` to your list of dependencies in `mix.exs`:
 
@@ -34,3 +13,77 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
       [{:ueberauth_facebook, "~> 0.1"}]
     end
     ```
+
+1. Add the strategy to your applications:
+
+    ```elixir
+    def application do
+      [applications: [:ueberauth_facebook]]
+    end
+    ```
+
+1. Add Facebook to your Überauth configuration:
+
+    ```elixir
+    config :ueberauth, Ueberauth,
+      providers: [
+        facebook: [{Ueberauth.Strategy.Facebook, []}]
+      ]
+    ```
+
+1.  Update your provider configuration:
+
+    ```elixir
+    config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+      client_id: System.get_env("FACEBOOK_CLIENT_ID"),
+      client_secret: System.get_env("FACEBOOK_CLIENT_SECRET")
+    ```
+
+1.  Include the Überauth plug in your controller:
+
+    ```elixir
+    defmodule MyApp.AuthController do
+      use MyApp.Web, :controller
+      plug Ueberauth
+      ...
+    end
+    ```
+
+1.  Create the request and callback routes if you haven't already:
+
+    ```elixir
+    scope "/auth", MyApp do
+      pipe_through :browser
+
+      get "/:provider", AuthController, :request
+      get "/:provider/callback", AuthController, :callback
+    end
+    ```
+
+1. You controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
+
+For an example implementation see the [Überauth Example](https://github.com/ueberauth/ueberauth_example) application.
+
+## Calling
+
+Depending on the configured url you can initial the request through:
+
+    /auth/facebook
+
+Or with options:
+
+    /auth/facebook?scope=email,public_profile
+
+By default the requested scope is "public_profile". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    facebook: {Ueberauth.Strategy.Facebook, [default_scope: "emails,public_profile,user_friends"]}
+  ]
+```
+
+## License
+
+Please see [LICENSE](https://github.com/ueberauth/ueberauth_facebook/blob/master/LICENSE) for licensing details.
+
