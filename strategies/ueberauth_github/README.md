@@ -1,117 +1,88 @@
 # Überauth GitHub
 
-Provides an Üeberauth strategy for authenticating with Github.
-
-### Setup
-
-Create an application in Github for you to use.
-
-Register a new application at: [your github developer page](https://github.com/settings/developers) and get the `client_id` and `client_secret`.
-
-Include the provider in your configuration for Üeberauth
-
-````elixir
-config :ueberauth, Ueberauth,
-  providers: [
-    github: [ { Ueberauth.Strategy.Github, [] } ]
-  ]
-````
-
-Then include the configuration for github.
-
-````elixir
-config :ueberauth, Ueberauth.Strategy.Github.OAuth,
-  client_id: System.get_env("GITHUB_CLIENT_ID"),
-  client_secret: System.get_env("GITHUB_CLIENT_SECRET")
-````
-
-If you haven't already, create a pipeline and setup routes for your callback handler
-
-````elixir
-pipeline :auth do
-  Ueberauth.plug "/auth"
-end
-
-scope "/auth" do
-  pipe_through [:browser, :auth]
-
-  get "/:provider/callback", AuthController, :callback
-end
-````
-
-
-Create an endpoint for the callback where you will handle the `Ueberauth.Auth` struct
-
-````elixir
-defmodule MyApp.AuthController do
-  use MyApp.Web, :controller
-
-  def callback_phase(%{ assigns: %{ ueberauth_failure: fails } } = conn, _params) do
-    # do things with the failure
-  end
-
-  def callback_phase(%{ assigns: %{ ueberauth_auth: auth } } = conn, params) do
-    # do things with the auth
-  end
-end
-````
-
-You can edit the behaviour of the Strategy by including some options when you register your provider.
-
-To set the `uid_field`
-
-````elixir
-config :ueberauth, Ueberauth,
-  providers: [
-    github: [ { Ueberauth.Strategy.Github, [uid_field: :email] } ]
-  ]
-````
-
-Default is `:login`
-
-To set the default 'scopes' (permissions):
-
-````elixir
-config :ueberauth, Ueberauth,
-  providers: [
-    github: [ { Ueberauth.Strategy.Github, [default_scope: "user,public_repo"] } ]
-  ]
-````
-
-Deafult is "user,public_repo"
+> GitHub OAuth2 strategy for Überauth.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed as:
+1. Setup your application at [GitHub Developer](https://developer.github.com).
 
-  1. Add ueber_github to your list of dependencies in `mix.exs`:
+1. Add `:ueberauth_github` to your list of dependencies in `mix.exs`:
 
-````elixir
-def deps do
-  [{:ueberauth_github, "~> 0.1.0"}]
-end
-````
+    ```elixir
+    def deps do
+      [{:ueberauth_github, "~> 0.1"}]
+    end
+    ```
 
-# License
+1. Add the strategy to your applications:
 
-The MIT License (MIT)
+    ```elixir
+    def application do
+      [applications: [:ueberauth_github]]
+    end
+    ```
 
-Copyright (c) 2015 Daniel Neighman
+1. Add GitHub to your Überauth configuration:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    ```elixir
+    config :ueberauth, Ueberauth,
+      providers: [
+        github: [{Ueberauth.Strategy.GitHub, []}]
+      ]
+    ```
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1.  Update your provider configuration:
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+    ```elixir
+    config :ueberauth, Ueberauth.Strategy.GitHub.OAuth,
+      client_id: System.get_env("GITHUB_CLIENT_ID"),
+      client_secret: System.get_env("GITHUB_CLIENT_SECRET")
+    ```
+
+1.  Include the Überauth plug in your controller:
+
+    ```elixir
+    defmodule MyApp.AuthController do
+      use MyApp.Web, :controller
+      plug Ueberauth
+      ...
+    end
+    ```
+
+1.  Create the request and callback routes if you haven't already:
+
+    ```elixir
+    scope "/auth", MyApp do
+      pipe_through :browser
+
+      get "/:provider", AuthController, :request
+      get "/:provider/callback", AuthController, :callback
+    end
+    ```
+
+1. You controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
+
+For an example implementation see the [Überauth Example](https://github.com/ueberauth/ueberauth_example) application.
+
+## Calling
+
+Depending on the configured url you can initial the request through:
+
+    /auth/github
+
+Or with options:
+
+    /auth/github?scope=user,public_repo
+
+By default the requested scope is "user,public_repo". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    github: {Ueberauth.Strategy.GitHub, [default_scope: "user,public_repo,notifications"]}
+  ]
+```
+
+## License
+
+Please see [LICENSE](https://github.com/ueberauth/ueberauth_github/blob/master/LICENSE) for licensing details.
