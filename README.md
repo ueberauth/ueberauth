@@ -12,7 +12,7 @@ Ueberauth provides only the initial authentication challenge, (initial OAuth
 flow, collecting the information from a login form, etc). It does not
 authenticate each request, that's up to your application. You could issue a
 token or put the result into a session for your applications needs. Libraries
-like (Guardian)[https://github.com/hassox/guardian] can help you with that
+like [Guardian](https://github.com/hassox/guardian) can help you with that
 aspect of authentication.
 
 The two phases are `request` and `callback`. These phases are implemented by
