@@ -47,6 +47,6 @@ defmodule UeberauthGithub.Mixfile do
     [files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["Daniel Neighman"],
       licenses: ["MIT"],
-      links: %{"GitHub": "https://github.com/hassox/ueberuth_github"}]
+      links: %{"GitHub": "https://github.com/ueberauth/ueberauth_github"}]
   end
 end
