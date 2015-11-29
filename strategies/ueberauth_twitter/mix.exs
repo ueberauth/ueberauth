@@ -1,8 +1,8 @@
 defmodule UeberauthTwitter.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
-  @url "https://github.com/doomspork/ueberauth_twitter"
+  @version "0.2.0"
+  @url "https://github.com/ueberauth/ueberauth_twitter"
 
   def project do
     [app: :ueberauth_twitter,
@@ -24,7 +24,7 @@ defmodule UeberauthTwitter.Mixfile do
   end
 
   defp deps do
-    [{:ueberauth, "~> 0.1"},
+    [{:ueberauth, "~> 0.2"},
      {:oauth, github: "tim/erlang-oauth"},
      {:httpoison, "~> 0.7"},
      {:ex_doc, "~> 0.1", only: :dev},
