@@ -1,8 +1,8 @@
 defmodule UeberauthGoogle.Mixfile do
   use Mix.Project
 
-  @version "0.1.3"
-  @url "https://github.com/Ueberauth/ueberauth_google"
+  @version "0.2.0"
+  @url "https://github.com/ueberauth/ueberauth_google"
 
   def project do
     [app: :ueberauth_google,
@@ -24,7 +24,7 @@ defmodule UeberauthGoogle.Mixfile do
   end
 
   defp deps do
-    [{:ueberauth, "~> 0.1"},
+    [{:ueberauth, "~> 0.2"},
      {:oauth2, "~> 0.5"},
      {:ex_doc, "~> 0.1", only: :dev},
      {:earmark, ">= 0.0.0", only: :dev}]
