@@ -10,7 +10,7 @@
 
     ```elixir
     def deps do
-      [{:ueberauth_github, "~> 0.1"}]
+      [{:ueberauth_github, "~> 0.2"}]
     end
     ```
 
@@ -74,7 +74,7 @@ Or with options:
 
     /auth/github?scope=user,public_repo
 
-By default the requested scope is "user,public_repo". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
+By default the requested scope is "user,public\_repo". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
