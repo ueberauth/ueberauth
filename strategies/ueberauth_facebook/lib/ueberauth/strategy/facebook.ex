@@ -3,7 +3,7 @@ defmodule Ueberauth.Strategy.Facebook do
   Facebook Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :id, default_scope: "email"
+  use Ueberauth.Strategy, uid_field: :id, default_scope: "email", profile_fields: ""
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -88,7 +88,6 @@ defmodule Ueberauth.Strategy.Facebook do
       image: fetch_image(user["id"]),
       last_name: user["last_name"],
       name: user["name"],
-      nickname: user["username"],
       urls: %{
         facebook: user["link"],
         website: user["website"]
@@ -112,7 +111,7 @@ defmodule Ueberauth.Strategy.Facebook do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :facebook_token, token)
-    case OAuth2.AccessToken.get(token, "/me") do
+    case OAuth2.AccessToken.get(token, "/me?fields=#{option(conn, :profile_fields)}") do
       { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
       { :ok, %OAuth2.Response{status_code: status_code, body: user} } when status_code in 200..399 ->

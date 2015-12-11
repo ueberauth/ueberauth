@@ -79,9 +79,22 @@ By default the requested scope is "public_profile". Scope can be configured eith
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    facebook: {Ueberauth.Strategy.Facebook, [default_scope: "emails,public_profile,user_friends"]}
+    facebook: {Ueberauth.Strategy.Facebook, [default_scope: "email,public_profile,user_friends"]}
   ]
 ```
+
+Starting with Graph API version 2.4, Facebook has limited the default fields returned when fetching the user profile.
+Fields can be explicitly requested using the `profile_fields` option:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    facebook: {Ueberauth.Strategy.Facebook, [profile_fields: "name,email,first_name,last_name"]}
+  ]
+```
+
+See [Graph API Reference > User](https://developers.facebook.com/docs/graph-api/reference/user) for full list of fields.
+
 
 ## License
 
