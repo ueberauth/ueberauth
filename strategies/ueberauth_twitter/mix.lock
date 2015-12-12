@@ -9,7 +9,7 @@
   "oauth": {:git, "https://github.com/tim/erlang-oauth.git", "cd31addc828179983564fd57738f1680a4a4d1ff", []},
   "oauth2": {:hex, :oauth2, "0.5.0"},
   "oauther": {:hex, :oauther, "1.0.2"},
-  "plug": {:hex, :plug, "1.0.2"},
+  "plug": {:hex, :plug, "1.0.3"},
   "poison": {:hex, :poison, "1.5.0"},
   "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5"},
-  "ueberauth": {:hex, :ueberauth, "0.1.0"}}
+  "ueberauth": {:hex, :ueberauth, "0.2.0"}}
