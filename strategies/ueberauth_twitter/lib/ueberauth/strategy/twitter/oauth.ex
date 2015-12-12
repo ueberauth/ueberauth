@@ -47,7 +47,7 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
   end
 
   def get(url, access_token), do: get(url, [], access_token)
-  def get(url, params \\ [], {token, token_secret}) do
+  def get(url, params, {token, token_secret}) do
     client
     |> to_url(url)
     |> String.to_char_list
