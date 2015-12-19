@@ -60,9 +60,9 @@ defmodule Ueberauth.Strategy.Twitter do
   Includes the credentials from the twitter response.
   """
   def credentials(conn) do
-    {token, _secret} = get_session(conn, :twitter_token)
+    {token, secret} = conn.private.twitter_token
 
-    %Credentials{token: token}
+    %Credentials{token: token, secret: secret}
   end
 
   @doc """
