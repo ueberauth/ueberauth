@@ -30,7 +30,7 @@ _Note_: Sessions are required for this strategy.
     ```elixir
     config :ueberauth, Ueberauth,
       providers: [
-        twitter: [{Ueberauth.Strategy.Twitter, []}]
+        twitter: {Ueberauth.Strategy.Twitter, []}
       ]
     ```
 
