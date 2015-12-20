@@ -1,7 +1,7 @@
 defmodule UeberauthTwitter.Mixfile do
   use Mix.Project
 
-  @version "0.2.1"
+  @version "0.2.2"
   @url "https://github.com/ueberauth/ueberauth_twitter"
 
   def project do

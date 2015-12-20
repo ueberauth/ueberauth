@@ -1,3 +1,7 @@
+# v 0.2.2
+
+* Credentials now include token and secret
+
 # v 0.2.1
 
 * Fix missing parenthesis
