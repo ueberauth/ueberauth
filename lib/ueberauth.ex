@@ -115,6 +115,17 @@ defmodule Ueberauth do
       /auth/facebook/callback
       /auth/github/callback
 
+  If you want to include only some of the providers with your plug
+  you can specify a list of configured providers
+
+      def module MyApp.Admin.AuthController do
+        user MyApp.Web :controller
+        plug Ueberauth, providers: [:identity], base_path: "/admin/auth"
+      end
+
+  This will allow you to have different login points in your
+  application selectively using some or all of the providers.
+
   #### Customizing Paths
 
   These paths can be configured on a per strategy basis by setting options on
@@ -160,10 +171,18 @@ defmodule Ueberauth do
 
   @doc false
   def init(opts \\ []) do
+    {provider_list, opts} = Keyword.pop(opts, :providers, :all)
     opts = Keyword.merge(Application.get_env(:ueberauth, Ueberauth), opts)
 
     {base_path, opts}  = Keyword.pop(opts, :base_path, "/auth")
-    {providers, _opts} = Keyword.pop(opts, :providers)
+    {all_providers, _opts} = Keyword.pop(opts, :providers)
+    all_providers = Enum.into(all_providers, %{})
+
+    if provider_list == :all do
+      providers = all_providers
+    else
+      {providers, _} = Map.split(all_providers, provider_list)
+    end
 
     Enum.reduce providers, %{}, fn {name, {module, opts}} = strategy, acc ->
       request_path = request_path(base_path, strategy)
