@@ -27,14 +27,14 @@
     ```elixir
     config :ueberauth, Ueberauth,
       providers: [
-        github: [{Ueberauth.Strategy.GitHub, []}]
+        github: {Ueberauth.Strategy.Github, []}
       ]
     ```
 
 1.  Update your provider configuration:
 
     ```elixir
-    config :ueberauth, Ueberauth.Strategy.GitHub.OAuth,
+    config :ueberauth, Ueberauth.Strategy.Github.OAuth,
       client_id: System.get_env("GITHUB_CLIENT_ID"),
       client_secret: System.get_env("GITHUB_CLIENT_SECRET")
     ```
@@ -79,7 +79,7 @@ By default the requested scope is "user,public\_repo". Scope can be configured e
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    github: {Ueberauth.Strategy.GitHub, [default_scope: "user,public_repo,notifications"]}
+    github: {Ueberauth.Strategy.Github, [default_scope: "user,public_repo,notifications"]}
   ]
 ```
 

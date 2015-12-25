@@ -12,7 +12,7 @@ defmodule Ueberauth.Strategy.Github do
 
       config :ueberauth, Ueberauth,
         providers: [
-          github: [ { Ueberauth.Strategy.Github, [] } ]
+          github: { Ueberauth.Strategy.Github, [] }
         ]
 
   Then include the configuration for github.
@@ -54,7 +54,7 @@ defmodule Ueberauth.Strategy.Github do
 
       config :ueberauth, Ueberauth,
         providers: [
-          github: [ { Ueberauth.Strategy.Github, [uid_field: :email] } ]
+          github: { Ueberauth.Strategy.Github, [uid_field: :email] }
         ]
 
   Default is `:login`
@@ -63,7 +63,7 @@ defmodule Ueberauth.Strategy.Github do
 
       config :ueberauth, Ueberauth,
         providers: [
-          github: [ { Ueberauth.Strategy.Github, [default_scope: "user,public_repo"] } ]
+          github: { Ueberauth.Strategy.Github, [default_scope: "user,public_repo"] }
         ]
 
   Deafult is "user,public_repo"
