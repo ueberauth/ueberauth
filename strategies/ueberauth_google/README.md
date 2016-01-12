@@ -27,7 +27,7 @@
     ```elixir
     config :ueberauth, Ueberauth,
       providers: [
-        google: [{Ueberauth.Strategy.Google, []}]
+        google: {Ueberauth.Strategy.Google, []}
       ]
     ```
 
