@@ -117,6 +117,13 @@ defmodule UeberauthTest do
       "https://www.example.com/auth/provider/callback"
   end
 
+  test "callback_url forwarded protocol" do
+    conn = %{conn(:get, "/") |> put_req_header("x-forwarded-proto", "https") | scheme: :http, port: 80}
+    conn = put_private(conn, :ueberauth_request_options, [callback_path: "/auth/provider/callback"])
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+      "https://www.example.com/auth/provider/callback"
+  end
+
   defp assert_standard_info(auth) do
     info = auth.info
 
