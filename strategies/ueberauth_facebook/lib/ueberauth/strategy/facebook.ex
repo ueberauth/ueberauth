@@ -3,7 +3,9 @@ defmodule Ueberauth.Strategy.Facebook do
   Facebook Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :id, default_scope: "email", profile_fields: ""
+  use Ueberauth.Strategy, uid_field: :id,
+                          default_scope: "email",
+                          profile_fields: ""
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -15,7 +17,11 @@ defmodule Ueberauth.Strategy.Facebook do
   def handle_request!(conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
     opts = [ scope: scopes ]
-    if conn.params["state"], do: opts = Keyword.put(opts, :state, conn.params["state"])
+
+    if conn.params["state"] do
+      opts = Keyword.put(opts, :state, conn.params["state"])
+    end
+
     opts = Keyword.put(opts, :redirect_uri, callback_url(conn))
     IO.inspect opts
     redirect!(conn, Ueberauth.Strategy.Facebook.OAuth.authorize_url!(opts))
@@ -24,12 +30,14 @@ defmodule Ueberauth.Strategy.Facebook do
   @doc """
   Handles the callback from Facebook.
   """
-  def handle_callback!(%Plug.Conn{ params: %{ "code" => code } } = conn) do
+  def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     opts = [redirect_uri: callback_url(conn)]
     token = Ueberauth.Strategy.Facebook.OAuth.get_token!([code: code], opts)
 
     if token.access_token == nil do
-      set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])
+      err = token.other_params["error"]
+      desc = token.other_params["error_description"]
+      set_errors!(conn, [error(err, desc)])
     else
       fetch_user(conn, token)
     end
@@ -64,8 +72,8 @@ defmodule Ueberauth.Strategy.Facebook do
   """
   def credentials(conn) do
     token = conn.private.facebook_token
-    scopes = (token.other_params["scope"] || "")
-              |> String.split(",")
+    scopes = token.other_params["scope"] || ""
+    scopes = String.split(scopes, ",")
 
     %Credentials{
       expires: !!token.expires_at,
@@ -76,7 +84,8 @@ defmodule Ueberauth.Strategy.Facebook do
   end
 
   @doc """
-  Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
+  Fetches the fields to populate the info section of the
+  `Ueberauth.Auth` struct.
   """
   def info(conn) do
     user = conn.private.facebook_user
@@ -96,7 +105,8 @@ defmodule Ueberauth.Strategy.Facebook do
   end
 
   @doc """
-  Stores the raw information (including the token) obtained from the facebook callback.
+  Stores the raw information (including the token) obtained from
+  the facebook callback.
   """
   def extra(conn) do
     %Extra{
@@ -107,16 +117,20 @@ defmodule Ueberauth.Strategy.Facebook do
     }
   end
 
-  defp fetch_image(uid), do: "http://graph.facebook.com/#{uid}/picture?type=square"
+  defp fetch_image(uid) do
+    "http://graph.facebook.com/#{uid}/picture?type=square"
+  end
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :facebook_token, token)
-    case OAuth2.AccessToken.get(token, "/me?fields=#{option(conn, :profile_fields)}") do
-      { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
+    path = "/me?fields=#{option(conn, :profile_fields)}"
+    case OAuth2.AccessToken.get(token, path) do
+      {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
-      { :ok, %OAuth2.Response{status_code: status_code, body: user} } when status_code in 200..399 ->
+      {:ok, %OAuth2.Response{status_code: status_code, body: user}}
+        when status_code in 200..399 ->
         put_private(conn, :facebook_user, user)
-      { :error, %OAuth2.Error{reason: reason} } ->
+      {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
   end

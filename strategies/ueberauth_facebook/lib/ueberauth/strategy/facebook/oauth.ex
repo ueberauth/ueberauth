@@ -21,7 +21,8 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
   Construct a client for requests to Facebook.
 
   This will be setup automatically for you in `Ueberauth.Strategy.Facebook`.
-  These options are only useful for usage outside the normal callback phase of Ueberauth.
+  These options are only useful for usage outside the normal callback phase
+  of Ueberauth.
   """
   def client(opts \\ []) do
     config = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)
@@ -35,7 +36,8 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
   end
 
   @doc """
-  Provides the authorize url for the request phase of Ueberauth. No need to call this usually.
+  Provides the authorize url for the request phase of Ueberauth.
+  No need to call this usually.
   """
   def authorize_url!(params \\ [], opts \\ []) do
     opts
