@@ -35,7 +35,7 @@
     ```elixir
     config :ueberauth, Ueberauth,
       providers: [
-        facebook: [{Ueberauth.Strategy.Facebook, []}]
+        facebook: {Ueberauth.Strategy.Facebook, []}
       ]
     ```
 
