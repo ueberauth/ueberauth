@@ -6,7 +6,13 @@ defmodule Ueberauth.Strategy.Facebook do
   use Ueberauth.Strategy, auth_type: "",
                           default_scope: "email",
                           profile_fields: "",
-                          uid_field: :id
+                          uid_field: :id,
+                          allowed_request_params: [
+                            :auth_type,
+                            :scope,
+                            :locale
+                          ]
+
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -16,17 +22,19 @@ defmodule Ueberauth.Strategy.Facebook do
   Handles initial request for Facebook authentication.
   """
   def handle_request!(conn) do
-    auth_type = option(conn.params["auth_type"], conn, :auth_type)
-    scopes = option(conn.params["scope"], conn, :default_scope)
+    allowed_params = conn
+     |> option(:allowed_request_params)
+     |> Enum.map(&to_string/1)
 
-    opts = [auth_type: auth_type, scope: scopes]
+    authorize_url = conn.params
+      |> maybe_replace_param(conn, "auth_type", :auth_type)
+      |> maybe_replace_param(conn, "scope", :default_scope)
+      |> Enum.filter(fn {k,_v} -> Enum.member?(allowed_params, k) end)
+      |> Enum.map(fn {k,v} -> {String.to_existing_atom(k), v} end)
+      |> Keyword.put(:redirect_uri, callback_url(conn))
+      |> Ueberauth.Strategy.Facebook.OAuth.authorize_url!
 
-    if conn.params["state"] do
-      opts = Keyword.put(opts, :state, conn.params["state"])
-    end
-
-    opts = Keyword.put(opts, :redirect_uri, callback_url(conn))
-    redirect!(conn, Ueberauth.Strategy.Facebook.OAuth.authorize_url!(opts))
+    redirect!(conn, authorize_url)
   end
 
   @doc """
@@ -146,4 +154,16 @@ defmodule Ueberauth.Strategy.Facebook do
   end
   defp option(nil, conn, key), do: option(conn, key)
   defp option(value, _conn, _key), do: value
+
+  defp maybe_replace_param(params, conn, name, config_key) do
+    if params[name] do
+      params
+    else
+      Map.put(
+        params,
+        name,
+        option(params[name], conn, config_key)
+      )
+    end
+  end
 end
