@@ -1,3 +1,8 @@
+# v 0.3.0
+
+* Add support for auth_type
+* Support for additional request variables
+
 # v 0.2.1
 
 * Add missing `profile_fields` parameter
