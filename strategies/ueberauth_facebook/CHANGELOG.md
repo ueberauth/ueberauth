@@ -1,3 +1,7 @@
+# v 0.3.1
+
+* Add support for missing Locale parameter
+
 # v 0.3.0
 
 * Add support for auth_type
