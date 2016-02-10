@@ -131,7 +131,8 @@ defmodule Ueberauth.Strategy.Facebook do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :facebook_token, token)
-    path = "/me?fields=#{option(conn, :profile_fields)}"
+    query = user_query(conn)
+    path = "/me?#{query}"
     case OAuth2.AccessToken.get(token, path) do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
@@ -140,6 +141,23 @@ defmodule Ueberauth.Strategy.Facebook do
         put_private(conn, :facebook_user, user)
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
+    end
+  end
+
+  defp user_query(conn) do
+    conn
+    |> query_params(:locale)
+    |> Map.merge(query_params(conn, :profile))
+    |> URI.encode_query
+  end
+
+  defp query_params(conn, :profile) do
+    %{"fields" => option(conn, :profile_fields)}
+  end
+  defp query_params(conn, :locale) do
+    case option(conn, :locale) do
+      nil -> %{}
+      locale -> %{"locale" => locale}
     end
   end
 
