@@ -26,6 +26,7 @@ defmodule Ueberauth.Strategy.Facebook do
      |> Enum.map(&to_string/1)
 
     authorize_url = conn.params
+      |> maybe_replace_param(conn, "auth_type", :auth_type)
       |> maybe_replace_param(conn, "scope", :default_scope)
       |> Enum.filter(fn {k,_v} -> Enum.member?(allowed_params, k) end)
       |> Enum.map(fn {k,v} -> {String.to_existing_atom(k), v} end)
