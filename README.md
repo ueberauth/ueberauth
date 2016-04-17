@@ -28,6 +28,8 @@ is optional depending on the strategies requirements. If a strategy does not
 redirect, the request will be decorated with Ueberauth information and
 allowed to carry on through the pipeline.
 
+See the full list of the strategies on the [Wiki](https://github.com/ueberauth/ueberauth/wiki/List-of-Strategies).
+
 ## Request Phase
 
 The request phase is where you request information about the user. This could
