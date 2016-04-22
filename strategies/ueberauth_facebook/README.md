@@ -68,13 +68,13 @@
     end
     ```
 
-1. You controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
+1. Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
 
 For an example implementation see the [Überauth Example](https://github.com/ueberauth/ueberauth_example) application.
 
 ## Calling
 
-Depending on the configured url you can initial the request through:
+Depending on the configured URL you can initialize the request through:
 
     /auth/facebook
 
