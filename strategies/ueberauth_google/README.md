@@ -72,14 +72,14 @@ Depending on the configured url you can initial the request through:
 
 Or with options:
 
-    /auth/google?scope=email,profile
+    /auth/google?scope=email%20profile
 
 By default the requested scope is "profile". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, [default_scope: "emails,profile,plus.me"]}
+    google: {Ueberauth.Strategy.Google, [default_scope: "emails profile plus.me"]}
   ]
 ```
 
