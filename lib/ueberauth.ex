@@ -189,9 +189,10 @@ defmodule Ueberauth do
       request_path = request_path(base_path, strategy)
       callback_path = callback_path(base_path, strategy)
       callback_methods = callback_methods(opts)
+      callback_url = Keyword.get(opts, :callback_url)
 
-      request_opts = strategy_opts(strategy, request_path, callback_path, callback_methods)
-      callback_opts = strategy_opts(strategy, request_path, callback_path, callback_methods)
+      request_opts = strategy_opts(strategy, request_path, callback_path, callback_methods, callback_url)
+      callback_opts = strategy_opts(strategy, request_path, callback_path, callback_methods, callback_url)
 
       acc
       |> Map.put(request_path, {module, :run_request, request_opts})
@@ -224,13 +225,14 @@ defmodule Ueberauth do
     end
   end
 
-  defp strategy_opts({name, {module, opts}}, req_path, cb_path, cb_meths) do
+  defp strategy_opts({name, {module, opts}}, req_path, cb_path, cb_meths, cb_url) do
     %{strategy_name: name,
       strategy: module,
       callback_path: cb_path,
       request_path: req_path,
       callback_methods: cb_meths,
-      options: opts}
+      options: opts,
+      callback_url: cb_url}
   end
 
   defp request_path(base_path, {name, {_, opts}}) do

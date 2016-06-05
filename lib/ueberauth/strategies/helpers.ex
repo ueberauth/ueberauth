@@ -55,8 +55,12 @@ defmodule Ueberauth.Strategy.Helpers do
   The URL is based on the current requests host and scheme. The options will be
   encoded as query params.
   """
+
   @spec callback_url(Plug.Conn.t) :: String.t
-  def callback_url(conn, opts \\ []), do: full_url(conn, callback_path(conn), opts)
+  def callback_url(conn, opts \\ []) do
+    from_private(conn, :callback_url) ||
+    full_url(conn, callback_path(conn), opts)
+  end
 
   @doc """
   The configured allowed callback http methods.
