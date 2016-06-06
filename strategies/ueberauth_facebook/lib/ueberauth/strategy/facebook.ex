@@ -9,7 +9,8 @@ defmodule Ueberauth.Strategy.Facebook do
                           allowed_request_params: [
                             :auth_type,
                             :scope,
-                            :locale
+                            :locale,
+                            :state
                           ]
 
 
