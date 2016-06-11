@@ -136,7 +136,7 @@ defmodule Ueberauth.Strategy.Helpers do
     if opts, do: opts[key], else: nil
   end
 
-  defp full_url(conn, path, opts \\ []) do
+  defp full_url(conn, path, opts) do
     scheme = conn
     |> forwarded_proto
     |> coalesce(conn.scheme)
