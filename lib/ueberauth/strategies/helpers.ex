@@ -15,13 +15,13 @@ defmodule Ueberauth.Strategy.Helpers do
 
   This is defined in your configuration as the provider name.
   """
-  @spec strategy_name(Plug.t) :: String.t
+  @spec strategy_name(Plug.Conn.t) :: String.t
   def strategy_name(conn), do: from_private(conn, :strategy_name)
 
   @doc """
   The strategy module that is being used for the request.
   """
-  @spec strategy(Plug.t) :: Module.t
+  @spec strategy(Plug.Conn.t) :: Module.t
   def strategy(conn), do: from_private(conn, :strategy)
 
   @doc """
@@ -29,7 +29,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   Requests to this path will trigger the `request_phase` of the strategy.
   """
-  @spec request_path(Plug.t) :: String.t
+  @spec request_path(Plug.Conn.t) :: String.t
   def request_path(conn), do: from_private(conn, :request_path)
 
   @doc """
@@ -37,7 +37,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   When a client hits this path, the callback phase will be triggered for the strategy.
   """
-  @spec callback_path(Plug.t) :: String.t
+  @spec callback_path(Plug.Conn.t) :: String.t
   def callback_path(conn), do: from_private(conn, :callback_path)
 
   @doc """
@@ -46,7 +46,7 @@ defmodule Ueberauth.Strategy.Helpers do
   The URL is based on the current requests host and scheme. The options will be
   encoded as query params.
   """
-  @spec request_url(Plug.t) :: String.t
+  @spec request_url(Plug.Conn.t) :: String.t
   def request_url(conn, opts \\ []), do: full_url(conn, request_path(conn), opts)
 
   @doc """
@@ -55,7 +55,7 @@ defmodule Ueberauth.Strategy.Helpers do
   The URL is based on the current requests host and scheme. The options will be
   encoded as query params.
   """
-  @spec callback_url(Plug.t) :: String.t
+  @spec callback_url(Plug.Conn.t) :: String.t
   def callback_url(conn, opts \\ []), do: full_url(conn, callback_path(conn), opts)
 
   @doc """
@@ -64,13 +64,13 @@ defmodule Ueberauth.Strategy.Helpers do
   This will use any supplied options from the configuration, but fallback to the
   default options
   """
-  @spec allowed_callback_methods(Plug.t) :: list(String.t)
+  @spec allowed_callback_methods(Plug.Conn.t) :: list(String.t)
   def allowed_callback_methods(conn), do: from_private(conn, :callback_methods)
 
   @doc """
   Is the current request http method one of the allowed callback methods?
   """
-  @spec allowed_callback_method?(Plug.t) :: boolean
+  @spec allowed_callback_method?(Plug.Conn.t) :: boolean
   def allowed_callback_method?(%{method: method} = conn) do
     conn
     |> allowed_callback_methods
@@ -80,7 +80,7 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   The full list of options passed to the strategy in the configuration.
   """
-  @spec options(Plug.t) :: Keyword.t
+  @spec options(Plug.Conn.t) :: Keyword.t
   def options(conn), do: from_private(conn, :options)
 
   @doc """
@@ -105,7 +105,7 @@ defmodule Ueberauth.Strategy.Helpers do
   Note this changes the conn object and should be part of your returned
   connection of the `callback_phase!`.
   """
-  @spec error(Plug.Conn.t, list(Error.t)) :: Plug.Conn
+  @spec error(Plug.Conn.t, list(Error.t)) :: Plug.Conn.t
   def set_errors!(conn, errors) do
     failure = struct(
       Failure,
