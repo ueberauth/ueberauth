@@ -16,7 +16,7 @@ defmodule Ueberauth.Auth do
   @type t :: %__MODULE__{
               uid: String.t,
               provider: String.t | atom,
-              strategy: Module.t,
+              strategy: module,
               info: Info.t,
               credentials: Credentials.t,
               extra: Extra.t

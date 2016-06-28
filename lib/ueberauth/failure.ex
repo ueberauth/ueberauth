@@ -7,7 +7,7 @@ defmodule Ueberauth.Failure do
 
   @type t :: %__MODULE__{
               provider: binary,
-              strategy: Module.t,
+              strategy: module,
               errors: list(Ueberauth.Failure.Error)
              }
 
