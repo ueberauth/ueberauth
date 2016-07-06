@@ -201,7 +201,7 @@ defmodule Ueberauth do
 
   @doc false
   def call(%{request_path: request_path} = conn, opts) do
-    if strategy = Map.get(opts, request_path) do
+    if strategy = Map.get(opts, String.replace_trailing(request_path, "/", "")) do
       run!(conn, strategy)
     else
       conn
@@ -235,7 +235,7 @@ defmodule Ueberauth do
 
   defp request_path(base_path, {name, {_, opts}}) do
     default_path = Path.join(["/", base_path, to_string(name)])
-    Keyword.get(opts, :request_path, default_path)
+    String.replace_trailing(Keyword.get(opts, :request_path, default_path), "/", "")
   end
 
   defp callback_path(base_path, {name, {_, opts}}) do
