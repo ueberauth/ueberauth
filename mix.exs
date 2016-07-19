@@ -1,7 +1,7 @@
 defmodule Ueberauth.Mixfile do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.3.0"
 
   def project do
     [app: :ueberauth,
@@ -31,12 +31,7 @@ defmodule Ueberauth.Mixfile do
   end
 
   defp docs do
-    [extras: docs_extras,
-     main: "extra-readme"]
-  end
-
-  defp docs_extras do
-    ["README.md"]
+    [main: "README.md"]
   end
 
   defp description do
