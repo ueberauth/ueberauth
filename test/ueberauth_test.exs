@@ -32,8 +32,13 @@ defmodule UeberauthTest do
     assert extra.raw_info.callback_url == "http://www.example.com/auth/simple/callback"
   end
 
-  test "redirecting a request phase" do
+  test "redirecting a request phase without trailing slash" do
     conn = conn(:get, "/auth/redirector") |> SpecRouter.call(@opts)
+    assert get_resp_header(conn, "location") == ["https://redirectme.example.com/foo"]
+  end
+
+  test "redirecting a request phase with trailing slash" do
+    conn = conn(:get, "/auth/redirector/") |> SpecRouter.call(@opts)
     assert get_resp_header(conn, "location") == ["https://redirectme.example.com/foo"]
   end
 
