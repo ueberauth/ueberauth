@@ -1,7 +1,7 @@
 defmodule UeberauthFacebook.Mixfile do
   use Mix.Project
 
-  @version "0.3.2"
+  @version "0.4.0"
   @url "https://github.com/ueberauth/ueberauth_facebook"
 
   def project do
@@ -32,11 +32,7 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   defp docs do
-    [extras: docs_extras, main: "extra-readme"]
-  end
-
-  defp docs_extras do
-    ["README.md"]
+    [main: "README.md"]
   end
 
   defp description do

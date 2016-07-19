@@ -1,3 +1,7 @@
+# v 0.4
+
+* Allow `:state` param to be configured
+
 # v 0.3.2
 
 * Fix support for auth_type
