@@ -32,7 +32,7 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   defp docs do
-    [main: "README.md"]
+    [extras: ["README.md", "CONTRIBUTING.md"]]
   end
 
   defp description do
