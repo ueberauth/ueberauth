@@ -176,12 +176,11 @@ defmodule Ueberauth do
 
     {base_path, opts}  = Keyword.pop(opts, :base_path, "/auth")
     {all_providers, _opts} = Keyword.pop(opts, :providers)
-    all_providers = Enum.into(all_providers, %{})
 
     providers = if provider_list == :all do
       all_providers
     else
-      Map.split(all_providers, provider_list)
+      Keyword.split(all_providers, provider_list)
       |> elem(0)
     end
 
