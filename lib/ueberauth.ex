@@ -180,7 +180,8 @@ defmodule Ueberauth do
     providers = if provider_list == :all do
       all_providers
     else
-      Keyword.split(all_providers, provider_list)
+      all_providers
+      |> Keyword.split(provider_list)
       |> elem(0)
     end
 
