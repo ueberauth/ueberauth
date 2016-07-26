@@ -9,8 +9,6 @@ defmodule Ueberauth.Strategy.Google do
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
 
-  @token_url "https://www.googleapis.com/plus/v1/people/me/openIdConnect"
-
   @doc """
   Handles initial request for Google authentication.
   """
@@ -112,7 +110,10 @@ defmodule Ueberauth.Strategy.Google do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :google_token, token)
-    resp = OAuth2.AccessToken.get(token, @token_url)
+
+    # userinfo_endpoint from https://accounts.google.com/.well-known/openid-configuration
+    path = "https://www.googleapis.com/oauth2/v3/userinfo"
+    resp = OAuth2.AccessToken.get(token, path)
 
     case resp do
       { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
