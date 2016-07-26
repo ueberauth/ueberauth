@@ -13,8 +13,8 @@ defmodule Ueberauth.Strategy.Google.OAuth do
   @defaults [
      strategy: __MODULE__,
      site: "https://accounts.google.com",
-     authorize_url: "/o/oauth2/auth",
-     token_url: "/o/oauth2/token"
+     authorize_url: "/o/oauth2/v2/auth",
+     token_url: "https://www.googleapis.com/oauth2/v4/token"
    ]
 
   @doc """
