@@ -74,7 +74,7 @@ Or with options:
 
     /auth/google?scope=email%20profile
 
-By default the requested scope is "profile". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
+By default the requested scope is "email". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
