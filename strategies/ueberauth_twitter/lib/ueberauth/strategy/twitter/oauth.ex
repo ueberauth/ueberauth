@@ -100,10 +100,13 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
       client
       |> Map.get(endpoint, endpoint)
       |> endpoint(client)
-
-    unless params == nil do
-      endpoint = endpoint <> "?" <> URI.encode_query(params)
-    end
+    
+    endpoint =
+      if params do
+        endpoint <> "?" <> URI.encode_query(params)
+      else
+        endpoint
+      end
 
     endpoint
   end
