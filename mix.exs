@@ -8,14 +8,14 @@ defmodule Ueberauth.Mixfile do
      name: "Überauth",
      version: @version,
      elixir: "~> 1.1",
-     package: package,
+     package: package(),
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: "https://github.com/ueberauth/ueberauth",
      homepage_url: "https://github.com/ueberauth/ueberauth",
-     description: description,
-     deps: deps,
-     docs: docs]
+     description: description(),
+     deps: deps(),
+     docs: docs()]
   end
 
   def application do
