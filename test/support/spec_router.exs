@@ -22,4 +22,3 @@ defmodule Support.SpecRouter do
 
   def named(conn, name), do: send_resp(conn, 200, name)
 end
-
