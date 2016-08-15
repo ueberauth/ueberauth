@@ -1,7 +1,7 @@
 defmodule UeberauthGoogle.Mixfile do
   use Mix.Project
 
-  @version "0.2.0"
+  @version "0.3.0"
   @url "https://github.com/ueberauth/ueberauth_google"
 
   def project do
@@ -31,11 +31,7 @@ defmodule UeberauthGoogle.Mixfile do
   end
 
   defp docs do
-    [extras: docs_extras, main: "extra-readme"]
-  end
-
-  defp docs_extras do
-    ["README.md"]
+    [extras: ["README.md", "CONTRIBUTING.md"]]
   end
 
   defp description do
@@ -44,8 +40,8 @@ defmodule UeberauthGoogle.Mixfile do
 
   defp package do
     [files: ["lib", "mix.exs", "README.md", "LICENSE"],
-      maintainers: ["Sean Callan"],
-      licenses: ["MIT"],
-      links: %{"GitHub": @url}]
+     maintainers: ["Sean Callan"],
+     licenses: ["MIT"],
+     links: %{"GitHub": @url}]
   end
 end
