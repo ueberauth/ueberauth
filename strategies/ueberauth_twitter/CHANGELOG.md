@@ -1,3 +1,7 @@
+# v 0.2.3
+
+* Fix Elixir 1.3 warnings
+
 # v 0.2.2
 
 * Credentials now include token and secret
