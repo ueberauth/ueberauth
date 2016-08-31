@@ -83,6 +83,17 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+You can also pass the `hd` parameter to limit sign-in to a particular Google Apps hosted domain.
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [hd: "example.com"]}
+  ]
+```
+
+To guard against client-side request modification, it's important to still check the domain in `info.urls[:website]` within the `Ueberauth.Auth` struct if you want to limit sign-in to a specific domain.
+
 ## License
 
 Please see [LICENSE](https://github.com/ueberauth/ueberauth_google/blob/master/LICENSE) for licensing details.
