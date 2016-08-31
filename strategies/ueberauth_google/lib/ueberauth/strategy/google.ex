@@ -3,7 +3,7 @@ defmodule Ueberauth.Strategy.Google do
   Google Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :sub, default_scope: "email"
+  use Ueberauth.Strategy, uid_field: :sub, default_scope: "email", hd: nil
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -16,6 +16,7 @@ defmodule Ueberauth.Strategy.Google do
     scopes = conn.params["scope"] || option(conn, :default_scope)
     opts = [ scope: scopes ]
     opts = if conn.params["state"], do: Keyword.put(opts, :state, conn.params["state"]), else: opts
+    opts = if option(conn, :hd), do: Keyword.put(opts, :hd, option(conn, :hd)), else: opts
     opts = Keyword.put(opts, :redirect_uri, callback_url(conn))
 
     redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(opts))
