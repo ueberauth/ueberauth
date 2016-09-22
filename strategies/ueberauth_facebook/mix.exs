@@ -1,7 +1,7 @@
 defmodule UeberauthFacebook.Mixfile do
   use Mix.Project
 
-  @version "0.4.0"
+  @version "0.5.0"
   @url "https://github.com/ueberauth/ueberauth_facebook"
 
   def project do
@@ -9,7 +9,7 @@ defmodule UeberauthFacebook.Mixfile do
      version: @version,
      name: "Ueberauth Facebook Strategy",
      package: package,
-     elixir: "~> 1.1",
+     elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: @url,
@@ -24,11 +24,11 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   defp deps do
-    [{:ueberauth, "~> 0.2"},
+    [{:ueberauth, "~> 0.4"},
      {:oauth2, "0.6.0"},
-     {:ex_doc, "~> 0.1", only: :dev},
-     {:earmark, ">= 0.0.0", only: :dev},
-     {:dogma, ">= 0.0.0", only: [:dev, :test]}]
+
+     {:ex_doc, "~> 0.2", only: :dev},
+     {:earmark, ">= 0.0.0", only: :dev}]
   end
 
   defp docs do
