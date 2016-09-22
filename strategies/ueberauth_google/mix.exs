@@ -1,7 +1,7 @@
 defmodule UeberauthGoogle.Mixfile do
   use Mix.Project
 
-  @version "0.3.0"
+  @version "0.4.0"
   @url "https://github.com/ueberauth/ueberauth_google"
 
   def project do
@@ -9,7 +9,7 @@ defmodule UeberauthGoogle.Mixfile do
      version: @version,
      name: "Ueberauth Google Strategy",
      package: package,
-     elixir: "~> 1.1",
+     elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: @url,
@@ -24,9 +24,9 @@ defmodule UeberauthGoogle.Mixfile do
   end
 
   defp deps do
-    [{:ueberauth, "~> 0.2"},
+    [{:ueberauth, "~> 0.4"},
      {:oauth2, "0.6.0"},
-     {:ex_doc, "~> 0.1", only: :dev},
+     {:ex_doc, "~> 0.3", only: :dev},
      {:earmark, ">= 0.0.0", only: :dev}]
   end
 
