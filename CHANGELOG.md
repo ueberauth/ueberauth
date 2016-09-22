@@ -1,3 +1,9 @@
+# 0.4.0
+
++ Target Elixir 1.3 and above
++ Fix Elixir 1.4 warnings
++ Fix bug preventing multiple providers
+
 # 0.3.0
 
 + Allow `:redirect_url` to be configured
