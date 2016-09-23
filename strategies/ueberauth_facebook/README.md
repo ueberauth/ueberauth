@@ -91,6 +91,20 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+Additionally you can now specify the `display` param to pass to Facebook:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    facebook: {Ueberauth.Strategy.Facebook, [
+      default_scope: "email,public_profile,user_friends",
+      display: "popup"
+    ]}
+  ]
+```
+
+`display` can be the following values: `page` (default), `async`, `iframe`, `popup`, `touch`, `wap`
+
 Starting with Graph API version 2.4, Facebook has limited the default fields returned when fetching the user profile.
 Fields can be explicitly requested using the `profile_fields` option:
 
