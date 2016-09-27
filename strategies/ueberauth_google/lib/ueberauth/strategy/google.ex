@@ -14,10 +14,13 @@ defmodule Ueberauth.Strategy.Google do
   """
   def handle_request!(conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
-    opts = [ scope: scopes ]
-    opts = if conn.params["state"], do: Keyword.put(opts, :state, conn.params["state"]), else: opts
-    opts = if option(conn, :hd), do: Keyword.put(opts, :hd, option(conn, :hd)), else: opts
-    opts = Keyword.put(opts, :redirect_uri, callback_url(conn))
+
+    opts =
+      [ scope: scopes ]
+      |> with_optional(:hd, conn)
+      |> with_optional(:approval_prompt, conn)
+      |> with_optional(:access_type, conn)
+      |> Keyword.put(:redirect_uri, callback_url(conn))
 
     redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(opts))
   end
@@ -124,6 +127,10 @@ defmodule Ueberauth.Strategy.Google do
       { :error, %OAuth2.Error{reason: reason} } ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
+  end
+
+  defp with_optional(opts, key, conn) do
+    if option(conn, key), do: Keyword.put(opts, key, option(conn, key)), else: opts
   end
 
   defp option(conn, key) do
