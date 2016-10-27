@@ -81,6 +81,8 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
 
     {:ok, {token, token_secret}}
   end
+  defp decode_access_response({:ok, {{_, status_code, status_description}, _, _}}), do: {:error, "#{status_code} - #{status_description}"}
+  defp decode_access_response({:error, {error, [_, {:inet, [:inet], error_reason}]}}), do: {:error, "#{error}: #{error_reason}"}
   defp decode_access_response(error), do: {:error, error}
 
   defp decode_request_response({:ok, {{_, 200, _}, _, _} = resp}) do
@@ -90,6 +92,8 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
 
     {:ok, {token, token_secret}}
   end
+  defp decode_request_response({:ok, {{_, status_code, status_description}, _, _}}), do: {:error, "#{status_code} - #{status_description}"}
+  defp decode_request_response({:error, {error, [_, {:inet, [:inet], error_reason}]}}), do: {:error, "#{error}: #{error_reason}"}
   defp decode_request_response(error), do: {:error, error}
 
   defp endpoint("/" <> _path = endpoint, client), do: client.site <> endpoint
@@ -100,7 +104,7 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
       client
       |> Map.get(endpoint, endpoint)
       |> endpoint(client)
-    
+
     endpoint =
       if params do
         endpoint <> "?" <> URI.encode_query(params)
