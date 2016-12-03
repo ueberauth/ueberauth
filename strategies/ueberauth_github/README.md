@@ -44,8 +44,11 @@
     ```elixir
     defmodule MyApp.AuthController do
       use MyApp.Web, :controller
-      plug Ueberauth
-      ...
+      
+      pipeline :browser do
+        plug Ueberauth
+        ...
+       end
     end
     ```
 
