@@ -44,10 +44,18 @@ defmodule Ueberauth.Strategy.Google.OAuth do
     |> OAuth2.Client.authorize_url!(params)
   end
 
+  def get(token, url, headers \\ [], opts \\ []) do
+    client([token: token])
+    |> put_param("client_secret", client.client_secret)
+    |> OAuth2.Client.get(url, headers, opts)
+  end
+
   def get_token!(params \\ [], opts \\ []) do
-    opts
-    |> client
-    |> OAuth2.Client.get_token!(params)
+    client =
+      opts
+      |> client
+      |> OAuth2.Client.get_token!(params)
+    client.token
   end
 
   # Strategy Callbacks
@@ -58,6 +66,7 @@ defmodule Ueberauth.Strategy.Google.OAuth do
 
   def get_token(client, params, headers) do
     client
+    |> put_param("client_secret", client.client_secret)
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
   end

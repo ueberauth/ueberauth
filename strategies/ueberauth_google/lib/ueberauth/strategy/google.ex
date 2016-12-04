@@ -117,7 +117,7 @@ defmodule Ueberauth.Strategy.Google do
 
     # userinfo_endpoint from https://accounts.google.com/.well-known/openid-configuration
     path = "https://www.googleapis.com/oauth2/v3/userinfo"
-    resp = OAuth2.AccessToken.get(token, path)
+    resp = Ueberauth.Strategy.Google.OAuth.get(token, path)
 
     case resp do
       { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
