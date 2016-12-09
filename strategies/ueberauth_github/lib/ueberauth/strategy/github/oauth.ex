@@ -43,9 +43,9 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   end
 
   def get_token!(params \\ [], options \\ %{}) do
-    headers = Dict.get(options, :headers, [])
-    options = Dict.get(options, :options, [])
-    client_options = Dict.get(options, :client_options, [])
+    headers = Map.get(options, :headers, [])
+    options = Map.get(options, :options, [])
+    client_options = Map.get(options, :client_options, [])
     OAuth2.Client.get_token!(client(client_options), params, headers, options)
   end
 

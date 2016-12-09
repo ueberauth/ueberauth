@@ -211,6 +211,6 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   defp option(conn, key) do
-    Dict.get(options(conn), key, Dict.get(default_options, key))
+    Map.get(options(conn), key, Map.get(default_options, key))
   end
 end
