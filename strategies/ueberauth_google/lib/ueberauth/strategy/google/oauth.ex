@@ -46,7 +46,7 @@ defmodule Ueberauth.Strategy.Google.OAuth do
 
   def get(token, url, headers \\ [], opts \\ []) do
     client([token: token])
-    |> put_param("client_secret", client.client_secret)
+    |> put_param("client_secret", client().client_secret)
     |> OAuth2.Client.get(url, headers, opts)
   end
 
