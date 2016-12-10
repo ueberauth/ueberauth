@@ -7,15 +7,15 @@ defmodule UeberauthGithub.Mixfile do
     [app: :ueberauth_github,
      version: @version,
      name: "Ueberauth Github",
-     package: package,
+     package: package(),
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: "https://github.com/ueberauth/ueberauth_github",
      homepage_url: "https://github.com/ueberauth/ueberauth_github",
-     description: description,
-     deps: deps,
-     docs: docs]
+     description: description(),
+     deps: deps(),
+     docs: docs()]
   end
 
   def application do
