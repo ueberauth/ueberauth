@@ -194,11 +194,11 @@ defmodule Ueberauth.Strategy.Github do
   defp fetch_user(conn, token) do
     conn = put_private(conn, :github_token, token)
     # Will be better with Elixir 1.3 with/else
-    case OAuth2.AccessToken.get(token, "/user") do
+    case Ueberauth.Strategy.Github.OAuth.get(token, "/user") do
       { :ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
       { :ok, %OAuth2.Response{status_code: status_code, body: user} } when status_code in 200..399 ->
-        case OAuth2.AccessToken.get(token, "/user/emails") do
+        case Ueberauth.Strategy.Github.OAuth.get(token, "/user/emails") do
           { :ok, %OAuth2.Response{status_code: status_code, body: emails} } when status_code in 200..399 ->
             user = Map.put user, "emails", emails
             put_private(conn, :github_user, user)
