@@ -20,6 +20,7 @@ defmodule Ueberauth.Strategy.Google do
       |> with_optional(:hd, conn)
       |> with_optional(:approval_prompt, conn)
       |> with_optional(:access_type, conn)
+      |> with_param(:state, conn)
       |> Keyword.put(:redirect_uri, callback_url(conn))
 
     redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(opts))
@@ -127,6 +128,10 @@ defmodule Ueberauth.Strategy.Google do
       { :error, %OAuth2.Error{reason: reason} } ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
+  end
+
+  defp with_param(opts, key, conn) do
+    if value = conn.params[to_string(key)], do: Keyword.put(opts, key, value), else: opts
   end
 
   defp with_optional(opts, key, conn) do
