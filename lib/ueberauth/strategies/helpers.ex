@@ -58,10 +58,8 @@ defmodule Ueberauth.Strategy.Helpers do
 
   @spec callback_url(Plug.Conn.t) :: String.t
   def callback_url(conn, opts \\ []) do
-    opts = callback_params(conn, opts)
-
     from_private(conn, :callback_url) ||
-    full_url(conn, callback_path(conn), opts)
+    full_url(conn, callback_path(conn),  callback_params(conn, opts))
   end
 
   @doc """
