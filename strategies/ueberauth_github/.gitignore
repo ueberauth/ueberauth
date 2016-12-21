@@ -4,3 +4,7 @@
 erl_crash.dump
 *.ez
 /doc
+
+# IntelliJ IDEA files
+/.idea
+/ueberauthgithub.iml
