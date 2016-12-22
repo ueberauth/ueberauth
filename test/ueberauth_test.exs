@@ -14,7 +14,8 @@ defmodule UeberauthTest do
   end
 
   test "simple callback phase" do
-    conn = conn(:get, "/auth/simple/callback")
+    conn = :get
+      |> conn("/auth/simple/callback")
       |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
 
@@ -121,6 +122,13 @@ defmodule UeberauthTest do
     conn = put_private(conn, :ueberauth_request_options, [callback_path: "/auth/provider/callback"])
     conn =  %{conn | params: %{}}
 
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+      "https://www.example.com/auth/provider/callback"
+  end
+
+  test "callback_url forwarded protocol" do
+    conn = %{conn(:get, "/") |> put_req_header("x-forwarded-proto", "https") | scheme: :http, port: 80}
+    conn = put_private(conn, :ueberauth_request_options, [callback_path: "/auth/provider/callback"])
     assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
       "https://www.example.com/auth/provider/callback"
   end
