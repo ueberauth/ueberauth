@@ -18,7 +18,7 @@
 
     ```elixir
     def deps do
-      [{:ueberauth_facebook, "~> 0.5"}]
+      [{:ueberauth_facebook, "~> 0.6"}]
     end
     ```
 

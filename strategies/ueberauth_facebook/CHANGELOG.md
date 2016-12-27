@@ -1,3 +1,12 @@
+# v 0.6.0
+
+* Support `:display` parameter
+* Use OAuth2 0.8
+
+# v 0.5.0
+
+* Pin OAuth2 to 0.6 to avoid errors
+
 # v 0.4
 
 * Allow `:state` param to be configured
