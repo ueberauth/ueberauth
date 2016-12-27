@@ -1,3 +1,8 @@
+# v 0.2.4
+
+* Add Poison dependency
+* Improve OAuth error handling
+
 # v 0.2.3
 
 * Fix Elixir 1.3 warnings
