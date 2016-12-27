@@ -44,7 +44,7 @@
     ```elixir
     defmodule MyApp.AuthController do
       use MyApp.Web, :controller
-      
+
       pipeline :browser do
         plug Ueberauth
         ...
