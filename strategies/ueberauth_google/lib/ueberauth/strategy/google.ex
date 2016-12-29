@@ -76,6 +76,7 @@ defmodule Ueberauth.Strategy.Google do
       expires: !!token.expires_at,
       expires_at: token.expires_at,
       scopes: scopes,
+      token_type: Map.get(token, :token_type),
       refresh_token: token.refresh_token,
       token: token.access_token
     }
