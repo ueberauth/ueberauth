@@ -8,15 +8,15 @@ defmodule UeberauthFacebook.Mixfile do
     [app: :ueberauth_facebook,
      version: @version,
      name: "Ueberauth Facebook Strategy",
-     package: package,
+     package: package(),
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: @url,
      homepage_url: @url,
-     description: description,
-     deps: deps,
-     docs: docs]
+     description: description(),
+     deps: deps(),
+     docs: docs()]
   end
 
   def application do
