@@ -20,6 +20,7 @@ defmodule Ueberauth.Strategy.Google do
       |> with_optional(:hd, conn)
       |> with_optional(:approval_prompt, conn)
       |> with_optional(:access_type, conn)
+      |> with_param(:prompt, conn)
       |> with_param(:state, conn)
       |> Keyword.put(:redirect_uri, callback_url(conn))
 
