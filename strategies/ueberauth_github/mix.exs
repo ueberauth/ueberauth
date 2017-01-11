@@ -23,12 +23,17 @@ defmodule UeberauthGithub.Mixfile do
   end
 
   defp deps do
-    [{:ueberauth, "~> 0.4"},
+    [
      {:oauth2, "~> 0.8"},
+     {:ueberauth, "~> 0.4"},
+
+     # dev/test only dependencies
+     {:credo, "~> 0.5", only: [:dev, :test]},
 
      # docs dependencies
      {:earmark, "~> 0.2", only: :dev},
-     {:ex_doc, ">= 0.0.0", only: :dev}]
+     {:ex_doc, ">= 0.0.0", only: :dev}
+    ]
   end
 
   defp docs do
