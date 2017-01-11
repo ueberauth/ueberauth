@@ -24,12 +24,17 @@ defmodule UeberauthTwitter.Mixfile do
   end
 
   defp deps do
-    [{:ueberauth, "~> 0.2"},
-     {:oauth, github: "tim/erlang-oauth"},
+    [
      {:httpoison, "~> 0.7"},
+     {:oauth, github: "tim/erlang-oauth"},
      {:poison, "~> 1.3 or ~> 2.0"},
+     {:ueberauth, "~> 0.2"},
+
+     # dev/test dependencies
+     {:earmark, ">= 0.0.0", only: :dev},
      {:ex_doc, "~> 0.1", only: :dev},
-     {:earmark, ">= 0.0.0", only: :dev}]
+     {:credo, "~> 0.5", only: [:dev, :test]}
+    ]
   end
 
   defp docs do
