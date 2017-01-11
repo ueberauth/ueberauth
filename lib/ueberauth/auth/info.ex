@@ -27,6 +27,6 @@ defmodule Ueberauth.Auth.Info do
             phone: nil, #  The telephone number of the authenticating user (no formatting is enforced).
             urls: %{} #  A map containing key value pairs of an identifier for the website and its URL. For instance, an entry could be "Blog" => "http://intridea.com/blog"
 
-  def valid?(%Info{ name: name}) when is_binary(name), do: true
+  def valid?(%Info{name: name}) when is_binary(name), do: true
   def valid?(_), do: false
 end
