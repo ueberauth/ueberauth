@@ -296,9 +296,12 @@ defmodule Ueberauth.Strategy do
 
   @doc false
   def run_callback(conn, strategy) do
-    new_conn = apply(strategy, :handle_callback!, [conn])
-    |> handle_callback_result(strategy)
-    apply(strategy, :handle_cleanup!, [new_conn])
+    handled_conn =
+      strategy
+      |> apply(:handle_callback!, [conn])
+      |> handle_callback_result(strategy)
+      |> handle_callback_result(strategy)
+    apply(strategy, :handle_cleanup!, [handled_conn])
   end
 
   defp handle_callback_result(%{halted: true} = conn, _), do: conn
