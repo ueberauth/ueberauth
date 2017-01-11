@@ -59,7 +59,22 @@ defmodule Ueberauth.Strategy.Helpers do
   @spec callback_url(Plug.Conn.t) :: String.t
   def callback_url(conn, opts \\ []) do
     from_private(conn, :callback_url) ||
-    full_url(conn, callback_path(conn), opts)
+    full_url(conn, callback_path(conn),  callback_params(conn, opts))
+  end
+
+  @doc """
+  Build params for callback
+
+  This method will filter conn.params with whitelisted params from :callback_params settings
+  """
+  @spec callback_params(Plug.Conn.t) :: list(String.t)
+  def callback_params(conn, opts \\ []) do
+    callback_params = from_private(conn, :callback_params) || []
+    callback_params = callback_params
+      |> Enum.map(fn(k) -> {String.to_atom(k), conn.params[k]} end)
+      |> Enum.filter(fn {_, v} -> v != nil end)
+      |> Enum.filter(fn {k, _} -> k != "provider" end)
+    Keyword.merge(opts, callback_params)
   end
 
   @doc """

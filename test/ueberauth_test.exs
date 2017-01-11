@@ -14,7 +14,9 @@ defmodule UeberauthTest do
   end
 
   test "simple callback phase" do
-    conn = conn(:get, "/auth/simple/callback") |> SpecRouter.call(@opts)
+    conn = :get
+      |> conn("/auth/simple/callback")
+      |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
 
     assert auth.uid == "Elixir.Support.SimpleCallback-uid"
@@ -118,6 +120,8 @@ defmodule UeberauthTest do
   test "callback_url port" do
     conn = %{conn(:get, "/") | scheme: :https, port: 80}
     conn = put_private(conn, :ueberauth_request_options, [callback_path: "/auth/provider/callback"])
+    conn =  %{conn | params: %{}}
+
     assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
       "https://www.example.com/auth/provider/callback"
   end
@@ -127,6 +131,14 @@ defmodule UeberauthTest do
     conn = put_private(conn, :ueberauth_request_options, [callback_path: "/auth/provider/callback"])
     assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
       "https://www.example.com/auth/provider/callback"
+  end
+
+  test "callback_url has extra params" do
+    conn = conn(:get, "/")
+    conn = put_private(conn, :ueberauth_request_options, [callback_params: ["type"]])
+    conn =  %{conn | params: %{"type" => "user", "param_2" => "param_2"}}
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+      "http://www.example.com?type=user"
   end
 
   defp assert_standard_info(auth) do
