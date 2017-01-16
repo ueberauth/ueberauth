@@ -1,5 +1,8 @@
 # Überauth
 
+[![Build Status](https://secure.travis-ci.org/ueberauth/ueberauth.svg?branch=master
+"Build Status")](https://travis-ci.org/ueberauth/ueberauth)
+
 > An Elixir Authentication System for Plug-based Web Applications
 
 Ueberauth is two-phase authentication framework that provides a clear API -
