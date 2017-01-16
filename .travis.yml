@@ -1,0 +1,14 @@
+language: elixir
+sudo: false
+elixir: 1.4.0
+otp_release: 19.1
+matrix:
+  include:
+    - elixir: 1.3.4
+      otp_release: 18.3
+notifications:
+  email: false
+script:
+  - mix compile --warnings-as-errors
+  - mix credo
+  - mix test
