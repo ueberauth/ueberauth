@@ -92,9 +92,9 @@ defmodule Ueberauth.Strategy.Helpers do
   @spec allowed_callback_method?(Plug.Conn.t) :: boolean
   def allowed_callback_method?(%{method: method} = conn) do
     callback_method =
-			method
-			|> to_string  
-			|> String.upcase
+      method
+      |> to_string
+      |> String.upcase
 
     conn
     |> allowed_callback_methods
