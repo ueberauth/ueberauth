@@ -185,19 +185,12 @@ defmodule Ueberauth do
       |> elem(0)
     end
 
-    Enum.reduce providers, %{}, fn {_name, {module, opts}} = strategy, acc ->
-      request_path = request_path(base_path, strategy)
-      callback_path = callback_path(base_path, strategy)
-      callback_methods = callback_methods(opts)
-      callback_url = Keyword.get(opts, :callback_url)
-      callback_params = Keyword.get(opts, :callback_params)
-
-      request_opts = strategy_opts(strategy, request_path, callback_path, callback_methods, callback_url, callback_params)
-      callback_opts = strategy_opts(strategy, request_path, callback_path, callback_methods, callback_url, callback_params)
+    Enum.reduce providers, %{}, fn {_name, {module, _}} = strategy, acc ->
+      opts = strategy_opts(strategy, base_path)
 
       acc
-      |> Map.put(request_path, {module, :run_request, request_opts})
-      |> Map.put(callback_path, {module, :run_callback, callback_opts})
+      |> Map.put(opts.request_path, {module, :run_request, opts})
+      |> Map.put(opts.callback_path, {module, :run_callback, opts})
     end
   end
 
@@ -226,15 +219,15 @@ defmodule Ueberauth do
     end
   end
 
-  defp strategy_opts({name, {module, opts}}, req_path, cb_path, cb_meths, cb_url, cb_params) do
+  defp strategy_opts({name, {module, opts}} = strategy, base_path) do
     %{strategy_name: name,
       strategy: module,
-      callback_path: cb_path,
-      request_path: req_path,
-      callback_methods: cb_meths,
+      callback_path: callback_path(base_path, strategy),
+      request_path: request_path(base_path, strategy),
+      callback_methods: callback_methods(opts),
       options: opts,
-      callback_url: cb_url,
-      callback_params: cb_params}
+      callback_url: Keyword.get(opts, :callback_url),
+      callback_params: Keyword.get(opts, :callback_params)}
   end
 
   defp request_path(base_path, {name, {_, opts}}) do
