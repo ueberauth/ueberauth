@@ -66,7 +66,7 @@ defmodule Ueberauth.Strategy.Github do
           github: { Ueberauth.Strategy.Github, [default_scope: "user,public_repo"] }
         ]
 
-  Deafult is "user,public_repo"
+  Default is "user,public_repo"
   """
   use Ueberauth.Strategy, uid_field: :login,
                           default_scope: "user,public_repo",
