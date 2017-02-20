@@ -57,7 +57,7 @@ defmodule Ueberauth.Strategy.Github do
           github: { Ueberauth.Strategy.Github, [uid_field: :email] }
         ]
 
-  Default is `:login`
+  Default is `:id`
 
   To set the default 'scopes' (permissions):
 
@@ -68,7 +68,7 @@ defmodule Ueberauth.Strategy.Github do
 
   Default is "user,public_repo"
   """
-  use Ueberauth.Strategy, uid_field: :login,
+  use Ueberauth.Strategy, uid_field: :id,
                           default_scope: "user,public_repo",
                           oauth2_module: Ueberauth.Strategy.Github.OAuth
 
@@ -126,7 +126,7 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   @doc """
-  Fetches the uid field from the Github response. This defaults to the option `uid_field` which in-turn defaults to `login`
+  Fetches the uid field from the Github response. This defaults to the option `uid_field` which in-turn defaults to `id`
   """
   def uid(conn) do
     user =
