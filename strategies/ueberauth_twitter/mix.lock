@@ -10,7 +10,7 @@
   "mimetype_parser": {:hex, :mimetype_parser, "0.1.0"},
   "oauth": {:git, "https://github.com/tim/erlang-oauth.git", "cd31addc828179983564fd57738f1680a4a4d1ff", []},
   "oauth2": {:hex, :oauth2, "0.5.0"},
-  "oauther": {:hex, :oauther, "1.0.2"},
+  "oauther": {:hex, :oauther, "1.1.0", "c9a56e200507ce64e069f5273143db0cddd7904cd5d1fe46920388a48f22441b", [:mix], []},
   "plug": {:hex, :plug, "1.0.3", "8bbcbdaa4cb15170b9a15cb12153e8a6d9e176ce78e4c1990ea0b505b0ca24a0", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: true]}]},
   "poison": {:hex, :poison, "1.5.0", "f2f4f460623a6f154683abae34352525e1d918380267cdbd949a07ba57503248", [:mix], []},
   "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5", "2e73e068cd6393526f9fa6d399353d7c9477d6886ba005f323b592d389fb47be", [:make], []},

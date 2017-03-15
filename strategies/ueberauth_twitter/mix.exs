@@ -8,25 +8,25 @@ defmodule UeberauthTwitter.Mixfile do
     [app: :ueberauth_twitter,
      version: @version,
      name: "Ueberauth Twitter Strategy",
-     package: package,
+     package: package(),
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
      source_url: @url,
      homepage_url: @url,
-     description: description,
-     deps: deps,
-     docs: docs]
+     description: description(),
+     deps: deps(),
+     docs: docs()]
   end
 
   def application do
-    [applications: [:logger, :httpoison, :oauth, :ueberauth]]
+    [applications: [:logger, :httpoison, :oauther, :ueberauth]]
   end
 
   defp deps do
     [
      {:httpoison, "~> 0.7"},
-     {:oauth, github: "tim/erlang-oauth"},
+     {:oauther, "~> 1.1"},
      {:poison, "~> 1.3 or ~> 2.0"},
      {:ueberauth, "~> 0.2"},
 
@@ -38,7 +38,7 @@ defmodule UeberauthTwitter.Mixfile do
   end
 
   defp docs do
-    [extras: docs_extras, main: "extra-readme"]
+    [extras: docs_extras(), main: "extra-readme"]
   end
 
   defp docs_extras do

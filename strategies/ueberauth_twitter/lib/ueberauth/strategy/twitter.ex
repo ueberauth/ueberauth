@@ -99,25 +99,28 @@ defmodule Ueberauth.Strategy.Twitter do
   end
 
   defp fetch_user(conn, token) do
-    params = [include_entities: false, skip_status: true, include_email: true]
+    params = [{"include_entities", false}, {"skip_status", true}, {"include_email", true}]
     case Twitter.OAuth.get("/1.1/account/verify_credentials.json", params, token) do
-      {:ok, {{_, 401, _}, _, _}} ->
+      {:ok, %{status_code: 401, body: _, headers: _}} ->
         set_errors!(conn, [error("token", "unauthorized")])
-      {:ok, {{_, status_code, _}, _, body}} when status_code in 200..399 ->
-        body = body |> List.to_string |> Poison.decode!
+      {:ok, %{status_code: status_code, body: body, headers: _}} when status_code in 200..399 ->
+        body = Poison.decode!(body)
 
         conn
         |> put_private(:twitter_token, token)
         |> put_private(:twitter_user, body)
-      {:ok, {_, _, body}} ->
-        body = body |> List.to_string |> Poison.decode!
-
+      {:ok, %{status_code: _, body: body, headers: _}} ->
+        body = Poison.decode!(body)
         error = List.first(body["errors"])
         set_errors!(conn, [error("token", error["message"])])
     end
   end
 
   defp option(conn, key) do
-    Dict.get(options(conn), key, Dict.get(default_options, key))
+    default = Keyword.get(default_options(), key)
+
+    conn
+    |> options
+    |> Keyword.get(key, default)
   end
 end
