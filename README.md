@@ -118,7 +118,7 @@ request and response paths (by default) but will also be returned in the
 `Ueberauth.Auth` struct as the `provider` field.
 
 Once you've setup your providers, in your router you need to configure the plug
-to run. The plug should run before you application routes.
+to run. The plug should run before your application routes.
 
 In phoenix, plug this module in your controller:
 
