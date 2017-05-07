@@ -76,7 +76,7 @@ See `Ueberauth.Strategy` for more information on constructing the Ueberauth.Auth
 def application do
   # Add the application to your list of applications.
   # This will ensure that it will be included in a release.
-  [applications: [:logger, :ueberauth]]
+  [applications: [:logger, :oauth2, :ueberauth]]
 end
 
 defp deps do
