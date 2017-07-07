@@ -3,8 +3,8 @@ defmodule Ueberauth.Strategy.Facebook do
   Facebook Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, default_scope: "email",
-                          profile_fields: "",
+  use Ueberauth.Strategy, default_scope: "email,public_profile",
+                          profile_fields: "id,email,gender,link,locale,name,timezone,updated_time,verified",
                           uid_field: :id,
                           allowed_request_params: [
                             :auth_type,
