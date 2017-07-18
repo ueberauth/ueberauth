@@ -24,14 +24,12 @@ defmodule UeberauthFacebook.Mixfile do
   end
 
   defp deps do
-    [
-     {:ueberauth, "~> 0.4"},
-     {:oauth2, "~> 0.8.0"},
+    [{:ueberauth, "~> 0.4"},
+     {:oauth2, "~> 0.9"},
 
-     {:ex_doc, "~> 0.2", only: :dev},
-     {:earmark, ">= 0.0.0", only: :dev},
-     {:credo, "~> 0.5", only: [:dev, :test]},
-    ]
+     {:credo, "~> 0.8", only: [:dev, :test]},
+     {:ex_doc, "~> 0.16", only: :dev},
+     {:earmark, ">= 0.0.0", only: :dev}]
   end
 
   defp docs do
