@@ -1,7 +1,7 @@
-defmodule UeberauthGithub.Mixfile do
+defmodule Ueberauth.Github.Mixfile do
   use Mix.Project
 
-  @version "0.4.1"
+  @version "0.5.0"
 
   def project do
     [app: :ueberauth_github,
@@ -24,14 +24,14 @@ defmodule UeberauthGithub.Mixfile do
 
   defp deps do
     [
-     {:oauth2, "~> 0.8"},
+     {:oauth2, "~> 0.9"},
      {:ueberauth, "~> 0.4"},
 
      # dev/test only dependencies
-     {:credo, "~> 0.5", only: [:dev, :test]},
+     {:credo, "~> 0.8", only: [:dev, :test]},
 
      # docs dependencies
-     {:earmark, "~> 0.2", only: :dev},
+     {:earmark, ">= 0.0.0", only: :dev},
      {:ex_doc, ">= 0.0.0", only: :dev}
     ]
   end
