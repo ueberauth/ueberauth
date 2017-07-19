@@ -17,6 +17,14 @@ defmodule Support.SpecRouter do
   get "/auth/using_custom_options/callback", do: named(conn, "using_custom_options_callback")
   get "/auth/with_errors/callback", do: named(conn, "with_errors_callback")
   post "/auth/post_callback/callback", do: named(conn, "post_callback")
+  post "/auth/post_callback_and_same_request_path", do: named(conn, "post_callback_and_same_request_path_request")
+  get "/auth/post_callback_and_same_request_path" do
+    if conn.private[:ueberauth_request_options] do
+      send_resp(conn, 200, "ok")
+    else
+      send_resp(conn, 200, "not-ok")
+    end
+  end
 
   match _, do: send_resp(conn, 404, "oops")
 

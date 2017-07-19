@@ -186,17 +186,19 @@ defmodule Ueberauth do
     end
 
     Enum.reduce providers, %{}, fn {_name, {module, _}} = strategy, acc ->
-      opts = strategy_opts(strategy, base_path)
+      %{callback_methods: methods} = opts = strategy_opts(strategy, base_path)
 
-      acc
-      |> Map.put(opts.request_path, {module, :run_request, opts})
-      |> Map.put(opts.callback_path, {module, :run_callback, opts})
+      acc = Map.put(acc, {opts.request_path, "GET"}, {module, :run_request, opts})
+
+      Enum.reduce(methods, acc, fn method, acc ->
+        Map.put(acc, {opts.callback_path, method}, {module, :run_callback, opts})
+      end)
     end
   end
 
   @doc false
-  def call(%{request_path: request_path} = conn, opts) do
-    if strategy = Map.get(opts, String.replace_trailing(request_path, "/", "")) do
+  def call(%{request_path: request_path, method: method} = conn, opts) do
+    if strategy = Map.get(opts, {String.replace_trailing(request_path, "/", ""), method}) do
       run!(conn, strategy)
     else
       conn
