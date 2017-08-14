@@ -86,6 +86,20 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+It is also possible to disable the sending of the `redirect_uri` to GitHub. This is particularly useful
+when your production application sits behind a proxy that handles SSL connections. In this case,
+the `redirect_uri` sent by `Ueberauth` will start with `http` instead of `https`, and if you configured
+your GitHub OAuth application's callback URL to use HTTPS, GitHub will throw an `uri_missmatch` error.
+
+To prevent `Ueberauth` from sending the `redirect_uri`, you should add the following to your configuration:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    github: {Ueberauth.Strategy.Github, [send_redirect_uri: false]}
+  ]
+```
+
 ## License
 
 Please see [LICENSE](https://github.com/ueberauth/ueberauth_github/blob/master/LICENSE) for licensing details.

@@ -87,7 +87,14 @@ defmodule Ueberauth.Strategy.Github do
   """
   def handle_request!(conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
-    opts = [redirect_uri: callback_url(conn), scope: scopes]
+    send_redirect_uri = Keyword.get(options(conn), :send_redirect_uri, true)
+
+    opts =
+      if send_redirect_uri do
+        [redirect_uri: callback_url(conn), scope: scopes]
+      else
+        [scope: scopes]
+      end
 
     opts =
       if conn.params["state"], do: Keyword.put(opts, :state, conn.params["state"]), else: opts
