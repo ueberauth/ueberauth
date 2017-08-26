@@ -1,7 +1,7 @@
 # Überauth Facebook
 [![Build Status][travis-img]][travis] [![Hex Version][hex-img]][hex] [![License][license-img]][license]
 
-[travis-img]: https://travis-ci.org/ueberauth/ueberauth_facebook.png?branch=master
+[travis-img]: https://travis-ci.org/ueberauth/ueberauth_facebook.svg?branch=master
 [travis]: https://travis-ci.org/ueberauth/ueberauth_facebook
 [hex-img]: https://img.shields.io/hexpm/v/ueberauth_facebook.svg
 [hex]: https://hex.pm/packages/ueberauth_facebook
@@ -18,7 +18,7 @@
 
     ```elixir
     def deps do
-      [{:ueberauth_facebook, "~> 0.6"}]
+      [{:ueberauth_facebook, "~> 0.7"}]
     end
     ```
 
