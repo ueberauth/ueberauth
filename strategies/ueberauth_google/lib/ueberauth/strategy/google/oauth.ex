@@ -51,12 +51,16 @@ defmodule Ueberauth.Strategy.Google.OAuth do
     |> OAuth2.Client.get(url, headers, opts)
   end
 
-  def get_token!(params \\ [], opts \\ []) do
-    client =
-      opts
-      |> client
-      |> OAuth2.Client.get_token!(params)
-    client.token
+  def get_access_token(params \\ [], opts \\ []) do
+    case opts |> client |> OAuth2.Client.get_token(params) do
+      {:error, %{body: %{"error" => error, "error_description" => description}}} ->
+        {:error, {error, description}}
+      {:ok, %{token: %{access_token: nil} = token}} ->
+        %{"error" => error, "error_description" => description} = token.other_params
+        {:error, {error, description}}
+      {:ok, %{token: token}} ->
+        {:ok, token}
+    end
   end
 
   # Strategy Callbacks

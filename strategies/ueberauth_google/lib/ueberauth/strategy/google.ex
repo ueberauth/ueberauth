@@ -32,13 +32,13 @@ defmodule Ueberauth.Strategy.Google do
   Handles the callback from Google.
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
+    params = [code: code]
     opts = [redirect_uri: callback_url(conn)]
-    token = Ueberauth.Strategy.Google.OAuth.get_token!([code: code], opts)
-
-    if token.access_token == nil do
-      set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])
-    else
-      fetch_user(conn, token)
+    case Ueberauth.Strategy.Google.OAuth.get_access_token(params, opts) do
+      {:ok, token} ->
+        fetch_user(conn, token)
+      {:error, {error_code, error_description}} ->
+        set_errors!(conn, [error(error_code, error_description)])
     end
   end
 
