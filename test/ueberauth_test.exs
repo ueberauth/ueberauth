@@ -34,6 +34,18 @@ defmodule UeberauthTest do
     assert extra.raw_info.callback_url == "http://www.example.com/auth/simple/callback"
   end
 
+  test "simple request and callback phase for same url but different method" do
+    conn = conn(:get, "/auth/post_callback_and_same_request_path")
+    resp = SpecRouter.call(conn, @opts)
+    assert resp.resp_body == "ok"
+    
+    conn = :post
+      |> conn("/auth/post_callback_and_same_request_path")
+      |> SpecRouter.call(@opts)
+    auth = conn.assigns.ueberauth_auth
+    assert auth.provider == :post_callback_and_same_request_path
+  end
+
   test "redirecting a request phase without trailing slash" do
     conn = conn(:get, "/auth/redirector") |> SpecRouter.call(@opts)
     assert get_resp_header(conn, "location") == ["https://redirectme.example.com/foo"]

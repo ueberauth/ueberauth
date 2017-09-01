@@ -10,4 +10,9 @@ config :ueberauth, Ueberauth,
     using_custom_options: { Support.DefaultOptions, [the_uid: "custom uid"] },
     with_errors: { Support.WithErrors, [] },
     post_callback: { Support.SimpleCallback, [ callback_methods: ["POST"] ] },
+    post_callback_and_same_request_path: { Support.SimpleCallback, [
+      callback_methods: ["POST"],
+      request_path: "/auth/post_callback_and_same_request_path",
+      callback_path: "/auth/post_callback_and_same_request_path"
+    ] },
   ]
