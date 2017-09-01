@@ -66,6 +66,8 @@ should call the callback URL. The strategy will intercept the request via the `c
 
 See `Ueberauth.Strategy` for more information on constructing the Ueberauth.Auth struct.
 
+Looking for an example? Take a look [ueberauth/ueberauth_example](https://github.com/ueberauth/ueberauth_example).
+
 ## Setup
 
 ### Add the dependency
