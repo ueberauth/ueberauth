@@ -10,7 +10,7 @@
 
     ```elixir
     def deps do
-      [{:ueberauth_github, "~> 0.4"}]
+      [{:ueberauth_github, "~> 0.6"}]
     end
     ```
 
