@@ -1,0 +1,22 @@
+language: elixir
+
+elixir:
+  - 1.5
+  - 1.4
+
+otp_release:
+  - 20.0
+  - 19.3
+
+env:
+  global:
+    - MIX_ENV=test
+
+notifications:
+  email: false
+
+sudo: false
+
+script:
+  - mix test
+  - mix credo
