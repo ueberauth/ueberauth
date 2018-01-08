@@ -79,7 +79,7 @@ By default the requested scope is "email". Scope can be configured either explic
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, [default_scope: "emails profile plus.me"]}
+    google: {Ueberauth.Strategy.Google, [default_scope: "email profile plus.me"]}
   ]
 ```
 
