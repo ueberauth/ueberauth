@@ -25,15 +25,15 @@ defmodule UeberauthTwitter.Mixfile do
 
   defp deps do
     [
-     {:httpoison, "~> 0.7"},
+     {:httpoison, "~> 0.13"},
      {:oauther, "~> 1.1"},
-     {:poison, "~> 1.3 or ~> 2.0"},
-     {:ueberauth, "~> 0.2"},
+     {:poison, "~> 3.0"},
+     {:ueberauth, "~> 0.4"},
 
      # dev/test dependencies
      {:earmark, ">= 0.0.0", only: :dev},
-     {:ex_doc, "~> 0.1", only: :dev},
-     {:credo, "~> 0.5", only: [:dev, :test]}
+     {:ex_doc, "~> 0.18", only: :dev},
+     {:credo, "~> 0.8", only: [:dev, :test]}
     ]
   end
 
