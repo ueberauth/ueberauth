@@ -77,6 +77,7 @@ defmodule Ueberauth.Strategy.Twitter do
       name: user["name"],
       nickname: user["screen_name"],
       description: user["description"],
+      location: user["location"],
       urls: %{
         Twitter: "https://twitter.com/#{user["screen_name"]}",
         Website: user["url"]
