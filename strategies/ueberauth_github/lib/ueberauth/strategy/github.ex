@@ -66,10 +66,10 @@ defmodule Ueberauth.Strategy.Github do
           github: { Ueberauth.Strategy.Github, [default_scope: "user,public_repo"] }
         ]
 
-  Default is "user,public_repo"
+  Default is empty ("") which "Grants read-only access to public information (includes public user profile info, public repository info, and gists)"
   """
   use Ueberauth.Strategy, uid_field: :id,
-                          default_scope: "user,public_repo",
+                          default_scope: "",
                           oauth2_module: Ueberauth.Strategy.Github.OAuth
 
   alias Ueberauth.Auth.Info
