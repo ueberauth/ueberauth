@@ -73,7 +73,7 @@ defmodule Ueberauth.Strategy.Twitter do
 
     %Info{
       email: user["email"],
-      image: user["profile_image_url"],
+      image: user["profile_image_url_https"],
       name: user["name"],
       nickname: user["screen_name"],
       description: user["description"],
