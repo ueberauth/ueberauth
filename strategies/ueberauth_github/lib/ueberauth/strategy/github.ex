@@ -165,10 +165,11 @@ defmodule Ueberauth.Strategy.Github do
 
     %Info{
       name: user["name"],
+      description: user["bio"],
       nickname: user["login"],
       email: fetch_email!(user),
       location: user["location"],
-      image: user["avatar_url"],      
+      image: user["avatar_url"],
       urls: %{
         followers_url: user["followers_url"],
         avatar_url: user["avatar_url"],
