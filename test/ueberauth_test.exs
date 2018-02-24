@@ -38,7 +38,7 @@ defmodule UeberauthTest do
     conn = conn(:get, "/auth/post_callback_and_same_request_path")
     resp = SpecRouter.call(conn, @opts)
     assert resp.resp_body == "ok"
-    
+
     conn = :post
       |> conn("/auth/post_callback_and_same_request_path")
       |> SpecRouter.call(@opts)
@@ -151,6 +151,23 @@ defmodule UeberauthTest do
     conn =  %{conn | params: %{"type" => "user", "param_2" => "param_2"}}
     assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
       "http://www.example.com?type=user"
+  end
+
+  test "test_mode redirects to callback on request" do
+    conn = conn(:get, "/auth/test_mode") |> SpecRouter.call(@opts)
+    assert get_resp_header(conn, "location") == ["http://www.example.com/auth/test_mode/callback"]
+  end
+
+  test "test_mode returns default information on callback" do
+    conn = conn(:get, "/auth/test_mode/callback") |> SpecRouter.call(@opts)
+    auth = conn.assigns.ueberauth_auth
+
+    assert auth.uid == "Elixir.Support.TestModeCallback-uid"
+    assert auth.info.a == 1
+    assert auth.credentials.b == 2
+    assert auth.extra.raw_info.c == 3
+    assert auth.provider == :test_mode
+    assert auth.strategy == Support.TestMode
   end
 
   defp assert_standard_info(auth) do

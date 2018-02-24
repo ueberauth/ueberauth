@@ -176,6 +176,38 @@ providers: [
 ]
 ```
 
+## Test Mode
+
+UeberAuth has some facilities for mocking its authentication flow when you are performing integration tests. Set up UeberAuth with `test_mode` option:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    twitter: { Ueberauth.Strategy.Twitter, [] },
+  ],
+  test_mode: [
+    twitter: %{
+      uid: "Elixir.Support.TestModeCallback-uid",
+      info: %{
+        a: 1
+      },
+      credentials: %{
+        b: 2
+      },
+      extra: %{
+        raw_info: %{
+          c: 3
+        }
+      },
+      provider: :test_mode,
+      strategy: Ueberauth.Strategy.Twitter
+    }
+  ]
+```
+
+You can visit `/auth/twitter` and will be redirected automatically to `/auth/twitter/callback`. Aftewards, you'll receive specified strategy information.
+
+
 ## Strategy Options
 
 All options that are passed into your strategy are available at runtime to

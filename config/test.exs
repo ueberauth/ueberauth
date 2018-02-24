@@ -15,4 +15,23 @@ config :ueberauth, Ueberauth,
       request_path: "/auth/post_callback_and_same_request_path",
       callback_path: "/auth/post_callback_and_same_request_path"
     ] },
+    test_mode: { Support.TestMode, [] },
+  ],
+  test_mode: [
+    test_mode: %{
+      uid: "Elixir.Support.TestModeCallback-uid",
+      info: %{
+        a: 1
+      },
+      credentials: %{
+        b: 2
+      },
+      extra: %{
+        raw_info: %{
+          c: 3
+        }
+      },
+      provider: :test_mode,
+      strategy: Support.TestMode
+    }
   ]
