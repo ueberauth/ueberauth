@@ -66,7 +66,7 @@ For an example implementation see the [Überauth Example](https://github.com/ueb
 
 ## Calling
 
-Depending on the configured url you can initial the request through:
+Depending on the configured url you can initiate the request through:
 
     /auth/google
 
