@@ -25,7 +25,7 @@ defmodule UeberauthTwitter.Mixfile do
 
   defp deps do
     [
-     {:httpoison, "~> 0.13"},
+     {:httpoison, "~> 1.0"},
      {:oauther, "~> 1.1"},
      {:poison, "~> 3.0"},
      {:ueberauth, "~> 0.4"},
