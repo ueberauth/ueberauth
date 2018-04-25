@@ -18,7 +18,7 @@ defmodule Ueberauth.Strategy.Google do
     opts =
       [scope: scopes]
       |> with_optional(:hd, conn)
-      |> with_optional(:approval_prompt, conn)
+      |> with_optional(:prompt, conn)
       |> with_optional(:access_type, conn)
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
