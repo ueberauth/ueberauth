@@ -83,12 +83,12 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
-You can also pass options such as the `hd` parameter to limit sign-in to a particular Google Apps hosted domain, or `approval_prompt` and `access_type` options to request refresh_tokens and offline access.
+You can also pass options such as the `hd` parameter to limit sign-in to a particular Google Apps hosted domain, or `prompt` and `access_type` options to request refresh_tokens and offline access.
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Google, [hd: "example.com", approval_prompt: "force", access_type: "offline"]}
+    google: {Ueberauth.Strategy.Google, [hd: "example.com", prompt: "select_account", access_type: "offline"]}
   ]
 ```
 
