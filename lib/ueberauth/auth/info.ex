@@ -12,6 +12,7 @@ defmodule Ueberauth.Auth.Info do
               email: binary | nil,
               location: binary | nil,
               description: binary | nil,
+              image: binary | nil,
               phone: binary | nil,
               urls: map
              }
