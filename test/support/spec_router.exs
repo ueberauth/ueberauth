@@ -25,6 +25,8 @@ defmodule Support.SpecRouter do
       send_resp(conn, 200, "not-ok")
     end
   end
+  get "/auth/test_mode", do: named(conn, "test_mode_request")
+  get "/auth/test_mode/callback", do: named(conn, "test_mode_callback")
 
   match _, do: send_resp(conn, 404, "oops")
 

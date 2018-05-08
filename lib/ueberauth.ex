@@ -176,6 +176,7 @@ defmodule Ueberauth do
 
     {base_path, opts}  = Keyword.pop(opts, :base_path, "/auth")
     {all_providers, _opts} = Keyword.pop(opts, :providers)
+    {test_modes, _opts} = Keyword.pop(opts, :test_mode, [])
 
     providers = if provider_list == :all do
       all_providers
@@ -185,13 +186,19 @@ defmodule Ueberauth do
       |> elem(0)
     end
 
-    Enum.reduce providers, %{}, fn {_name, {module, _}} = strategy, acc ->
+    Enum.reduce providers, %{}, fn {name, {module, _}} = strategy, acc ->
       %{callback_methods: methods} = opts = strategy_opts(strategy, base_path)
 
-      acc = Map.put(acc, {opts.request_path, "GET"}, {module, :run_request, opts})
+      {test_auth, _opts} = Keyword.pop(test_modes, name, nil)
+
+      opts = Map.put(opts, :auth, test_auth)
+      request_method = if test_auth, do: :stub_request, else: :run_request
+      callback_method = if test_auth, do: :stub_callback, else: :run_callback
+
+      acc = Map.put(acc, {opts.request_path, "GET"}, {module, request_method, opts})
 
       Enum.reduce(methods, acc, fn method, acc ->
-        Map.put(acc, {opts.callback_path, method}, {module, :run_callback, opts})
+        Map.put(acc, {opts.callback_path, method}, {module, callback_method, opts})
       end)
     end
   end
@@ -199,7 +206,8 @@ defmodule Ueberauth do
   @doc false
   def call(%{request_path: request_path, method: method} = conn, opts) do
     if strategy = Map.get(opts, {String.replace_trailing(request_path, "/", ""), method}) do
-      run!(conn, strategy)
+      conn
+      |> run!(strategy)
     else
       conn
     end
@@ -207,29 +215,47 @@ defmodule Ueberauth do
 
   defp run!(conn, {module, :run_request, opts}) do
     conn
-    |> Plug.Conn.put_private(:ueberauth_request_options, opts)
+    |> put_opts(opts)
     |> Strategy.run_request(module)
   end
 
   defp run!(conn, {module, :run_callback, opts}) do
     if conn.method in opts[:callback_methods] do
       conn
-      |> Plug.Conn.put_private(:ueberauth_request_options, opts)
+      |> put_opts(opts)
       |> Strategy.run_callback(module)
     else
       conn
     end
   end
 
+  defp run!(conn, {_module, :stub_request, opts}) do
+    conn
+    |> put_opts(opts)
+    |> Strategy.Base.redirect_to_callback()
+  end
+
+  defp run!(conn, {_module, :stub_callback, opts}) do
+    conn
+    |> put_opts(opts)
+    |> Strategy.Base.assign_auth(opts.auth)
+  end
+
   defp strategy_opts({name, {module, opts}} = strategy, base_path) do
-    %{strategy_name: name,
+    %{
+      strategy_name: name,
       strategy: module,
       callback_path: callback_path(base_path, strategy),
       request_path: request_path(base_path, strategy),
       callback_methods: callback_methods(opts),
       options: opts,
       callback_url: Keyword.get(opts, :callback_url),
-      callback_params: Keyword.get(opts, :callback_params)}
+      callback_params: Keyword.get(opts, :callback_params),
+    }
+  end
+
+  defp put_opts(conn, opts) do
+    Plug.Conn.put_private(conn, :ueberauth_request_options, opts)
   end
 
   defp request_path(base_path, {name, {_, opts}}) do
