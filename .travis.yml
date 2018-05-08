@@ -15,6 +15,12 @@ matrix:
 notifications:
   email: false
 script:
-  - mix compile --warnings-as-errors
+  - >
+    for elixir_minor_version in {6..7}; do
+      if [[ "${TRAVIS_ELIXIR_VERSION}" == *"1.${elixir_minor_version}."* ]]; then
+        mix format --check-formatted --dry-run
+      fi
+    done
+  - mix do compile --warnings-as-errors
   - mix credo
   - mix test

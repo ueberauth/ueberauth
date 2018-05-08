@@ -6,12 +6,15 @@ defmodule Ueberauth.Failure do
   """
 
   @type t :: %__MODULE__{
-              provider: binary,
-              strategy: module,
-              errors: list(Ueberauth.Failure.Error)
-             }
+          provider: binary,
+          strategy: module,
+          errors: list(Ueberauth.Failure.Error)
+        }
 
-  defstruct provider: nil, # the provider name
-            strategy: nil, # the strategy module tha ran
-            errors: [] # Ueberauth.Failure.Error collection of strategy defined errors
+  # the provider name
+  defstruct provider: nil,
+            # the strategy module tha ran
+            strategy: nil,
+            # Ueberauth.Failure.Error collection of strategy defined errors
+            errors: []
 end

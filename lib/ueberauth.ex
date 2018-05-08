@@ -164,7 +164,7 @@ defmodule Ueberauth do
 
   This should only be called after the callback phase has run.
   """
-  @spec auth(Plug.Conn.t) :: Ueberauth.Auth.t
+  @spec auth(Plug.Conn.t()) :: Ueberauth.Auth.t()
   def auth(conn) do
     conn.assigns[:ueberauth_auth]
   end
@@ -174,18 +174,19 @@ defmodule Ueberauth do
     {provider_list, opts} = Keyword.pop(opts, :providers, :all)
     opts = Keyword.merge(Application.get_env(:ueberauth, Ueberauth), opts)
 
-    {base_path, opts}  = Keyword.pop(opts, :base_path, "/auth")
+    {base_path, opts} = Keyword.pop(opts, :base_path, "/auth")
     {all_providers, _opts} = Keyword.pop(opts, :providers)
 
-    providers = if provider_list == :all do
-      all_providers
-    else
-      all_providers
-      |> Keyword.split(provider_list)
-      |> elem(0)
-    end
+    providers =
+      if provider_list == :all do
+        all_providers
+      else
+        all_providers
+        |> Keyword.split(provider_list)
+        |> elem(0)
+      end
 
-    Enum.reduce providers, %{}, fn {_name, {module, _}} = strategy, acc ->
+    Enum.reduce(providers, %{}, fn {_name, {module, _}} = strategy, acc ->
       %{callback_methods: methods} = opts = strategy_opts(strategy, base_path)
 
       acc = Map.put(acc, {opts.request_path, "GET"}, {module, :run_request, opts})
@@ -193,7 +194,7 @@ defmodule Ueberauth do
       Enum.reduce(methods, acc, fn method, acc ->
         Map.put(acc, {opts.callback_path, method}, {module, :run_callback, opts})
       end)
-    end
+    end)
   end
 
   @doc false
@@ -222,14 +223,16 @@ defmodule Ueberauth do
   end
 
   defp strategy_opts({name, {module, opts}} = strategy, base_path) do
-    %{strategy_name: name,
+    %{
+      strategy_name: name,
       strategy: module,
       callback_path: callback_path(base_path, strategy),
       request_path: request_path(base_path, strategy),
       callback_methods: callback_methods(opts),
       options: opts,
       callback_url: Keyword.get(opts, :callback_url),
-      callback_params: Keyword.get(opts, :callback_params)}
+      callback_params: Keyword.get(opts, :callback_params)
+    }
   end
 
   defp request_path(base_path, {name, {_, opts}}) do
@@ -245,6 +248,6 @@ defmodule Ueberauth do
   defp callback_methods(opts) do
     opts
     |> Keyword.get(:callback_methods, ["GET"])
-    |> Enum.map(&(String.upcase(to_string(&1))))
+    |> Enum.map(&String.upcase(to_string(&1)))
   end
 end

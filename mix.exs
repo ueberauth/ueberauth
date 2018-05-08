@@ -4,18 +4,20 @@ defmodule Ueberauth.Mixfile do
   @version "0.5.0"
 
   def project do
-    [app: :ueberauth,
-     name: "Überauth",
-     version: @version,
-     elixir: "~> 1.4",
-     package: package(),
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     source_url: "https://github.com/ueberauth/ueberauth",
-     homepage_url: "https://github.com/ueberauth/ueberauth",
-     description: description(),
-     deps: deps(),
-     docs: docs()]
+    [
+      app: :ueberauth,
+      name: "Überauth",
+      version: @version,
+      elixir: "~> 1.4",
+      package: package(),
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      source_url: "https://github.com/ueberauth/ueberauth",
+      homepage_url: "https://github.com/ueberauth/ueberauth",
+      description: description(),
+      deps: deps(),
+      docs: docs()
+    ]
   end
 
   def application do
@@ -23,12 +25,14 @@ defmodule Ueberauth.Mixfile do
   end
 
   defp deps do
-    [{:plug, "~> 1.2"},
+    [
+      {:plug, "~> 1.2"},
 
-     # dev/test dependencies
-     {:credo, "~> 0.8.10", only: [:dev, :test]},
-     {:earmark, "~> 0.2", only: :dev},
-     {:ex_doc, "~> 0.12", only: :dev}]
+      # dev/test dependencies
+      {:credo, "~> 0.8.10", only: [:dev, :test]},
+      {:earmark, "~> 0.2", only: :dev},
+      {:ex_doc, "~> 0.12", only: :dev}
+    ]
   end
 
   defp docs do
@@ -40,9 +44,11 @@ defmodule Ueberauth.Mixfile do
   end
 
   defp package do
-    [files: ["lib", "mix.exs", "README.md", "LICENSE"],
-     maintainers: ["Sonny Scroggin", "Daniel Neighman", "Sean Callan"],
-     licenses: ["MIT"],
-     links: %{"GitHub" => "https://github.com/ueberauth/ueberauth"}]
+    [
+      files: ["lib", "mix.exs", "README.md", "LICENSE"],
+      maintainers: ["Sonny Scroggin", "Daniel Neighman", "Sean Callan"],
+      licenses: ["MIT"],
+      links: %{"GitHub" => "https://github.com/ueberauth/ueberauth"}
+    ]
   end
 end

@@ -7,9 +7,9 @@ defmodule Ueberauth.Failure.Error do
   indicating the cause of the error.
   """
   @type t :: %__MODULE__{
-              message_key: binary,
-              message: binary
-             }
+          message_key: binary,
+          message: binary
+        }
 
   defstruct message_key: nil,
             message: nil
