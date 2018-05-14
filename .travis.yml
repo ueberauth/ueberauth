@@ -22,5 +22,4 @@ script:
       fi
     done
   - mix do compile --warnings-as-errors
-  - mix credo
   - mix test
