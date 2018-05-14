@@ -169,7 +169,7 @@ defmodule Ueberauth.Strategy do
   and should provide the end user with a way to provide the information
   required for your application to authenticate them.
   """
-  @callback handle_request!(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_request!(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   The callback phase implementation for your strategy.
@@ -180,7 +180,7 @@ defmodule Ueberauth.Strategy do
   `ueberauth_failure` or an `Ueberauth.Auth` struct will be constrcted and
   added to the assigns at `:ueberauth_auth`.
   """
-  @callback handle_callback!(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_callback!(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   The cleanup phase implementation for your strategy.
@@ -189,7 +189,7 @@ defmodule Ueberauth.Strategy do
   mechanism to cleanup any temporary data your strategy may have placed in the
   connection.
   """
-  @callback handle_cleanup!(Plug.Conn.t) :: Plug.Conn.t
+  @callback handle_cleanup!(Plug.Conn.t()) :: Plug.Conn.t()
 
   @doc """
   Provides the uid for the user.
@@ -197,7 +197,7 @@ defmodule Ueberauth.Strategy do
   This is one of the component functions that is used to construct the auth
   struct. What you return here will be in the auth struct at the `uid` key.
   """
-  @callback uid(Plug.Conn.t) :: binary | nil
+  @callback uid(Plug.Conn.t()) :: binary | nil
 
   @doc """
   Provides the info for the user.
@@ -205,7 +205,7 @@ defmodule Ueberauth.Strategy do
   This is one of the component functions that is used to construct the auth
   struct. What you return here will be in the auth struct at the `info` key.
   """
-  @callback info(Plug.Conn.t) :: Info.t
+  @callback info(Plug.Conn.t()) :: Info.t()
 
   @doc """
   Provides the extra params for the user.
@@ -216,7 +216,7 @@ defmodule Ueberauth.Strategy do
   You would include any additional information within extra that does not fit
   in either `info` or `credentials`
   """
-  @callback extra(Plug.Conn.t) :: Extra.t
+  @callback extra(Plug.Conn.t()) :: Extra.t()
 
   @doc """
   Provides the credentials for the user.
@@ -225,7 +225,7 @@ defmodule Ueberauth.Strategy do
   struct. What you return here will be in the auth struct at the `credentials`
   key.
   """
-  @callback credentials(Plug.Conn.t) :: Credentials.t
+  @callback credentials(Plug.Conn.t()) :: Credentials.t()
 
   @doc """
   When defining your own strategy you should use Ueberauth.Strategy.
@@ -285,7 +285,13 @@ defmodule Ueberauth.Strategy do
         )
       end
 
-      defoverridable [uid: 1, info: 1, extra: 1, credentials: 1, handle_request!: 1, handle_callback!: 1, handle_cleanup!: 1]
+      defoverridable uid: 1,
+                     info: 1,
+                     extra: 1,
+                     credentials: 1,
+                     handle_request!: 1,
+                     handle_callback!: 1,
+                     handle_cleanup!: 1
     end
   end
 
@@ -301,12 +307,14 @@ defmodule Ueberauth.Strategy do
       |> apply(:handle_callback!, [conn])
       |> handle_callback_result(strategy)
       |> handle_callback_result(strategy)
+
     apply(strategy, :handle_cleanup!, [handled_conn])
   end
 
   defp handle_callback_result(%{halted: true} = conn, _), do: conn
   defp handle_callback_result(%{assigns: %{ueberauth_failure: _}} = conn, _), do: conn
   defp handle_callback_result(%{assigns: %{ueberauth_auth: %{}}} = conn, _), do: conn
+
   defp handle_callback_result(conn, strategy) do
     auth = apply(strategy, :auth, [conn])
     Plug.Conn.assign(conn, :ueberauth_auth, auth)

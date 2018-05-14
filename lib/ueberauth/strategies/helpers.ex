@@ -15,13 +15,13 @@ defmodule Ueberauth.Strategy.Helpers do
 
   This is defined in your configuration as the provider name.
   """
-  @spec strategy_name(Plug.Conn.t) :: String.t
+  @spec strategy_name(Plug.Conn.t()) :: String.t()
   def strategy_name(conn), do: from_private(conn, :strategy_name)
 
   @doc """
   The strategy module that is being used for the request.
   """
-  @spec strategy(Plug.Conn.t) :: module
+  @spec strategy(Plug.Conn.t()) :: module
   def strategy(conn), do: from_private(conn, :strategy)
 
   @doc """
@@ -29,7 +29,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   Requests to this path will trigger the `request_phase` of the strategy.
   """
-  @spec request_path(Plug.Conn.t) :: String.t
+  @spec request_path(Plug.Conn.t()) :: String.t()
   def request_path(conn), do: from_private(conn, :request_path)
 
   @doc """
@@ -37,7 +37,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   When a client hits this path, the callback phase will be triggered for the strategy.
   """
-  @spec callback_path(Plug.Conn.t) :: String.t
+  @spec callback_path(Plug.Conn.t()) :: String.t()
   def callback_path(conn), do: from_private(conn, :callback_path)
 
   @doc """
@@ -46,7 +46,7 @@ defmodule Ueberauth.Strategy.Helpers do
   The URL is based on the current requests host and scheme. The options will be
   encoded as query params.
   """
-  @spec request_url(Plug.Conn.t) :: String.t
+  @spec request_url(Plug.Conn.t()) :: String.t()
   def request_url(conn, opts \\ []), do: full_url(conn, request_path(conn), opts)
 
   @doc """
@@ -56,10 +56,10 @@ defmodule Ueberauth.Strategy.Helpers do
   encoded as query params.
   """
 
-  @spec callback_url(Plug.Conn.t) :: String.t
+  @spec callback_url(Plug.Conn.t()) :: String.t()
   def callback_url(conn, opts \\ []) do
     from_private(conn, :callback_url) ||
-    full_url(conn, callback_path(conn),  callback_params(conn, opts))
+      full_url(conn, callback_path(conn), callback_params(conn, opts))
   end
 
   @doc """
@@ -67,13 +67,16 @@ defmodule Ueberauth.Strategy.Helpers do
 
   This method will filter conn.params with whitelisted params from :callback_params settings
   """
-  @spec callback_params(Plug.Conn.t) :: list(String.t)
+  @spec callback_params(Plug.Conn.t()) :: list(String.t())
   def callback_params(conn, opts \\ []) do
     callback_params = from_private(conn, :callback_params) || []
-    callback_params = callback_params
-      |> Enum.map(fn(k) -> {String.to_atom(k), conn.params[k]} end)
+
+    callback_params =
+      callback_params
+      |> Enum.map(fn k -> {String.to_atom(k), conn.params[k]} end)
       |> Enum.filter(fn {_, v} -> v != nil end)
       |> Enum.filter(fn {k, _} -> k != "provider" end)
+
     Keyword.merge(opts, callback_params)
   end
 
@@ -83,18 +86,18 @@ defmodule Ueberauth.Strategy.Helpers do
   This will use any supplied options from the configuration, but fallback to the
   default options
   """
-  @spec allowed_callback_methods(Plug.Conn.t) :: list(String.t)
+  @spec allowed_callback_methods(Plug.Conn.t()) :: list(String.t())
   def allowed_callback_methods(conn), do: from_private(conn, :callback_methods)
 
   @doc """
   Is the current request http method one of the allowed callback methods?
   """
-  @spec allowed_callback_method?(Plug.Conn.t) :: boolean
+  @spec allowed_callback_method?(Plug.Conn.t()) :: boolean
   def allowed_callback_method?(%{method: method} = conn) do
     callback_method =
       method
       |> to_string
-      |> String.upcase
+      |> String.upcase()
 
     conn
     |> allowed_callback_methods
@@ -104,7 +107,7 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   The full list of options passed to the strategy in the configuration.
   """
-  @spec options(Plug.Conn.t) :: Keyword.t
+  @spec options(Plug.Conn.t()) :: Keyword.t()
   def options(conn), do: from_private(conn, :options)
 
   @doc """
@@ -117,7 +120,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
       error("something_bad", "Something really bad happened")
   """
-  @spec error(String.t, String.t) :: Error.t
+  @spec error(String.t(), String.t()) :: Error.t()
   def error(key, message), do: struct(Error, message_key: key, message: message)
 
   @doc """
@@ -129,14 +132,15 @@ defmodule Ueberauth.Strategy.Helpers do
   Note this changes the conn object and should be part of your returned
   connection of the `callback_phase!`.
   """
-  @spec error(Plug.Conn.t, list(Error.t)) :: Plug.Conn.t
+  @spec error(Plug.Conn.t(), list(Error.t())) :: Plug.Conn.t()
   def set_errors!(conn, errors) do
-    failure = struct(
-      Failure,
-      provider: strategy_name(conn),
-      strategy: strategy(conn),
-      errors: map_errors(errors)
-    )
+    failure =
+      struct(
+        Failure,
+        provider: strategy_name(conn),
+        strategy: strategy(conn),
+        errors: map_errors(errors)
+      )
 
     Plug.Conn.assign(conn, :ueberauth_failure, failure)
   end
@@ -144,7 +148,7 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   Redirects to a url and halts the plug pipeline.
   """
-  @spec redirect!(Plug.Conn.t, String.t) :: Plug.Conn.t
+  @spec redirect!(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
   def redirect!(conn, url) do
     html = Plug.HTML.html_escape(url)
     body = "<html><body>You are being <a href=\"#{html}\">redirected</a>.</body></html>"
@@ -161,17 +165,18 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   defp full_url(conn, path, opts) do
-    scheme = conn
-    |> forwarded_proto
-    |> coalesce(conn.scheme)
-    |> normalize_scheme
+    scheme =
+      conn
+      |> forwarded_proto
+      |> coalesce(conn.scheme)
+      |> normalize_scheme
 
     %URI{
       host: conn.host,
       port: normalize_port(scheme, conn.port),
       path: path,
       query: encode_query(opts),
-      scheme: to_string(scheme),
+      scheme: to_string(scheme)
     }
     |> to_string
   end
@@ -179,7 +184,7 @@ defmodule Ueberauth.Strategy.Helpers do
   defp forwarded_proto(conn) do
     conn
     |> Plug.Conn.get_req_header("x-forwarded-proto")
-    |> List.first
+    |> List.first()
   end
 
   defp normalize_scheme("https"), do: :https
