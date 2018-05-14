@@ -259,7 +259,7 @@ defmodule Ueberauth.Strategy do
     quote do
       @behaviour Ueberauth.Strategy
       import Ueberauth.Strategy.Helpers
-      import Plug.Conn
+      import Plug.Conn, except: [request_url: 1]
 
       def default_options, do: unquote(opts)
 
