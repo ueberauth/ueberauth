@@ -6,7 +6,7 @@ defmodule Ueberauth.Strategy.Helpers do
   to the specific pipelined strategy, considering the pipelined options and
   falling back to defaults.
   """
-  import Plug.Conn
+  import Plug.Conn, except: [request_url: 1]
   alias Ueberauth.Failure
   alias Ueberauth.Failure.Error
 

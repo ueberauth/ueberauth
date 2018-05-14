@@ -21,17 +21,15 @@ defmodule Ueberauth.Mixfile do
   end
 
   def application do
-    [applications: [:logger]]
+    [extra_applications: [:logger]]
   end
 
   defp deps do
     [
-      {:plug, "~> 1.2"},
+      {:plug, "~> 1.5.0"},
 
       # dev/test dependencies
-      {:credo, "~> 0.8.10", only: [:dev, :test]},
-      {:earmark, "~> 0.2", only: :dev},
-      {:ex_doc, "~> 0.12", only: :dev}
+      {:ex_doc, "~> 0.18.0", only: :dev}
     ]
   end
 
