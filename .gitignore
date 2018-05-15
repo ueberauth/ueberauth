@@ -1,7 +1,11 @@
 /_build
-/cover
 /deps
+/.dialyzer
 erl_crash.dump
 *.ez
-/doc
+doc
+.DS_Store
+.elixir_ls/
 /.idea
+/docs
+/cover

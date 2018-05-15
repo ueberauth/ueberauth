@@ -16,7 +16,12 @@ defmodule Ueberauth.Mixfile do
       homepage_url: "https://github.com/ueberauth/ueberauth",
       description: description(),
       deps: deps(),
-      docs: docs()
+      docs: docs(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -28,8 +33,12 @@ defmodule Ueberauth.Mixfile do
     [
       {:plug, "~> 1.5.0"},
 
-      # dev/test dependencies
-      {:ex_doc, "~> 0.18.0", only: :dev}
+      # Tools
+      {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false},
+      {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
+      {:excoveralls, ">= 0.0.0", only: [:test], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+      {:inch_ex, ">= 0.0.0", only: [:dev], runtime: false}
     ]
   end
 

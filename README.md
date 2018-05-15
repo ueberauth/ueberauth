@@ -1,6 +1,10 @@
 # Überauth
-[![Build Status](https://secure.travis-ci.org/ueberauth/ueberauth.svg?branch=master
-"Build Status")](https://travis-ci.org/ueberauth/ueberauth) [![Hex Version](http://img.shields.io/hexpm/v/ueberauth.svg)](https://hex.pm/packages/ueberauth) [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg)](https://hexdocs.pm/ueberauth) [![License](https://img.shields.io/hexpm/l/ueberauth.svg)](https://github.com/ueberauth/ueberauth/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/ueberauth/ueberauth.svg?branch=master)](https://travis-ci.org/ueberauth/ueberauth)
+[![Codecov](https://codecov.io/gh/ueberauth/ueberauth/branch/master/graph/badge.svg)](https://codecov.io/gh/ueberauth/ueberauth)
+[![Inline docs](http://inch-ci.org/github/ueberauth/ueberauth.svg)](http://inch-ci.org/github/ueberauth/ueberauth)
+[![Hex Version](http://img.shields.io/hexpm/v/ueberauth.svg)](https://hex.pm/packages/ueberauth)
+[![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg)](https://hexdocs.pm/ueberauth)
+[![License](https://img.shields.io/hexpm/l/ueberauth.svg)](https://github.com/ueberauth/ueberauth/blob/master/LICENSE)
 
 > An Elixir Authentication System for Plug-based Web Applications
 
