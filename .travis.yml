@@ -1,26 +1,17 @@
 language: elixir
 sudo: false
-elixir:
-  - 1.6
-  - 1.5
-  - 1.4
-otp_release:
-  - 20.2
-  - 19.3
-  - 18.3
-matrix:
-  exclude:
-    - elixir: 1.6
-      otp_release: 18.3
 notifications:
   email: false
+
+elixir:
+  - 1.6
+
+otp_release:
+  - 20.2
+
 script:
-  - >
-    for elixir_minor_version in {6..7}; do
-      if [[ "${TRAVIS_ELIXIR_VERSION}" == *"1.${elixir_minor_version}."* ]]; then
-        mix format --check-formatted --dry-run
-      fi
-    done
-  - mix do compile --warnings-as-errors
-  - mix credo
-  - mix test
+  - make testing
+after_script:
+  - make docs
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
