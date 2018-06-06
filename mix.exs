@@ -9,6 +9,7 @@ defmodule Ueberauth.Mixfile do
       name: "Überauth",
       version: @version,
       elixir: "~> 1.4",
+      elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -28,6 +29,9 @@ defmodule Ueberauth.Mixfile do
   def application do
     [extra_applications: [:logger]]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp deps do
     [
