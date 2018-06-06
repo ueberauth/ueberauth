@@ -1,4 +1,6 @@
 defmodule Support.SpecRouter do
+  @moduledoc false
+
   use Plug.Router
   require Ueberauth
 
