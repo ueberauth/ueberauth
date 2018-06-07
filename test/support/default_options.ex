@@ -1,4 +1,6 @@
 defmodule Support.DefaultOptions do
+  @moduledoc false
+
   use Ueberauth.Strategy, the_uid: "default uid"
   use Support.Mixins
 

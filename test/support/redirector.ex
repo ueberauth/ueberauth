@@ -1,4 +1,6 @@
 defmodule Support.Redirector do
+  @moduledoc false
+
   use Ueberauth.Strategy
   use Support.Mixins
 
