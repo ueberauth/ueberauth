@@ -15,7 +15,7 @@ defmodule Ueberauth.Strategy.Google do
   def handle_request!(conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
 
-    opts =
+    params =
       [scope: scopes]
       |> with_optional(:hd, conn)
       |> with_optional(:prompt, conn)
@@ -23,9 +23,10 @@ defmodule Ueberauth.Strategy.Google do
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
       |> with_param(:state, conn)
-      |> Keyword.put(:redirect_uri, callback_url(conn))
 
-    redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(opts))
+    opts = [redirect_uri: callback_url(conn)]
+
+    redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(params, opts))
   end
 
   @doc """
