@@ -118,7 +118,7 @@ defmodule Ueberauth do
   If you want to include only some of the providers with your plug
   you can specify a list of configured providers
 
-      def module MyApp.Admin.AuthController do
+      defmodule MyApp.Admin.AuthController do
         user MyApp.Web :controller
         plug Ueberauth, providers: [:identity], base_path: "/admin/auth"
       end
