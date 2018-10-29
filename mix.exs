@@ -8,7 +8,7 @@ defmodule Ueberauth.Mixfile do
       app: :ueberauth,
       name: "Überauth",
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       build_embedded: Mix.env() == :prod,
@@ -27,7 +27,10 @@ defmodule Ueberauth.Mixfile do
   end
 
   def application do
-    [extra_applications: [:logger]]
+    [
+      extra_applications: [:logger],
+      env: [json_serializer: Jason],
+    ]
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
@@ -35,14 +38,13 @@ defmodule Ueberauth.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 1.5.0"},
+      {:plug, ">= 1.4.0", optional: true},
+      {:jason, ">= 1.0.0", optional: true},
+      {:oauth2, "~> 0.9"},
 
       # Tools
       {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false},
-      {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
-      {:excoveralls, ">= 0.0.0", only: [:test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
-      {:inch_ex, ">= 0.0.0", only: [:dev], runtime: false}
     ]
   end
 
@@ -51,7 +53,7 @@ defmodule Ueberauth.Mixfile do
   end
 
   defp description do
-    "An Elixir Authentication System for Plug-based Web Applications"
+    "An Elixir Authentication System for multi-phase Web Applications"
   end
 
   defp package do
