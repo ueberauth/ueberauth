@@ -8,18 +8,18 @@ defmodule Ueberauth.Plug do
 
   It operates with the concept of phases. There are two.
 
-  1. Request phase
+  1. Challenge phase
   2. Callback phase
 
-  ## Request phase
-  The request phase follows normal plug pipeline behaviour.
+  ## Challenge phase
+  The challenge phase follows normal plug pipeline behaviour.
 
   When a request comes into your controller with `/some/path/:provider`
 
   Where `:provider` is a configured provider, This plug will request the redirect url from
   from the strategy. It will then redirect to that url.
 
-  The call to `redirect_url` will be:
+  The call to `challenge_url` will be:
 
   `%{callback_url: url, conn: conn}`
 
@@ -160,7 +160,7 @@ defmodule Ueberauth.Plug do
     request_uri = %{request_uri | path: Path.join(request_uri.path, suffix)}
 
     redirect_url =
-      strategy.request_url(%{callback_url: to_string(request_uri), conn: conn}, opts)
+      strategy.challenge_url(%{callback_url: to_string(request_uri), conn: conn}, opts)
 
     case redirect_url do
       {:ok, url} ->

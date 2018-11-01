@@ -15,7 +15,7 @@ defmodule Ueberauth.Strategy.Google do
   @uid_field :sub
 
   # handle plug based request
-  def request_url(%{callback_url: url, conn: conn}, opts) do
+  def challenge_url(%{callback_url: url, conn: conn}, opts) do
     scopes = conn.params["scope"] || Keyword.get(opts, :scope, @default_scope)
 
     params =
@@ -27,13 +27,16 @@ defmodule Ueberauth.Strategy.Google do
       |> with_param(:prompt, conn)
       |> with_param(:state, conn)
 
-    (opts ++ [redirect_uri: url])
-    |> __MODULE__.OAuth.client()
-    |> __MODULE__.OAuth.authorize_url(params)
+    url =
+      (opts ++ [redirect_uri: url])
+      |> __MODULE__.OAuth.client()
+      |> __MODULE__.OAuth.authorize_url(params)
+
+    {:ok, url}
   end
 
   # handle in-app request url call
-  def request_url(%{callback_url: url} = params, opts) do
+  def challenge_url(%{callback_url: url} = params, opts) do
     scopes =
       params
       |> Map.get(:scope, Keyword.get(opts, :scope, @default_scope))
@@ -50,9 +53,12 @@ defmodule Ueberauth.Strategy.Google do
       |> with_param("prompt", params)
       |> with_param("state", params)
 
-    (opts ++ [redirect_uri: url])
-    |> __MODULE__.OAuth.client()
-    |> __MODULE__.OAuth.authorize_url(params)
+    url =
+      (opts ++ [redirect_uri: url])
+      |> __MODULE__.OAuth.client()
+      |> __MODULE__.OAuth.authorize_url(params)
+
+    {:ok, url}
   end
 
   def authenticate(provider, %{query: %{"code" => code}}, opts),

@@ -6,6 +6,9 @@ defmodule Ueberauth.Strategy.Helpers do
   to the specific pipelined strategy, considering the pipelined options and
   falling back to defaults.
   """
+
+  require Logger
+
   alias Ueberauth.Failure
   alias Ueberauth.Failure.Error
 
@@ -68,6 +71,50 @@ defmodule Ueberauth.Strategy.Helpers do
       query: conn.query_string(),
       scheme: to_string(scheme),
     }
+  end
+
+  def validate_options({:error, _} = err, _), do: err
+  def validate_options({:ok, options}, []), do: {:ok, options}
+  def validate_options({:ok, options}, [key | rest]) do
+    if Keyword.has_key?(options, key) do
+      validate_options({:ok, options}, rest)
+    else
+      Logger.warn(fn -> "[Ueberauth] Missing required key #{inspect(key)}" end)
+      {:error, :missing_key}
+    end
+  end
+
+  def validate_options(options, required_keys),
+    do: validate_options({:ok, options}, required_keys)
+
+  def map_string_to_atom(map, key),
+    do: map_string_to_atom(map, List.wrap(key))
+
+  def map_string_to_atom(map, []),
+    do: map
+
+  def map_string_to_atom(map, [key | rest]) do
+    result =
+      if Map.get(map, key) do
+        map
+      else
+        if value = Map.get(map, to_string(key)) do
+          map
+          |> Map.put(key, value)
+          |> Map.drop([to_string(key)])
+        else
+          map
+        end
+      end
+    map_string_to_atom(result, rest)
+  end
+
+  def put_non_nil(collection, _key, nil), do: collection
+  def put_non_nil(collection, key, value) when is_list(collection) and is_atom(key) do
+    [{key, value} | collection]
+  end
+  defp put_non_nil(collection, key, value) when is_map(collection) and is_atom(key) do
+    Map.put(collection, key, value)
   end
 
   defp forwarded_proto(conn) do

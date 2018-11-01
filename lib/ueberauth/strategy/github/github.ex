@@ -83,7 +83,7 @@ defmodule Ueberauth.Strategy.Github do
   @default_scope ""
   @oauth2_module __MODULE__.OAuth
 
-  @type request_url_params :: %{
+  @type challenge_url_params :: %{
     required(:callback_url) => String.t,
     optional(:conn) => Plug.Conn.t,
     optional(:scope) => String.t,
@@ -103,7 +103,7 @@ defmodule Ueberauth.Strategy.Github do
     optional(:state) => String.t,
   }
 
-  @spec request_url(request_url_params, options) :: {:ok, String.t} | {:error, any}
+  @spec challenge_url(challenge_url_params, options) :: {:ok, String.t} | {:error, any}
   @doc """
   Handles the initial redirect to the github authentication page.
 
@@ -113,7 +113,7 @@ defmodule Ueberauth.Strategy.Github do
 
   You can also include a `state` param that github will return to you.
   """
-  def request_url(%{conn: conn} = params, opts) do
+  def challenge_url(%{conn: conn} = params, opts) do
     scope = conn.params["scope"] || Keyword.get(opts, :scope, @default_scope)
     state = conn.params["state"] || Keyword.get(opts, :state)
 
@@ -124,10 +124,10 @@ defmodule Ueberauth.Strategy.Github do
       else
         params
       end
-    request_url(params, opts)
+    challenge_url(params, opts)
   end
 
-  def request_url(%{callback_url: url} = params, opts) do
+  def challenge_url(%{callback_url: url} = params, opts) do
     scopes = Map.get(params, :scope, @default_scope)
     send_redirect_uri = Keyword.get(opts, :send_redirect_uri, true)
     mod = Keyword.get(opts, :oauth2_module, @oauth2_module)
@@ -151,11 +151,7 @@ defmodule Ueberauth.Strategy.Github do
 
   @spec authenticate(Ueberauth.Strategy.provider_name, authenticate_params, options) :: {:ok, Auth.t} | {:error, Failure.t}
   def authenticate(provider, %{query: %{"code" => _code} = params}, opts) do
-    params =
-      params
-      |> map_string_to_atom(:code)
-      |> map_string_to_atom(:state)
-
+    params = map_string_to_atom(params, [:code, :state])
     authenticate(provider, params, opts)
   end
 
@@ -305,20 +301,6 @@ defmodule Ueberauth.Strategy.Github do
         {:error, error("token", "unauthorized")}
       {:error, %OAuth2.Error{reason: reason}} ->
         {:error, error("OAuth2", reason)}
-    end
-  end
-
-  defp map_string_to_atom(map, key) do
-    if Map.get(map, key) do
-      map
-    else
-      if value = Map.get(map, to_string(key)) do
-        map
-        |> Map.put(key, value)
-        |> Map.drop([to_string(key)])
-      else
-        map
-      end
     end
   end
 end

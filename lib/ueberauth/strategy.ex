@@ -19,9 +19,10 @@ defmodule Ueberauth.Strategy do
   alias Ueberauth.{Auth, Failure}
 
   @type provider_name :: atom
-  @type request_params :: %{
+  @type challenge_params :: %{
     required(:callback_url) => String.t,
-    optional(:conn) => Plug.Conn.t
+    optional(:conn) => Plug.Conn.t,
+    optional(atom) => any,
   }
 
   @doc """
@@ -31,7 +32,7 @@ defmodule Ueberauth.Strategy do
 
   When called otherwise, specify your required parameters in your documentation
   """
-  @callback request_url(request_params, options :: Keyword.t) :: {:ok, String.t} | {:error, term}
+  @callback challenge_url(challenge_params, options :: Keyword.t) :: {:ok, String.t} | {:error, term}
 
   @doc """
   Can be called from a plug or directly
