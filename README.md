@@ -86,7 +86,7 @@ end
 
 defp deps do
   # Add the dependency
-  [{:ueberauth, "~> 0.4"}]
+  [{:ueberauth, "~> 0.5"}]
 end
 ```
 
