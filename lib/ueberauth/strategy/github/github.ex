@@ -83,6 +83,12 @@ defmodule Ueberauth.Strategy.Github do
   @default_scope ""
   @oauth2_module __MODULE__.OAuth
 
+  @defaults [
+    uid_field: @default_uid_field,
+    scope: @default_scope,
+    oauth2_module: @oauth2_module,
+  ]
+
   @type challenge_url_params :: %{
     required(:callback_url) => String.t,
     optional(:conn) => Plug.Conn.t,
@@ -96,6 +102,7 @@ defmodule Ueberauth.Strategy.Github do
     {:client_secret, String.t},
     {:oauth2_module, module},
     {:scope, String.t},
+    {:uid_field, atom | ((Auth.t) -> String.t)}
   ]
 
   @type authenticate_params :: %{
@@ -114,39 +121,32 @@ defmodule Ueberauth.Strategy.Github do
   You can also include a `state` param that github will return to you.
   """
   def challenge_url(%{conn: conn} = params, opts) do
-    scope = conn.params["scope"] || Keyword.get(opts, :scope, @default_scope)
-    state = conn.params["state"] || Keyword.get(opts, :state)
-
-    params = Map.put(params, :scope, scope)
-    params =
-      if state do
-        Map.put(params, :state, state)
-      else
-        params
-      end
-    challenge_url(params, opts)
+    params
+    |> put_non_nil(:scope, conn.params["scope"])
+    |> put_non_nil(:state, conn.params["state"])
+    |> challenge_url(opts)
   end
 
   def challenge_url(%{callback_url: url} = params, opts) do
-    scopes = Map.get(params, :scope, @default_scope)
-    send_redirect_uri = Keyword.get(opts, :send_redirect_uri, true)
-    mod = Keyword.get(opts, :oauth2_module, @oauth2_module)
+    opts = opts ++ @defaults
+    with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
+      scopes = Map.get(params, :scope, Keyword.get(opts, :scope))
+      send_redirect_uri = Keyword.get(opts, :send_redirect_uri, true)
+      mod = Keyword.get(opts, :oauth2_module, @oauth2_module)
 
-    query_params =
-      if send_redirect_uri do
-        [redirect_uri: url, scope: scopes]
-      else
-        [scope: scopes]
-      end
+      query_params =
+        if send_redirect_uri do
+          [redirect_uri: url, scope: scopes]
+        else
+          [scope: scopes]
+        end
 
-    query_params =
-      if  state = Map.get(params, :state) do
-        Keyword.put(query_params, :state, state)
-      else
+      query_params =
         query_params
-      end
+        |> put_non_nil(:state, Map.get(params, :state))
 
-    {:ok, mod.authorize_url!(query_params, opts)}
+      {:ok, mod.authorize_url!(query_params, opts)}
+    end
   end
 
   @spec authenticate(Ueberauth.Strategy.provider_name, authenticate_params, options) :: {:ok, Auth.t} | {:error, Failure.t}
@@ -156,30 +156,33 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   def authenticate(provider, params, opts) do
-    module = Keyword.get(opts, :oauth2_module, @oauth2_module)
-    state = Map.get(params, :state)
+    opts = opts ++ @defaults
+    with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
+      module = Keyword.get(opts, :oauth2_module, @oauth2_module)
+      state = Map.get(params, :state)
 
-    with {:token_params, {:ok, token_params}} <- {:token_params, fetch_token_params(params, opts)},
-         {:token, token} <- module.get_token!(token_params, opts),
-         {:access_token, token, at} when not is_nil(at) <- {:access_token, token, token.access_token},
-         {:state_match, true} <- {:state_match, token_state_matches?(token, state)} do
+      with {:token_params, {:ok, token_params}} <- {:token_params, fetch_token_params(params, opts)},
+          {:token, token} <- module.get_token!(token_params, opts),
+          {:access_token, token, at} when not is_nil(at) <- {:access_token, token, token.access_token},
+          {:state_match, true} <- {:state_match, token_state_matches?(token, state)} do
 
-      token
-      |> fetch_user(opts)
-      |> build_auth_from_user(token, provider, opts)
-    else
-      {:token_params, {:error, _}} ->
-        {:error, create_failure(provider, __MODULE__, [error("missing_code", "No code received")])}
+        token
+        |> fetch_user(opts)
+        |> build_auth_from_user(token, provider, opts)
+      else
+        {:token_params, {:error, _}} ->
+          {:error, create_failure(provider, __MODULE__, [error("missing_code", "No code received")])}
 
-      {:access_token, token, nil} ->
-        {:error, create_failure(
-          provider,
-          __MODULE__,
-          [error(token.other_params["error"], token.other_params["error_description"])]
-        ) }
+        {:access_token, token, nil} ->
+          {:error, create_failure(
+            provider,
+            __MODULE__,
+            [error(token.other_params["error"], token.other_params["error_description"])]
+          ) }
 
-      {:state_match, false} ->
-        {:error, create_failure(provider, __MODULE__, [error("state_mismatch", "State does not match")])}
+        {:state_match, false} ->
+          {:error, create_failure(provider, __MODULE__, [error("state_mismatch", "State does not match")])}
+      end
     end
   end
 

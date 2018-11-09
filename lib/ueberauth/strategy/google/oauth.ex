@@ -26,13 +26,6 @@ defmodule Ueberauth.Strategy.Google.OAuth do
   These options are only useful for usage outside the normal callback phase of Ueberauth.
   """
   def client(opts \\ []) do
-    config = fetch_config(opts)
-
-    opts =
-      @defaults
-      |> Keyword.merge(opts)
-      |> Keyword.merge(config)
-
     OAuth2.Client.new(opts)
   end
 
@@ -78,26 +71,5 @@ defmodule Ueberauth.Strategy.Google.OAuth do
     |> put_param("client_secret", client.client_secret)
     |> put_header("Accept", "application/json")
     |> OAuth2.Client.get_token(params, headers)
-  end
-
-  defp fetch_config(opts) do
-    config_from_opts = Keyword.take(opts, [:client_id, :client_secret])
-
-    config =
-      if length(config_from_opts) == 2 do
-        config_from_opts
-      else
-        Application.get_env(:ueberauth, __MODULE__)
-      end
-
-    case config do
-      nil -> raise "unconfigured oauth strategy"
-      configs ->
-        if length(config) < 2 do
-          raise "unconfigured oauth strategy"
-        else
-          configs
-        end
-    end
   end
 end

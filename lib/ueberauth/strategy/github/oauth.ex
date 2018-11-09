@@ -28,13 +28,7 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   These options are only useful for usage outside the normal callback phase of Ueberauth.
   """
   def client(opts \\ []) do
-    opts = opts ++ @defaults
-
-    opts
-    |> check_config_key_exists(:client_id)
-    |> check_config_key_exists(:client_secret)
-
-    OAuth2.Client.new(opts)
+    OAuth2.Client.new(opts ++ @defaults)
   end
 
   @doc """
@@ -74,15 +68,5 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     |> put_param("client_secret", client.client_secret)
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
-  end
-
-  defp check_config_key_exists(config, key) when is_list(config) do
-    unless Keyword.has_key?(config, key) do
-      raise "#{inspect (key)} missing from config for, #{__MODULE__}"
-    end
-    config
-  end
-  defp check_config_key_exists(_, _) do
-    raise "Config #{__MODULE__} is not a keyword list, as expected"
   end
 end

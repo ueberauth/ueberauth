@@ -3,6 +3,8 @@ defmodule Ueberauth.Strategy.Google do
 
   require Logger
 
+  import Ueberauth.Strategy.Helpers
+
   alias Ueberauth.{
     Auth,
     Auth.Credentials,
@@ -18,47 +20,37 @@ defmodule Ueberauth.Strategy.Google do
   def challenge_url(%{callback_url: url, conn: conn}, opts) do
     scopes = conn.params["scope"] || Keyword.get(opts, :scope, @default_scope)
 
-    params =
-      [scope: scopes]
-      |> with_optional(:hd, opts)
-      |> with_optional(:prompt, opts)
-      |> with_optional(:access_type, opts)
-      |> with_param(:access_type, conn)
-      |> with_param(:prompt, conn)
-      |> with_param(:state, conn)
-
-    url =
-      (opts ++ [redirect_uri: url])
-      |> __MODULE__.OAuth.client()
-      |> __MODULE__.OAuth.authorize_url(params)
-
-    {:ok, url}
+    %{scope: scopes, callback_url: url}
+    |> put_non_nil(:access_type, conn.params["access_type"])
+    |> put_non_nil(:prompt, conn.params["prompt"])
+    |> put_non_nil(:state, conn.params["state"])
+    |> challenge_url(opts)
   end
 
   # handle in-app request url call
   def challenge_url(%{callback_url: url} = params, opts) do
-    scopes =
-      params
-      |> Map.get(:scope, Keyword.get(opts, :scope, @default_scope))
+    with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
+      scopes =
+        params
+        |> Map.get(:scope, Keyword.get(opts, :scope, @default_scope))
 
-    params =
-      [scope: scopes]
-      |> with_optional(:hd, opts)
-      |> with_optional(:prompt, opts)
-      |> with_optional(:access_type, opts)
-      |> with_param(:access_type, params)
-      |> with_param(:prompt, params)
-      |> with_param(:state, params)
-      |> with_param("access_type", params)
-      |> with_param("prompt", params)
-      |> with_param("state", params)
+      params =
+        [scope: scopes]
+        |> put_non_nil(:hd, Keyword.get(opts, :hd))
+        |> put_non_nil(:prompt, Keyword.get(opts, :prompt))
+        |> put_non_nil(:access_type, Keyword.get(opts, :access_type))
+        |> put_non_nil(:hd, Map.get(params, :hd))
+        |> put_non_nil(:state, Map.get(params, :state))
+        |> put_non_nil(:prompt, Map.get(params, :prompt))
+        |> put_non_nil(:access_type, Map.get(params, :access_type))
 
-    url =
-      (opts ++ [redirect_uri: url])
-      |> __MODULE__.OAuth.client()
-      |> __MODULE__.OAuth.authorize_url(params)
+      url =
+        (opts ++ [redirect_uri: url])
+        |> __MODULE__.OAuth.client()
+        |> __MODULE__.OAuth.authorize_url(params)
 
-    {:ok, url}
+      {:ok, url}
+    end
   end
 
   def authenticate(provider, %{query: %{"code" => code}}, opts),
@@ -68,21 +60,23 @@ defmodule Ueberauth.Strategy.Google do
     do: authenticate(provider, %{token: token}, opts)
 
   def authenticate(provider, params, opts) do
-    params =
-      params
-      |> Map.take([:code, :token])
-      |> Enum.into([])
+    with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
+      params =
+        params
+        |> Map.take([:code, :token])
+        |> Enum.into([])
 
-    with {:access, {:ok, token}} <- {:access, __MODULE__.OAuth.get_access_token(params, opts)},
-         {:user, {:ok, user}} <- {:user, fetch_user(token, opts)} do
+      with {:access, {:ok, token}} <- {:access, __MODULE__.OAuth.get_access_token(params, opts)},
+          {:user, {:ok, user}} <- {:user, fetch_user(token, opts)} do
 
-      {:ok, auth(provider, token, user, opts)}
-    else
-      {:access, {:error, {error_code, error_description}}} ->
-        {:error, Helpers.create_failure(provider, __MODULE__, [Helpers.error(error_code, error_description)])}
-      {:user, {:error, error}} ->
-        Logger.warn("[#{__MODULE__}] could not fetch user #{inspect(error)}")
-        {:error, Helpers.create_failure(provider, __MODULE__, [Helpers.error("user_lookup_error", "could not lookup user")])}
+        {:ok, auth(provider, token, user, opts)}
+      else
+        {:access, {:error, {error_code, error_description}}} ->
+          {:error, Helpers.create_failure(provider, __MODULE__, [Helpers.error(error_code, error_description)])}
+        {:user, {:error, error}} ->
+          Logger.warn("[#{__MODULE__}] could not fetch user #{inspect(error)}")
+          {:error, Helpers.create_failure(provider, __MODULE__, [Helpers.error("user_lookup_error", "could not lookup user")])}
+      end
     end
   end
 
@@ -108,65 +102,45 @@ defmodule Ueberauth.Strategy.Google do
       (token.other_params["scope"] || "")
       |> String.split(",")
 
-    %Auth{
-      provider: provider,
-      uid: uid(user, opts),
-      credentials: %Credentials{
-        expires: !!token.expires_at,
-        expires_at: token.expires_at,
-        scopes: scopes,
-        token_type: Map.get(token, :token_type),
-        refresh_token: token.refresh_token,
-        token: token.access_token,
-      },
-      info: %Info{
-        email: user["email"],
-        first_name: user["given_name"],
-        image: user["picture"],
-        last_name: user["family_name"],
-        name: user["name"],
-        urls: %{
-          profile: user["profile"],
-          website: user["hd"],
-        }
-      },
-      extra: %Extra{
-        raw_info: %{
-          token: token,
-          user: user,
+    auth =
+      %Auth{
+        provider: provider,
+        credentials: %Credentials{
+          expires: !!token.expires_at,
+          expires_at: token.expires_at,
+          scopes: scopes,
+          token_type: Map.get(token, :token_type),
+          refresh_token: token.refresh_token,
+          token: token.access_token,
+        },
+        info: %Info{
+          email: user["email"],
+          first_name: user["given_name"],
+          image: user["picture"],
+          last_name: user["family_name"],
+          name: user["name"],
+          urls: %{
+            profile: user["profile"],
+            website: user["hd"],
+          }
+        },
+        extra: %Extra{
+          raw_info: %{
+            token: token,
+            user: user,
+          }
         }
       }
-    }
+
+    %{auth | uid: resolve_uid(auth, opts)}
   end
 
-  defp uid(user, opts) do
+  defp resolve_uid(auth, opts) do
     case Keyword.get(opts, :uid_field, @uid_field) do
-      f when is_function(f) -> f.(user)
-      f -> Map.get(user, to_string(f))
-    end
-  end
-
-  defp with_optional(params, key, opts) do
-    if Keyword.get(opts, key) do
-      Keyword.put(params, key, Keyword.get(opts, key))
-    else
-      params
-    end
-  end
-
-  defp with_param(params, key, %Plug.Conn{} = conn) do
-    if value = conn.params[to_string(key)] do
-      Keyword.put(params, key, value)
-    else
-      params
-    end
-  end
-
-  defp with_param(params, key, incomming_params) when is_map(incomming_params) do
-    if Map.has_key?(incomming_params, key) do
-      Keyword.put(params, key, Map.get(incomming_params, key))
-    else
-      params
+      f when is_atom(f) ->
+        Map.get(auth.extra.raw_info.user, f)
+      f when is_function(f) ->
+        f.(auth)
     end
   end
 end
