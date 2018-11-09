@@ -122,6 +122,7 @@ defmodule Ueberauth.Strategy.Github do
   """
   def challenge_url(%{conn: conn} = params, opts) do
     params
+    |> Map.drop([:conn])
     |> put_non_nil(:scope, conn.params["scope"])
     |> put_non_nil(:state, conn.params["state"])
     |> challenge_url(opts)
