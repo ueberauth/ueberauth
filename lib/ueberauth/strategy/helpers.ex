@@ -76,7 +76,7 @@ defmodule Ueberauth.Strategy.Helpers do
   def validate_options({:error, _} = err, _), do: err
   def validate_options({:ok, options}, []), do: {:ok, options}
   def validate_options({:ok, options}, [key | rest]) do
-    if Keyword.has_key?(options, key) do
+    if Keyword.get(options, key) do
       validate_options({:ok, options}, rest)
     else
       Logger.warn(fn -> "[Ueberauth] Missing required key #{inspect(key)}" end)
@@ -87,7 +87,7 @@ defmodule Ueberauth.Strategy.Helpers do
   def validate_options(options, required_keys),
     do: validate_options({:ok, options}, required_keys)
 
-  def map_string_to_atom(map, key),
+  def map_string_to_atom(map, key) when not is_list(key),
     do: map_string_to_atom(map, List.wrap(key))
 
   def map_string_to_atom(map, []),
@@ -113,7 +113,7 @@ defmodule Ueberauth.Strategy.Helpers do
   def put_non_nil(collection, key, value) when is_list(collection) and is_atom(key) do
     [{key, value} | collection]
   end
-  defp put_non_nil(collection, key, value) when is_map(collection) and is_atom(key) do
+  def put_non_nil(collection, key, value) when is_map(collection) and is_atom(key) do
     Map.put(collection, key, value)
   end
 

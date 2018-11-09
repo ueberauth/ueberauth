@@ -10,36 +10,27 @@ defmodule Ueberauth.Strategy.Slack.OAuth do
   ]
 
   def client(opts \\ []) do
-    slack_config = Application.get_env(:ueberauth, Ueberauth.Strategy.Slack.OAuth)
-    client_opts =
-      @defaults
-      |> Keyword.merge(slack_config)
-      |> Keyword.merge(opts)
-
-    OAuth2.Client.new(client_opts)
+    opts = opts ++ @defaults
+    OAuth2.Client.new(opts)
   end
 
   def get(token, url, params \\ %{}, headers \\ [], opts \\ []) do
-    url = [token: token]
-    |> client()
-    |> to_url(url, Map.put(params, "token", token.access_token))
+    url =
+      [token: token]
+      |> client()
+      |> to_url(url, Map.put(params, "token", token.access_token))
 
     OAuth2.Client.get(client(), url, headers, opts)
   end
 
   def authorize_url!(params \\ [], opts \\ []) do
     opts
-    |> client
+    |> client()
     |> OAuth2.Client.authorize_url!(params)
   end
 
-  def get_token!(params \\ [], options \\ %{}) do
-    headers        = Map.get(options, :headers, [])
-    options        = Map.get(options, :options, [])
-    client_options = Keyword.get(options, :client_options, [])
-
-    client = OAuth2.Client.get_token!(client(client_options), params, headers, options)
-
+  def get_token!(params \\ [], options \\ []) do
+    client = OAuth2.Client.get_token!(client(options), params)
     client.token
   end
 
@@ -59,7 +50,7 @@ defmodule Ueberauth.Strategy.Slack.OAuth do
   defp endpoint("/" <> _path = endpoint, client), do: client.site <> endpoint
   defp endpoint(endpoint, _client), do: endpoint
 
-  defp to_url(client, endpoint, params \\ nil) do
+  defp to_url(client, endpoint, params) do
     client_endpoint =
       client
       |> Map.get(endpoint, endpoint)
