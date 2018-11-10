@@ -3,31 +3,35 @@ defmodule Ueberauth.Auth.Credentials do
   Provides information about the credentials of a request.
   """
 
-  @type t :: %__MODULE__{
-          token: binary | nil,
-          refresh_token: binary | nil,
-          token_type: String.t() | nil,
-          secret: binary | nil,
-          expires: boolean | nil,
-          expires_at: number | nil,
-          scopes: list(String.t()),
-          other: map
-        }
+  @typedoc """
+  Information relating to the credentials of a request
 
-  # Supplied by OAuth and OAuth 2.0 providers, the access token.
-  defstruct token: nil,
-            # Supplied by OAuth 2.0 providers as the refresh token.
-            refresh_token: nil,
-            # The type of token provided
-            token_type: nil,
-            # Supplied by OAuth providers, the access token secret.
-            secret: nil,
-            # Boolean indicating whether the access token has an expiry date
-            expires: nil,
-            # Timestamp of the expiry time. Facebook and Google Plus return this. Twitter, LinkedIn don't.
+  + `:token` - Supplied by OAuth and OAuth 2.0 providers, the access token
+  + `:refresh_token` - Supplied by OAuth 2.0 providers as the refresh token
+  + `:token_type` - The type of token provided
+  + `:secret` - Supplied by OAuth providers, the access token secret
+  + `:expires` - Boolean indicating whether the access token has an expiry date
+  + `:expires_at` - Timestamp of the expiry time. Facebook and Google Plus return this, Twitter and LinkedIn do not
+  + `:scopes` - A list of scopes/permissions that were granted
+  + `:other` - Other credentials that may not fit in the other fields.
+  """
+  @type t :: %__MODULE__{
+    expires: boolean | nil,
+    expires_at: number | nil,
+    other: map(),
+    refresh_token: binary | nil,
+    scopes: list(String.t()),
+    secret: binary | nil,
+    token: binary | nil,
+    token_type: String.t() | nil
+  }
+
+  defstruct expires: nil,
             expires_at: nil,
-            # A list of scopes/permissions that were granted
+            other: %{},
+            refresh_token: nil,
             scopes: [],
-            # Other credentials that may not fit in the other fields.
-            other: %{}
+            secret: nil,
+            token: nil,
+            token_type: nil
 end

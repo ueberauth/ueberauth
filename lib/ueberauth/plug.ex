@@ -48,7 +48,6 @@ defmodule Ueberauth.Plug do
   * On Failure - An `Ueberauth.Failure` struct is available at `:ueberauth_failure`
   * On Success - An `Ueberauth.Auth` struct is available at `:ueberauth_auth`
 
-
   ### An Example
 
   When using this plug, you must pass in your configuration.
@@ -225,15 +224,13 @@ defmodule Ueberauth.Plug do
 
   defp validate_config!(config) do
     case Keyword.get(config, :providers) do
-      providers when is_list(providers) ->
-        if length(providers) == 0, do: raise_invalid_config!()
-
-      _ ->
-        raise_invalid_config!()
+      [] -> raise_invalid_config!()
+      providers when is_list(providers) -> providers
+      _ -> raise_invalid_config!()
     end
   end
 
-  defp raise_invalid_config!() do
+  defp raise_invalid_config! do
     raise "invalid configuration for Ueberauth.Plug"
   end
 

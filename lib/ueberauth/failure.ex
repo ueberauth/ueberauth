@@ -5,16 +5,21 @@ defmodule Ueberauth.Failure do
   All errors are provided by the relevant strategy.
   """
 
-  @type t :: %__MODULE__{
-          provider: binary,
-          strategy: module,
-          errors: list(Ueberauth.Failure.Error)
-        }
+  @typedoc """
+  Captures the information pertaining to a request failure
 
-  # the provider name
-  defstruct provider: nil,
-            # the strategy module tha ran
-            strategy: nil,
-            # Ueberauth.Failure.Error collection of strategy defined errors
-            errors: []
+  + `:errors` - Ueberauth.Failure.Error collection of strategy defined errors
+  + `:provider` - The provider name as defined in the configuration
+  + `:strategy` - The strategy module used
+  + `:uid` - An identifier unique to the given provider, such as a Twitter user ID. Should be stored as a string
+  """
+  @type t :: %__MODULE__{
+    errors: list(Ueberauth.Failure.Error),
+    provider: binary(),
+    strategy: module(),
+  }
+
+  defstruct errors: [],
+            provider: nil,
+            strategy: nil
 end

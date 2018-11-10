@@ -43,6 +43,7 @@ defmodule Ueberauth.Mixfile do
       {:oauth2, "~> 0.9"},
 
       # Tools
+      {:credo, "~> 0.10", only: [:dev], runtime: false},
       {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false},
       {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false}
     ]

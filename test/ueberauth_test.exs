@@ -8,7 +8,7 @@ defmodule UeberauthTest do
   @opts Support.SpecRouter.init([])
 
   test "simple request phase" do
-    conn = conn(:get, "/auth/simple")
+    conn = build_conn(:get, "/auth/simple")
     resp = SpecRouter.call(conn, @opts)
     assert resp.resp_body == "simple_request_phase"
   end
@@ -16,7 +16,7 @@ defmodule UeberauthTest do
   test "simple callback phase" do
     conn =
       :get
-      |> conn("/auth/simple/callback")
+      |> build_conn("/auth/simple/callback")
       |> SpecRouter.call(@opts)
 
     auth = conn.assigns.ueberauth_auth
@@ -37,13 +37,13 @@ defmodule UeberauthTest do
   end
 
   test "simple request and callback phase for same url but different method" do
-    conn = conn(:get, "/auth/post_callback_and_same_request_path")
+    conn = build_conn(:get, "/auth/post_callback_and_same_request_path")
     resp = SpecRouter.call(conn, @opts)
     assert resp.resp_body == "ok"
 
     conn =
       :post
-      |> conn("/auth/post_callback_and_same_request_path")
+      |> build_conn("/auth/post_callback_and_same_request_path")
       |> SpecRouter.call(@opts)
 
     auth = conn.assigns.ueberauth_auth
@@ -51,20 +51,20 @@ defmodule UeberauthTest do
   end
 
   test "redirecting a request phase without trailing slash" do
-    conn = conn(:get, "/auth/redirector") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/auth/redirector") |> SpecRouter.call(@opts)
     assert get_resp_header(conn, "location") == ["https://redirectme.example.com/foo"]
   end
 
   test "redirecting a request phase with trailing slash" do
-    conn = conn(:get, "/auth/redirector/") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/auth/redirector/") |> SpecRouter.call(@opts)
     assert get_resp_header(conn, "location") == ["https://redirectme.example.com/foo"]
   end
 
   test "setting request phase path" do
-    conn = conn(:get, "/login") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/login") |> SpecRouter.call(@opts)
     assert get_resp_header(conn, "location") == ["https://redirectme.example.com/foo"]
 
-    conn = conn(:get, "/auth/with_request_path/callback") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/auth/with_request_path/callback") |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
 
     assert auth.provider == :with_request_path
@@ -74,7 +74,7 @@ defmodule UeberauthTest do
   end
 
   test "setting callback phase path" do
-    conn = conn(:get, "/login_callback") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/login_callback") |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
 
     assert auth.provider == :with_callback_path
@@ -84,19 +84,19 @@ defmodule UeberauthTest do
   end
 
   test "using default options" do
-    conn = conn(:get, "/auth/using_default_options/callback") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/auth/using_default_options/callback") |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
     assert auth.uid == "default uid"
   end
 
   test "using custom options" do
-    conn = conn(:get, "/auth/using_custom_options/callback") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/auth/using_custom_options/callback") |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
     assert auth.uid == "custom uid"
   end
 
   test "returning errors" do
-    conn = conn(:get, "/auth/with_errors/callback") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/auth/with_errors/callback") |> SpecRouter.call(@opts)
 
     assert conn.assigns[:ueberauth_auth] == nil
     assert conn.assigns[:ueberauth_failure] != nil
@@ -117,12 +117,12 @@ defmodule UeberauthTest do
   end
 
   test "setting the callback http method" do
-    conn = conn(:get, "/auth/post_callback/callback") |> SpecRouter.call(@opts)
+    conn = build_conn(:get, "/auth/post_callback/callback") |> SpecRouter.call(@opts)
     assert conn.status == 404
     assert conn.assigns[:ueberauth_auth] == nil
     assert conn.assigns[:ueberauth_failure] == nil
 
-    conn = conn(:post, "/auth/post_callback/callback") |> SpecRouter.call(@opts)
+    conn = build_conn(:post, "/auth/post_callback/callback") |> SpecRouter.call(@opts)
     assert conn.status == 200
     assert conn.assigns[:ueberauth_failure] == nil
     assert conn.assigns[:ueberauth_auth] != nil
@@ -134,7 +134,7 @@ defmodule UeberauthTest do
   end
 
   test "callback_url port" do
-    conn = %{conn(:get, "/") | scheme: :https, port: 80}
+    conn = %{build_conn(:get, "/") | scheme: :https, port: 80}
     conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
     conn = %{conn | params: %{}}
 
@@ -144,8 +144,8 @@ defmodule UeberauthTest do
 
   test "callback_url forwarded protocol" do
     conn = %{
-      (conn(:get, "/")
-       |> put_req_header("x-forwarded-proto", "https"))
+      (build_conn(:get, "/")
+       |> put_req_header(build_conn(:get, "/") "x-forwarded-proto", "https"))
       | scheme: :http,
         port: 80
     }
@@ -157,7 +157,7 @@ defmodule UeberauthTest do
   end
 
   test "callback_url has extra params" do
-    conn = conn(:get, "/")
+    conn = build_conn(:get, "/")
     conn = put_private(conn, :ueberauth_request_options, callback_params: ["type"])
     conn = %{conn | params: %{"type" => "user", "param_2" => "param_2"}}
     assert Ueberauth.Strategy.Helpers.callback_url(conn) == "http://www.example.com?type=user"

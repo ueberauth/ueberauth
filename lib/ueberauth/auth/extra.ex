@@ -4,9 +4,13 @@ defmodule Ueberauth.Auth.Extra do
   processing of the callback phase.
   """
 
+  @typedoc """
+  The Extra module contains a `raw_info` field that includes all information gathered about a use.
+  In the example of Twitter, this will represent the user's information returned from the Twitter API.
+  """
   @type t :: %__MODULE__{
-          raw_info: map
-        }
-  # A map of all information gathered about a user in the format it was gathered. For example, for Twitter users this is a map representing the JSON hash returned from the Twitter API.
+    raw_info: map
+  }
+
   defstruct raw_info: %{}
 end

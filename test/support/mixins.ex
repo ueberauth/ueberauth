@@ -3,9 +3,7 @@ defmodule Support.Mixins do
 
   defmacro __using__(_opts) do
     quote do
-      alias Ueberauth.Auth.Info
-      alias Ueberauth.Auth.Credentials
-      alias Ueberauth.Auth.Extra
+      alias Ueberauth.{Auth.Credentials, Auth.Extras, Auth.Info}
 
       def uid(_conn), do: "#{to_string(__MODULE__)}-uid"
 

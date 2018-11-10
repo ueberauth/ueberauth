@@ -8,12 +8,12 @@ defmodule Ueberauth.Strategy.Slack do
   * `default_scope` - The scope to request by default from slack (permissions). Default "users:read"
   * `oauth2_module` - The OAuth2 module to use. Default Ueberauth.Strategy.Slack.OAuth
 
-  ````elixir
-
+  ```elixir
   config :ueberauth, Ueberauth,
     providers: [
       slack: { Ueberauth.Strategy.Slack, [uid_field: :nickname, default_scope: "users:read,users:write"] }
-    ]
+  ]
+  ```
   """
 
   @behaviour Ueberauth.Strategy
@@ -291,25 +291,25 @@ defmodule Ueberauth.Strategy.Slack do
   end
 
   def info(auth, user) do
+    profile = Map.get(user, "profile", %{})
+
     image_urls =
-      (user["profile"] || %{})
+      profile
       |> Map.keys()
       |> Enum.filter(&(&1 =~ ~r/^image_/))
-      |> Enum.map(&{&1, user["profile"][&1]})
-      |> Enum.into(%{})
+      |> Enum.into(%{}, &({&1, user["profile"][&1]}))
 
     %Info{
       name: name_from_user(user),
       nickname: user["name"],
-      email: user["profile"]["email"],
-      image: user["profile"]["image_48"],
-      urls:
-        Map.merge(
-          image_urls,
-          %{
-            team_url: auth["url"]
-          }
-        )
+      email: profile["email"],
+      image: profile["image_48"],
+      urls: Map.merge(
+        image_urls,
+        %{
+          team_url: auth["url"],
+        }
+      )
     }
   end
 
@@ -347,7 +347,7 @@ defmodule Ueberauth.Strategy.Slack do
       user["real_name"],
       user["name"]
     ]
-    |> Enum.reject(&(&1 == "" || &1 == nil))
+    |> Enum.reject(&(&1 in ["", nil]))
     |> List.first()
   end
 end

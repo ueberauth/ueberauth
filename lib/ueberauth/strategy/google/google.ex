@@ -44,13 +44,14 @@ defmodule Ueberauth.Strategy.Google do
         |> put_non_nil(:prompt, Map.get(params, :prompt))
         |> put_non_nil(:access_type, Map.get(params, :access_type))
 
-      uri =
-        (opts ++ [redirect_uri: url])
+      url =
+        opts
+        |> Keyword.put(:redirect_uri, url)
         |> __MODULE__.OAuth.client()
         |> __MODULE__.OAuth.authorize_url(params)
         |> URI.parse()
 
-      {:ok, uri}
+      {:ok, url}
     end
   end
 
@@ -113,7 +114,8 @@ defmodule Ueberauth.Strategy.Google do
 
   defp auth(provider, token, user, opts) do
     scopes =
-      (token.other_params["scope"] || "")
+      token.other_params
+      |> Map.get("scope", "")
       |> String.split(",")
 
     auth = %Auth{
