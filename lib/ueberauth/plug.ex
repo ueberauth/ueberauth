@@ -19,7 +19,7 @@ defmodule Ueberauth.Plug do
   Where `:provider` is a configured provider, This plug will request the redirect url from
   from the strategy. It will then redirect to that url.
 
-  The call to `challenge_url` will be:
+  The call to `challenge` will be:
 
   `%{callback_url: url, conn: conn}`
 
@@ -105,6 +105,7 @@ defmodule Ueberauth.Plug do
   @type config_func ::
           (Plug.Conn.t() -> config)
           | (() -> config)
+          | mfa
 
   require Logger
 
@@ -131,6 +132,8 @@ defmodule Ueberauth.Plug do
 
   def init(config) when is_function(config), do: config
 
+  def init({_m, _f, _a} = config), do: config
+
   @impl true
   def call(conn, config) when is_function(config) do
     config =
@@ -139,6 +142,12 @@ defmodule Ueberauth.Plug do
         1 -> call(conn, config.(conn))
       end
 
+    validate_config!(config)
+    call(conn, config)
+  end
+
+  def call(conn, {m, f, a}) do
+    config = apply(m, f, [conn | a])
     validate_config!(config)
     call(conn, config)
   end
@@ -156,18 +165,18 @@ defmodule Ueberauth.Plug do
   def call(_, _), do: raise_invalid_config!()
 
   defp handle_challenge_phase(conn, {name, {strategy, opts}}, config) do
-    Logger.debug(fn -> "[#{__MODULE__}] Handling request phase #{name}" end)
+    Logger.debug(fn -> "[#{__MODULE__}] Handling challenge phase #{name}" end)
     suffix = callback_suffix(config)
 
     request_uri = Helpers.request_uri(conn)
-    request_uri = %{request_uri | path: Path.join(request_uri.path, suffix)}
+    callback_uri = %{request_uri | path: Path.join(request_uri.path, suffix), query: nil}
 
-    redirect_url =
-      strategy.challenge_url(%{callback_url: to_string(request_uri), conn: conn}, opts)
+    challenge =
+      strategy.challenge(%{callback_url: to_string(callback_uri), conn: conn}, opts)
 
-    case redirect_url do
-      {:ok, url} ->
-        Helpers.redirect!(conn, url)
+    case challenge do
+      {:ok, %URI{} = url} ->
+        Helpers.redirect!(conn, to_string(url))
 
       {:error, reason} ->
         # what to do here?
@@ -185,6 +194,7 @@ defmodule Ueberauth.Plug do
 
     case strategy.authenticate(name, params, opts) do
       {:ok, auth} ->
+        IO.puts("Valid auth response #{inspect(auth)}")
         if Auth.valid?(auth) do
           Plug.Conn.assign(conn, :ueberauth_auth, auth)
         else
@@ -205,6 +215,7 @@ defmodule Ueberauth.Plug do
         end
 
       {:error, failure} ->
+        IO.puts("Auth failure #{inspect(failure)}")
         Plug.Conn.assign(conn, :ueberauth_failure, failure)
     end
   end
@@ -235,7 +246,7 @@ defmodule Ueberauth.Plug do
       |> Keyword.keys()
       |> Enum.join("|")
 
-    reg = Regex.compile!("\\b#{provider_keys})(/#{suffix}|/)?$")
+    reg = Regex.compile!("\\b(#{provider_keys})(/#{suffix}|/)?$")
 
     case Regex.run(reg, conn.request_path) do
       # not a match
@@ -245,12 +256,12 @@ defmodule Ueberauth.Plug do
       # request
       [_, name_as_string] ->
         provider_name = String.to_existing_atom(name_as_string)
-        {:request, Keyword.get(providers, provider_name)}
+        {:request, {provider_name, Keyword.get(providers, provider_name)}}
 
       # callback
       [_, name_as_string, _] ->
         provider_name = String.to_existing_atom(name_as_string)
-        {:callback, Keyword.get(providers, provider_name)}
+        {:callback, {provider_name, Keyword.get(providers, provider_name)}}
     end
   end
 

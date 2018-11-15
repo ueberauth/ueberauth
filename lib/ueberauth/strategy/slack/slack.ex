@@ -45,7 +45,7 @@ defmodule Ueberauth.Strategy.Slack do
 
   @defaults [
     uid_field: :email,
-    default_scope: @default_scope,
+    scope: @default_scope,
     oauth2_module: __MODULE__.OAuth
   ]
 
@@ -70,6 +70,7 @@ defmodule Ueberauth.Strategy.Slack do
     |> put_non_nil(:scope, scope)
     |> put_non_nil(:state, state)
     |> put_non_nil(:team, Keyword.get(opts, :team))
+    |> Map.drop([:conn])
     |> challenge(opts)
   end
 
@@ -78,6 +79,7 @@ defmodule Ueberauth.Strategy.Slack do
     opts = opts ++ @defaults
     scopes = Map.get(params, :scope, Keyword.get(opts, :default_scope, @default_scope))
     params = Map.put(params, :scope, scopes)
+
 
     call_opts =
       params
@@ -103,10 +105,13 @@ defmodule Ueberauth.Strategy.Slack do
   @spec authenticate(Ueberauth.Strategy.provider_name(), authenticate_params, options) ::
           {:ok, Auth.t()} | {:error, Failure.t()}
   def authenticate(provider, %{conn: conn, query: %{"code" => _code} = params}, opts) do
+    auth_url = request_uri(conn)
+    auth_url = %{auth_url | query: nil}
+
     params =
       params
       |> map_string_to_atom([:state, :code])
-      |> put_non_nil(:callback_url, request_uri(conn))
+      |> put_non_nil(:callback_url, to_string(auth_url))
 
     authenticate(provider, params, opts)
   end

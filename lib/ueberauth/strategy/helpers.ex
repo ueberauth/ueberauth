@@ -68,7 +68,7 @@ defmodule Ueberauth.Strategy.Helpers do
       host: conn.host,
       port: normalize_port(scheme, conn.port),
       path: conn.request_path,
-      query: conn.query_string(),
+      query: string_or_nil(conn.query_string()),
       scheme: to_string(scheme)
     }
   end
@@ -145,4 +145,7 @@ defmodule Ueberauth.Strategy.Helpers do
   defp p_error(%Error{} = error), do: error
   defp p_error(%{} = error), do: struct(Error, error)
   defp p_error(error) when is_list(error), do: struct(Error, error)
+
+  defp string_or_nil(""), do: nil
+  defp string_or_nil(str), do: str
 end
