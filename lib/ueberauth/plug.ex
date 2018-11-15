@@ -95,14 +95,16 @@ defmodule Ueberauth.Plug do
 
   @behaviour Plug
 
-  @type provider :: {atom, {module, Keyword.t}}
+  @type provider :: {atom, {module, Keyword.t()}}
   @type config :: [
-    providers: [provider],
-    callback_suffix: String.t, # default /callback
-  ]
+          providers: [provider],
+          # default /callback
+          callback_suffix: String.t()
+        ]
 
-  @type config_func :: ((Plug.Conn.t) -> config) |
-                       (() -> config)
+  @type config_func ::
+          (Plug.Conn.t() -> config)
+          | (() -> config)
 
   require Logger
 
@@ -136,6 +138,7 @@ defmodule Ueberauth.Plug do
         0 -> call(conn, config.())
         1 -> call(conn, config.(conn))
       end
+
     validate_config!(config)
     call(conn, config)
   end
@@ -145,14 +148,14 @@ defmodule Ueberauth.Plug do
     case provider_and_phase_for_request(conn, config) do
       {_, nil} -> conn
       {:callback, provider} -> handle_callback_phase(conn, provider, config)
-      {_, provider} -> handle_request_phase(conn, provider, config)
+      {_, provider} -> handle_challenge_phase(conn, provider, config)
     end
   end
 
   @impl true
   def call(_, _), do: raise_invalid_config!()
 
-  defp handle_request_phase(conn, {name, {strategy, opts}}, config) do
+  defp handle_challenge_phase(conn, {name, {strategy, opts}}, config) do
     Logger.debug(fn -> "[#{__MODULE__}] Handling request phase #{name}" end)
     suffix = callback_suffix(config)
 
@@ -169,6 +172,7 @@ defmodule Ueberauth.Plug do
       {:error, reason} ->
         # what to do here?
         Logger.error("[#{__MODULE__}] Error fetching redirect url: #{inspect(reason)}")
+
         conn
         |> Plug.Conn.send_resp(500, "Error")
         |> Plug.Conn.halt()
@@ -178,22 +182,28 @@ defmodule Ueberauth.Plug do
   defp handle_callback_phase(conn, {name, {strategy, opts}}, config) do
     Logger.debug(fn -> "[#{__MODULE__}] Handling callback phase #{name}" end)
     {conn, params} = params_from_conn(conn, opts, config)
+
     case strategy.authenticate(name, params, opts) do
       {:ok, auth} ->
         if Auth.valid?(auth) do
           Plug.Conn.assign(conn, :ueberauth_auth, auth)
         else
           Logger.error("[#{__MODULE__} Invalid auth struct #{inspect(auth)}")
+
           failure = %Failure{
             provider: name,
             strategy: strategy,
-            errors: [%Failure.Error{
-              message_key: "invalid_auth_struct",
-              message: "Invalid auth struct",
-            }],
+            errors: [
+              %Failure.Error{
+                message_key: "invalid_auth_struct",
+                message: "Invalid auth struct"
+              }
+            ]
           }
+
           Plug.Conn.assign(conn, :ueberauth_failure, failure)
         end
+
       {:error, failure} ->
         Plug.Conn.assign(conn, :ueberauth_failure, failure)
     end
@@ -201,11 +211,14 @@ defmodule Ueberauth.Plug do
 
   defp validate_config!(nil), do: raise_invalid_config!()
   defp validate_config!([]), do: raise_invalid_config!()
+
   defp validate_config!(config) do
     case Keyword.get(config, :providers) do
       providers when is_list(providers) ->
         if length(providers) == 0, do: raise_invalid_config!()
-      _ -> raise_invalid_config!()
+
+      _ ->
+        raise_invalid_config!()
     end
   end
 
@@ -216,6 +229,7 @@ defmodule Ueberauth.Plug do
   defp provider_and_phase_for_request(conn, config) do
     suffix = callback_suffix(config)
     providers = Keyword.get(config, :providers)
+
     provider_keys =
       providers
       |> Keyword.keys()
@@ -258,6 +272,7 @@ defmodule Ueberauth.Plug do
       %Plug.Conn.Unfetched{} ->
         conn = Plug.Conn.fetch_query_params(conn)
         apply_query_params({conn, params})
+
       query_params ->
         {conn, Map.put(params, :query, query_params)}
     end

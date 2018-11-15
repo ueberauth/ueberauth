@@ -29,7 +29,7 @@ defmodule Ueberauth.Mixfile do
   def application do
     [
       extra_applications: [:logger],
-      env: [json_serializer: Jason],
+      env: [json_serializer: Jason]
     ]
   end
 
@@ -44,7 +44,7 @@ defmodule Ueberauth.Mixfile do
 
       # Tools
       {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false}
     ]
   end
 

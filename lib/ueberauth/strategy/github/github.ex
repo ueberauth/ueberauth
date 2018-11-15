@@ -76,7 +76,7 @@ defmodule Ueberauth.Strategy.Github do
     Auth,
     Auth.Info,
     Auth.Credentials,
-    Auth.Extra,
+    Auth.Extra
   }
 
   @default_uid_field :id
@@ -86,31 +86,31 @@ defmodule Ueberauth.Strategy.Github do
   @defaults [
     uid_field: @default_uid_field,
     scope: @default_scope,
-    oauth2_module: @oauth2_module,
+    oauth2_module: @oauth2_module
   ]
 
-  @type challenge_url_params :: %{
-    required(:callback_url) => String.t,
-    optional(:conn) => Plug.Conn.t,
-    optional(:scope) => String.t,
-    optional(:state) => String.t,
-  }
+  @type challenge_params :: %{
+          required(:callback_url) => String.t(),
+          optional(:conn) => Plug.Conn.t(),
+          optional(:scope) => String.t(),
+          optional(:state) => String.t()
+        }
 
   @type options :: [
-    {:send_redirect_url, boolean},
-    {:client_id, String.t},
-    {:client_secret, String.t},
-    {:oauth2_module, module},
-    {:scope, String.t},
-    {:uid_field, atom | ((Auth.t) -> String.t)}
-  ]
+          {:send_redirect_url, boolean},
+          {:client_id, String.t()},
+          {:client_secret, String.t()},
+          {:oauth2_module, module},
+          {:scope, String.t()},
+          {:uid_field, atom | (Auth.t() -> String.t())}
+        ]
 
   @type authenticate_params :: %{
-    optional(:code) => String.t,
-    optional(:state) => String.t,
-  }
+          optional(:code) => String.t(),
+          optional(:state) => String.t()
+        }
 
-  @spec challenge_url(challenge_url_params, options) :: {:ok, String.t} | {:error, any}
+  @spec challenge(challenge_params, options) :: {:ok, URI.t()} | {:error, any}
   @doc """
   Handles the initial redirect to the github authentication page.
 
@@ -120,16 +120,19 @@ defmodule Ueberauth.Strategy.Github do
 
   You can also include a `state` param that github will return to you.
   """
-  def challenge_url(%{conn: conn} = params, opts) do
+  @impl true
+  def challenge(%{conn: conn} = params, opts) do
     params
     |> Map.drop([:conn])
     |> put_non_nil(:scope, conn.params["scope"])
     |> put_non_nil(:state, conn.params["state"])
-    |> challenge_url(opts)
+    |> challenge(opts)
   end
 
-  def challenge_url(%{callback_url: url} = params, opts) do
+  @impl true
+  def challenge(%{callback_url: url} = params, opts) do
     opts = opts ++ @defaults
+
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
       scopes = Map.get(params, :scope, Keyword.get(opts, :scope))
       send_redirect_uri = Keyword.get(opts, :send_redirect_uri, true)
@@ -146,53 +149,64 @@ defmodule Ueberauth.Strategy.Github do
         query_params
         |> put_non_nil(:state, Map.get(params, :state))
 
-      {:ok, mod.authorize_url!(query_params, opts)}
+      {:ok, query_params |> mod.authorize_url!(opts) |> URI.parse()}
     end
   end
 
-  @spec authenticate(Ueberauth.Strategy.provider_name, authenticate_params, options) :: {:ok, Auth.t} | {:error, Failure.t}
+  @impl true
+  def challenge(_, _), do: {:error, :invalid_params}
+
+  @impl true
+  @spec authenticate(Ueberauth.Strategy.provider_name(), authenticate_params, options) ::
+          {:ok, Auth.t()} | {:error, Failure.t()}
   def authenticate(provider, %{query: %{"code" => _code} = params}, opts) do
     params = map_string_to_atom(params, [:code, :state])
     authenticate(provider, params, opts)
   end
 
+  @impl true
   def authenticate(provider, params, opts) do
     opts = opts ++ @defaults
+
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
       module = Keyword.get(opts, :oauth2_module, @oauth2_module)
       state = Map.get(params, :state)
 
-      with {:token_params, {:ok, token_params}} <- {:token_params, fetch_token_params(params, opts)},
-          {:token, token} <- module.get_token!(token_params, opts),
-          {:access_token, token, at} when not is_nil(at) <- {:access_token, token, token.access_token},
-          {:state_match, true} <- {:state_match, token_state_matches?(token, state)} do
-
+      with {:token_params, {:ok, token_params}} <-
+             {:token_params, fetch_token_params(params, opts)},
+           {:token, token} <- module.get_token!(token_params, opts),
+           {:access_token, token, at} when not is_nil(at) <-
+             {:access_token, token, token.access_token},
+           {:state_match, true} <- {:state_match, token_state_matches?(token, state)} do
         token
         |> fetch_user(opts)
         |> build_auth_from_user(token, provider, opts)
       else
         {:token_params, {:error, _}} ->
-          {:error, create_failure(provider, __MODULE__, [error("missing_code", "No code received")])}
+          {:error,
+           create_failure(provider, __MODULE__, [error("missing_code", "No code received")])}
 
         {:access_token, token, nil} ->
-          {:error, create_failure(
-            provider,
-            __MODULE__,
-            [error(token.other_params["error"], token.other_params["error_description"])]
-          ) }
+          {:error,
+           create_failure(
+             provider,
+             __MODULE__,
+             [error(token.other_params["error"], token.other_params["error_description"])]
+           )}
 
         {:state_match, false} ->
-          {:error, create_failure(provider, __MODULE__, [error("state_mismatch", "State does not match")])}
+          {:error,
+           create_failure(provider, __MODULE__, [error("state_mismatch", "State does not match")])}
       end
     end
   end
-
 
   defp fetch_token_params(%{code: code}, _opts), do: {:ok, [code: code]}
   defp fetch_token_params(_, _opts), do: {:error, "missing code param"}
 
   defp token_state_matches?(token, expected_state) do
     state = token.other_params["state"]
+
     case {state, expected_state} do
       {a, b} when a in ["", nil] and b in ["", nil] -> true
       {a, a} -> true
@@ -204,15 +218,15 @@ defmodule Ueberauth.Strategy.Github do
     do: {:error, create_failure(provider, __MODULE__, [error])}
 
   defp build_auth_from_user({:ok, user}, token, provider, opts) do
-    auth =
-      %Auth{
-        uid: fetch_uid_field(user, opts),
-        provider: provider,
-        strategy: __MODULE__,
-        credentials: build_credentials(token),
-        info: build_info(user),
-        extra: build_extra(user, token),
-      }
+    auth = %Auth{
+      uid: fetch_uid_field(user, opts),
+      provider: provider,
+      strategy: __MODULE__,
+      credentials: build_credentials(token),
+      info: build_info(user),
+      extra: build_extra(user, token)
+    }
+
     {:ok, auth}
   end
 
@@ -225,7 +239,7 @@ defmodule Ueberauth.Strategy.Github do
 
   defp build_credentials(token) do
     scope_string = token.other_params["scope"] || ""
-    scopes       = String.split(scope_string, ",")
+    scopes = String.split(scope_string, ",")
 
     %Credentials{
       token: token.access_token,
@@ -264,10 +278,10 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   defp build_extra(user, token) do
-    %Extra {
+    %Extra{
       raw_info: %{
         token: token,
-        user: user,
+        user: user
       }
     }
   end
@@ -286,16 +300,18 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   defp get_primary_email!(user) do
-    unless user["emails"] && (Enum.count(user["emails"]) > 0) do
+    unless user["emails"] && Enum.count(user["emails"]) > 0 do
       raise "Unable to access the user's email address"
     end
 
-    Enum.find(user["emails"], &(&1["primary"]))["email"]
+    Enum.find(user["emails"], & &1["primary"])["email"]
   end
 
   defp fetch_user(token, opts) do
-    with {:ok, %OAuth2.Response{status_code: status_code, body: user}} when status_code in 200..299 <- __MODULE__.OAuth.get(token, "/user", [], opts) do
-      with {:ok, %OAuth2.Response{status_code: status_code, body: emails}} when status_code in 200..299 <- __MODULE__.OAuth.get(token, "/user/emails", [], opts) do
+    with {:ok, %OAuth2.Response{status_code: status_code, body: user}}
+         when status_code in 200..299 <- __MODULE__.OAuth.get(token, "/user", [], opts) do
+      with {:ok, %OAuth2.Response{status_code: status_code, body: emails}}
+           when status_code in 200..299 <- __MODULE__.OAuth.get(token, "/user/emails", [], opts) do
         {:ok, Map.put(user, "emails", emails)}
       else
         _ -> {:ok, user}
@@ -303,6 +319,7 @@ defmodule Ueberauth.Strategy.Github do
     else
       {:ok, %OAuth2.Response{status_code: 401}} ->
         {:error, error("token", "unauthorized")}
+
       {:error, %OAuth2.Error{reason: reason}} ->
         {:error, error("OAuth2", reason)}
     end

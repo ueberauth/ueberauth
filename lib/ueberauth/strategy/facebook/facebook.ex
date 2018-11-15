@@ -14,7 +14,7 @@ defmodule Ueberauth.Strategy.Facebook do
     Auth.Info,
     Auth.Credentials,
     Auth.Extra,
-    Failure.Error,
+    Failure.Error
   }
 
   @defaults [
@@ -26,45 +26,45 @@ defmodule Ueberauth.Strategy.Facebook do
       :scope,
       :locale,
       :state,
-      :display,
+      :display
     ]
   ]
 
-  @type challenge_url_params :: %{
-    required(:callback_url) => String.t,
-    optional(:conn) => Plug.Conn.t,
-    optional(:auth_type) => String.t,
-    optional(:display) => String.t,
-    optional(:locale) => String.t,
-    optional(:scope) => String.t,
-    optional(:state) => String.t,
-    optional(atom) => String.t,
-  }
+  @type challenge_params :: %{
+          required(:callback_url) => String.t(),
+          optional(:conn) => Plug.Conn.t(),
+          optional(:auth_type) => String.t(),
+          optional(:display) => String.t(),
+          optional(:locale) => String.t(),
+          optional(:scope) => String.t(),
+          optional(:state) => String.t(),
+          optional(atom) => String.t()
+        }
 
   @type options :: [
-    {:client_id, String.t},
-    {:client_secret, String.t},
-    {:oauth2_module, module},
-    {:scope, String.t},
-    {:profile_fields, String.t},
-    {:uid_field, atom | ((Auth.t) -> String.t)},
-    {:allowed_request_params, [atom]},
-    {:response_type, String.t},
-  ]
+          {:client_id, String.t()},
+          {:client_secret, String.t()},
+          {:oauth2_module, module},
+          {:scope, String.t()},
+          {:profile_fields, String.t()},
+          {:uid_field, atom | (Auth.t() -> String.t())},
+          {:allowed_request_params, [atom]},
+          {:response_type, String.t()}
+        ]
 
   @type authenticate_params :: %{
-    optional(:callback_url) => String.t,
-    optional(:code) => String.t,
-    optional(:token) => String.t,
-    optional(:state) => String.t,
-  }
+          optional(:callback_url) => String.t(),
+          optional(:code) => String.t(),
+          optional(:token) => String.t(),
+          optional(:state) => String.t()
+        }
 
   @impl true
-  @spec challenge_url(challenge_url_params, options) :: {:ok, String.t} | {:error, any}
+  @spec challenge(challenge_params, options) :: {:ok, URI.t()} | {:error, any}
   @doc """
   Handles the initial redirect to the facebook authentication page.
   """
-  def challenge_url(%{callback_url: url, conn: conn}, opts) do
+  def challenge(%{callback_url: url, conn: conn}, opts) do
     opts = opts ++ @defaults
     allowed_params = Keyword.get(opts, :allowed_request_params)
 
@@ -72,29 +72,47 @@ defmodule Ueberauth.Strategy.Facebook do
     |> map_string_to_atom(allowed_params)
     |> Map.take(allowed_params)
     |> Map.put(:callback_url, url)
-    |> challenge_url(opts)
+    |> challenge(opts)
   end
 
   @impl true
-  def challenge_url(%{callback_url: url} = params, opts) do
+  def challenge(%{callback_url: url} = params, opts) do
     opts = opts ++ @defaults
+
     with {:ok, _} <- validate_options(opts, [:client_id]) do
       allowed_params = Keyword.get(opts, :allowed_request_params)
-      params
-      |> Map.take(allowed_params)
-      |> put_non_nil(:response_type, Keyword.get(opts, :response_type))
-      |> Map.put(:redirect_uri, url)
-      |> Enum.into([])
-      |> __MODULE__.OAuth.authorize_url!(opts)
+
+      uri =
+        params
+        |> Map.take(allowed_params)
+        |> put_non_nil(:response_type, Keyword.get(opts, :response_type))
+        |> Map.put(:redirect_uri, url)
+        |> Enum.into([])
+        |> __MODULE__.OAuth.authorize_url!(opts)
+        |> URI.parse()
+
+      {:ok, uri}
     end
   end
 
+  def challenge(_, _), do: {:error, :invalid_params}
+
   @impl true
-  @spec authenticate(Ueberauth.Strategy.provider_name, authenticate_params, options) :: {:ok, Auth.t} | {:error, Failure.t}
-  def authenticate(provider, %{query: params}, opts)  do
+  @spec authenticate(Ueberauth.Strategy.provider_name(), authenticate_params, options) ::
+          {:ok, Auth.t()} | {:error, Failure.t()}
+  def authenticate(provider, %{query: params, conn: conn}, opts) do
     params =
       params
-      |> map_string_to_atom([:code, :token, :state, :granted_scopes, :error, :error_reason, :error_description])
+      |> map_string_to_atom([
+        :code,
+        :token,
+        :state,
+        :granted_scopes,
+        :error,
+        :error_reason,
+        :error_description
+      ])
+      |> Map.put(:callback_url, request_uri(conn))
 
     authenticate(provider, params, opts)
   end
@@ -102,19 +120,25 @@ defmodule Ueberauth.Strategy.Facebook do
   def authenticate(provider, %{error: _err, error_reason: reason, error_description: desc}, _),
     do: {:error, create_failure(provider, __MODULE__, [error(reason, desc)])}
 
-  def authenticate(provider, %{callback_url: _url, code: _code} = params, opts)  do
+  def authenticate(provider, %{callback_url: _url, code: _code} = params, opts) do
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]),
-         {:token, %{access_token: at} = token} when not is_nil(at) <- {:token, exchange_code_for_token(params, opts)},
+         {:token, %{access_token: at} = token} when not is_nil(at) <-
+           {:token, exchange_code_for_token(params, opts)},
          {:user, user} <- fetch_user(token, opts) do
-
       {:ok, construct_auth(provider, token, user, opts)}
     else
       {:token, token} ->
-        {:error, create_failure(provider, __MODULE__, [error(token.other_params["error"], token.other_params["error_description"])])}
+        {:error,
+         create_failure(provider, __MODULE__, [
+           error(token.other_params["error"], token.other_params["error_description"])
+         ])}
+
       {_, {:error, %Error{} = err}} ->
         {:error, create_failure(provider, __MODULE__, [err])}
+
       {:error, %Error{} = err} ->
         {:error, create_failure(provider, __MODULE__, [err])}
+
       {:error, reason} ->
         {:error, create_failure(provider, __MODULE__, [error("unkonwn_error", reason)])}
     end
@@ -122,16 +146,17 @@ defmodule Ueberauth.Strategy.Facebook do
 
   def authenticate(provider, %{token: access_token}, opts) when not is_nil(access_token) do
     token = OAuth2.AccessToken.new(access_token)
+
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]),
          {:user, user} <- fetch_user(token, opts) do
-
       {:ok, construct_auth(provider, token, user, opts)}
-
     else
       {:user, {:error, %Error{} = err}} ->
         {:errro, create_failure(provider, __MODULE__, [err])}
+
       {:error, %Error{} = err} ->
         {:error, create_failure(provider, __MODULE__, [err])}
+
       {:error, reason} ->
         {:error, create_failure(provider, __MODULE__, [error("unknown_error", reason)])}
     end
@@ -146,7 +171,7 @@ defmodule Ueberauth.Strategy.Facebook do
       strategy: __MODULE__,
       credentials: credentials(token),
       info: info(user),
-      extra: extra(token, user),
+      extra: extra(token, user)
     }
     |> apply_uid(opts)
   end
@@ -165,11 +190,15 @@ defmodule Ueberauth.Strategy.Facebook do
     query = user_query(token, opts)
 
     path = "/me?#{query}"
+
     case OAuth2.Client.get(client, path) do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         {:error, error("token", "unauthorized")}
-      {:ok, %OAuth2.Response{status_code: status_code, body: user}} when status_code in 200..399 ->
+
+      {:ok, %OAuth2.Response{status_code: status_code, body: user}}
+      when status_code in 200..399 ->
         {:ok, user}
+
       {:error, %OAuth2.Error{reason: reason}} ->
         {:error, error("OAuth2", reason)}
     end
@@ -180,9 +209,11 @@ defmodule Ueberauth.Strategy.Facebook do
       case Keyword.get(opts, :uid_field) do
         f when is_function(f) ->
           f.(auth)
+
         f ->
           Map.get(auth.extra.user, f)
       end
+
     %{auth | uid: uid}
   end
 
@@ -217,7 +248,7 @@ defmodule Ueberauth.Strategy.Facebook do
     %Extra{
       raw_info: %{
         token: token,
-        user: user,
+        user: user
       }
     }
   end

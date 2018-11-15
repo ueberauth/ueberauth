@@ -10,25 +10,25 @@ defmodule Ueberauth.Strategy.Google do
     Auth.Credentials,
     Auth.Info,
     Auth.Extra,
-    Strategy.Helpers,
+    Strategy.Helpers
   }
 
   @default_scope "email"
   @uid_field :sub
 
   # handle plug based request
-  def challenge_url(%{callback_url: url, conn: conn}, opts) do
+  def challenge(%{callback_url: url, conn: conn}, opts) do
     scopes = conn.params["scope"] || Keyword.get(opts, :scope, @default_scope)
 
     %{scope: scopes, callback_url: url}
     |> put_non_nil(:access_type, conn.params["access_type"])
     |> put_non_nil(:prompt, conn.params["prompt"])
     |> put_non_nil(:state, conn.params["state"])
-    |> challenge_url(opts)
+    |> challenge(opts)
   end
 
   # handle in-app request url call
-  def challenge_url(%{callback_url: url} = params, opts) do
+  def challenge(%{callback_url: url} = params, opts) do
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
       scopes =
         params
@@ -44,14 +44,17 @@ defmodule Ueberauth.Strategy.Google do
         |> put_non_nil(:prompt, Map.get(params, :prompt))
         |> put_non_nil(:access_type, Map.get(params, :access_type))
 
-      url =
+      uri =
         (opts ++ [redirect_uri: url])
         |> __MODULE__.OAuth.client()
         |> __MODULE__.OAuth.authorize_url(params)
+        |> URI.parse()
 
-      {:ok, url}
+      {:ok, uri}
     end
   end
+
+  def challenge(_, _), do: {:error, :invalid_params}
 
   def authenticate(provider, %{query: %{"code" => code}}, opts),
     do: authenticate(provider, %{code: code}, opts)
@@ -67,15 +70,22 @@ defmodule Ueberauth.Strategy.Google do
         |> Enum.into([])
 
       with {:access, {:ok, token}} <- {:access, __MODULE__.OAuth.get_access_token(params, opts)},
-          {:user, {:ok, user}} <- {:user, fetch_user(token, opts)} do
-
+           {:user, {:ok, user}} <- {:user, fetch_user(token, opts)} do
         {:ok, auth(provider, token, user, opts)}
       else
         {:access, {:error, {error_code, error_description}}} ->
-          {:error, Helpers.create_failure(provider, __MODULE__, [Helpers.error(error_code, error_description)])}
+          {:error,
+           Helpers.create_failure(provider, __MODULE__, [
+             Helpers.error(error_code, error_description)
+           ])}
+
         {:user, {:error, error}} ->
           Logger.warn("[#{__MODULE__}] could not fetch user #{inspect(error)}")
-          {:error, Helpers.create_failure(provider, __MODULE__, [Helpers.error("user_lookup_error", "could not lookup user")])}
+
+          {:error,
+           Helpers.create_failure(provider, __MODULE__, [
+             Helpers.error("user_lookup_error", "could not lookup user")
+           ])}
       end
     end
   end
@@ -88,10 +98,14 @@ defmodule Ueberauth.Strategy.Google do
     case resp do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         {:error, Helpers.error("token", "unauthorized")}
-      {:ok, %OAuth2.Response{status_code: status_code, body: user}} when status_code in 200..399 ->
+
+      {:ok, %OAuth2.Response{status_code: status_code, body: user}}
+      when status_code in 200..399 ->
         {:ok, user}
+
       {:error, %OAuth2.Response{status_code: status_code}} ->
         {:error, Helpers.error("OAuth2", status_code)}
+
       {:error, %OAuth2.Error{reason: reason}} ->
         {:error, Helpers.error("OAuth2", reason)}
     end
@@ -102,35 +116,34 @@ defmodule Ueberauth.Strategy.Google do
       (token.other_params["scope"] || "")
       |> String.split(",")
 
-    auth =
-      %Auth{
-        provider: provider,
-        credentials: %Credentials{
-          expires: !!token.expires_at,
-          expires_at: token.expires_at,
-          scopes: scopes,
-          token_type: Map.get(token, :token_type),
-          refresh_token: token.refresh_token,
-          token: token.access_token,
-        },
-        info: %Info{
-          email: user["email"],
-          first_name: user["given_name"],
-          image: user["picture"],
-          last_name: user["family_name"],
-          name: user["name"],
-          urls: %{
-            profile: user["profile"],
-            website: user["hd"],
-          }
-        },
-        extra: %Extra{
-          raw_info: %{
-            token: token,
-            user: user,
-          }
+    auth = %Auth{
+      provider: provider,
+      credentials: %Credentials{
+        expires: !!token.expires_at,
+        expires_at: token.expires_at,
+        scopes: scopes,
+        token_type: Map.get(token, :token_type),
+        refresh_token: token.refresh_token,
+        token: token.access_token
+      },
+      info: %Info{
+        email: user["email"],
+        first_name: user["given_name"],
+        image: user["picture"],
+        last_name: user["family_name"],
+        name: user["name"],
+        urls: %{
+          profile: user["profile"],
+          website: user["hd"]
+        }
+      },
+      extra: %Extra{
+        raw_info: %{
+          token: token,
+          user: user
         }
       }
+    }
 
     %{auth | uid: resolve_uid(auth, opts)}
   end
@@ -139,6 +152,7 @@ defmodule Ueberauth.Strategy.Google do
     case Keyword.get(opts, :uid_field, @uid_field) do
       f when is_atom(f) ->
         Map.get(auth.extra.raw_info.user, f)
+
       f when is_function(f) ->
         f.(auth)
     end

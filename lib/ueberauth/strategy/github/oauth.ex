@@ -14,7 +14,7 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     strategy: __MODULE__,
     site: "https://api.github.com",
     authorize_url: "https://github.com/login/oauth/authorize",
-    token_url: "https://github.com/login/oauth/access_token",
+    token_url: "https://github.com/login/oauth/access_token"
   ]
 
   @doc """
@@ -50,10 +50,10 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   def get_token!(params \\ [], options \\ []) do
     client_options = Keyword.drop(options, [:headers, :options])
 
-    headers        = Keyword.get(options, :headers, [])
-    options        = Keyword.get(options, :options, [])
+    headers = Keyword.get(options, :headers, [])
+    options = Keyword.get(options, :options, [])
 
-    client         = OAuth2.Client.get_token!(client(client_options), params, headers, options)
+    client = OAuth2.Client.get_token!(client(client_options), params, headers, options)
     client.token
   end
 

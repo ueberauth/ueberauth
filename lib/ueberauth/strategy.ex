@@ -20,10 +20,10 @@ defmodule Ueberauth.Strategy do
 
   @type provider_name :: atom
   @type challenge_params :: %{
-    required(:callback_url) => String.t,
-    optional(:conn) => Plug.Conn.t,
-    optional(atom) => any,
-  }
+          required(:callback_url) => String.t(),
+          optional(:conn) => Plug.Conn.t(),
+          optional(atom) => any
+        }
 
   @doc """
   When called from a plug the following request params are provided:
@@ -32,7 +32,7 @@ defmodule Ueberauth.Strategy do
 
   When called otherwise, specify your required parameters in your documentation
   """
-  @callback challenge_url(challenge_params, options :: Keyword.t) :: {:ok, String.t} | {:error, term}
+  @callback challenge(challenge_params, options :: Keyword.t()) :: {:ok, URI.t()} | {:error, term}
 
   @doc """
   Can be called from a plug or directly
@@ -48,5 +48,6 @@ defmodule Ueberauth.Strategy do
 
   When called directly, specify in your documentation what the required parameters are.
   """
-  @callback authenticate(provider_name, params :: map, options :: Keyword.t) :: {:ok, Auth.t} | {:error, Failure.t}
+  @callback authenticate(provider_name, params :: map, options :: Keyword.t()) ::
+              {:ok, Auth.t()} | {:error, Failure.t()}
 end

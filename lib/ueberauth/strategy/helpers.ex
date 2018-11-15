@@ -69,12 +69,13 @@ defmodule Ueberauth.Strategy.Helpers do
       port: normalize_port(scheme, conn.port),
       path: conn.request_path,
       query: conn.query_string(),
-      scheme: to_string(scheme),
+      scheme: to_string(scheme)
     }
   end
 
   def validate_options({:error, _} = err, _), do: err
   def validate_options({:ok, options}, []), do: {:ok, options}
+
   def validate_options({:ok, options}, [key | rest]) do
     if Keyword.get(options, key) do
       validate_options({:ok, options}, rest)
@@ -106,13 +107,16 @@ defmodule Ueberauth.Strategy.Helpers do
           map
         end
       end
+
     map_string_to_atom(result, rest)
   end
 
   def put_non_nil(collection, _key, nil), do: collection
+
   def put_non_nil(collection, key, value) when is_list(collection) and is_atom(key) do
     [{key, value} | collection]
   end
+
   def put_non_nil(collection, key, value) when is_map(collection) and is_atom(key) do
     Map.put(collection, key, value)
   end
