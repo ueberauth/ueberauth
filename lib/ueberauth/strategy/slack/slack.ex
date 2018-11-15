@@ -80,7 +80,6 @@ defmodule Ueberauth.Strategy.Slack do
     scopes = Map.get(params, :scope, Keyword.get(opts, :default_scope, @default_scope))
     params = Map.put(params, :scope, scopes)
 
-
     call_opts =
       params
       |> Map.take([:scope, :state, :team])

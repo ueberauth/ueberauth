@@ -171,8 +171,7 @@ defmodule Ueberauth.Plug do
     request_uri = Helpers.request_uri(conn)
     callback_uri = %{request_uri | path: Path.join(request_uri.path, suffix), query: nil}
 
-    challenge =
-      strategy.challenge(%{callback_url: to_string(callback_uri), conn: conn}, opts)
+    challenge = strategy.challenge(%{callback_url: to_string(callback_uri), conn: conn}, opts)
 
     case challenge do
       {:ok, %URI{} = url} ->
@@ -195,6 +194,7 @@ defmodule Ueberauth.Plug do
     case strategy.authenticate(name, params, opts) do
       {:ok, auth} ->
         IO.puts("Valid auth response #{inspect(auth)}")
+
         if Auth.valid?(auth) do
           Plug.Conn.assign(conn, :ueberauth_auth, auth)
         else
