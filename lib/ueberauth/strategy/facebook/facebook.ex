@@ -81,13 +81,13 @@ defmodule Ueberauth.Strategy.Facebook do
 
     with {:ok, _} <- validate_options(opts, [:client_id]) do
       allowed_params = Keyword.get(opts, :allowed_request_params)
+      param_opts = Enum.into(params, []) ++ opts
 
       uri =
-        params
-        |> Map.take(allowed_params)
+        param_opts
+        |> Keyword.take(allowed_params)
         |> put_non_nil(:response_type, Keyword.get(opts, :response_type))
-        |> Map.put(:redirect_uri, url)
-        |> Enum.into([])
+        |> Keyword.put(:redirect_uri, url)
         |> __MODULE__.OAuth.authorize_url!(opts)
         |> URI.parse()
 
@@ -101,6 +101,8 @@ defmodule Ueberauth.Strategy.Facebook do
   @spec authenticate(Ueberauth.Strategy.provider_name(), authenticate_params, options) ::
           {:ok, Auth.t()} | {:error, Failure.t()}
   def authenticate(provider, %{query: params, conn: conn}, opts) do
+    callback_uri = request_uri(conn)
+    callback_uri = %{callback_uri | query: nil}
     params =
       params
       |> map_string_to_atom([
@@ -112,7 +114,7 @@ defmodule Ueberauth.Strategy.Facebook do
         :error_reason,
         :error_description
       ])
-      |> Map.put(:callback_url, request_uri(conn))
+      |> Map.put(:callback_url, to_string(callback_uri))
 
     authenticate(provider, params, opts)
   end
@@ -121,10 +123,11 @@ defmodule Ueberauth.Strategy.Facebook do
     do: {:error, create_failure(provider, __MODULE__, [error(reason, desc)])}
 
   def authenticate(provider, %{callback_url: _url, code: _code} = params, opts) do
+    opts = opts ++ @defaults
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]),
          {:token, %{access_token: at} = token} when not is_nil(at) <-
            {:token, exchange_code_for_token(params, opts)},
-         {:user, user} <- fetch_user(token, opts) do
+         {:user, {:ok, user}} <- {:user, fetch_user(token, opts)} do
       {:ok, construct_auth(provider, token, user, opts)}
     else
       {:token, token} ->
@@ -145,6 +148,7 @@ defmodule Ueberauth.Strategy.Facebook do
   end
 
   def authenticate(provider, %{token: access_token}, opts) when not is_nil(access_token) do
+    opts = opts ++ @defaults
     token = OAuth2.AccessToken.new(access_token)
 
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]),
@@ -211,7 +215,7 @@ defmodule Ueberauth.Strategy.Facebook do
           f.(auth)
 
         f ->
-          Map.get(auth.extra.user, f)
+          Map.get(auth.extra.raw_info.user, to_string(f))
       end
 
     %{auth | uid: uid}
