@@ -162,12 +162,13 @@ defmodule Ueberauth.Strategy.Github do
   """
   def info(conn) do
     user = conn.private.github_user
+    allow_private_emails = Keyword.get(options(conn), :allow_private_emails, false)
 
     %Info{
       name: user["name"],
       description: user["bio"],
       nickname: user["login"],
-      email: fetch_email!(user),
+      email: fetch_email!(user, allow_private_emails),
       location: user["location"],
       image: user["avatar_url"],
       urls: %{
@@ -200,25 +201,33 @@ defmodule Ueberauth.Strategy.Github do
     }
   end
 
-  defp fetch_uid("email", %{private: %{github_user: user}}) do
+  defp fetch_uid("email", conn) do
     # private email will not be available as :email and must be fetched
-    fetch_email!(user)
+    allow_private_emails = Keyword.get(options(conn), :allow_private_emails, false)
+    fetch_email!(conn.private.github_user.user, allow_private_emails)
   end
 
   defp fetch_uid(field, conn) do
     conn.private.github_user[field]
   end
 
-  defp fetch_email!(user) do
-    user["email"] || get_primary_email!(user)
+  defp fetch_email!(user, allow_private_emails) do
+    user["email"] || 
+    get_primary_email!(user) ||
+    get_private_email!(user, allow_private_emails) ||
+    raise "Unable to access the user's email address"
   end
 
   defp get_primary_email!(user) do
-    unless user["emails"] && (Enum.count(user["emails"]) > 0) do
-      raise "Unable to access the user's email address"
+    if user["emails"] && (Enum.count(user["emails"]) > 0) do
+      Enum.find(user["emails"], &(&1["primary"]))["email"]     
     end
+  end
 
-    Enum.find(user["emails"], &(&1["primary"]))["email"]
+  defp get_private_email!(user, allow_private_emails) do
+    if allow_private_emails do
+      "#{user["id"]}+#{user["login"]}@users.noreply.github.com"
+    end
   end
 
   defp fetch_user(conn, token) do

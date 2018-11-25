@@ -100,6 +100,16 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+## Private Emails
+Github now allows you to keep your email address private. If you don't mind that you won't know a users email address you can specify `allow_private_emails`. This will set the users email as `id+username@users.noreply.github.com`.
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    github: {Ueberauth.Strategy.Github, [allow_private_emails: true]}
+  ]
+```
+
 ## License
 
 Please see [LICENSE](https://github.com/ueberauth/ueberauth_github/blob/master/LICENSE) for licensing details.
