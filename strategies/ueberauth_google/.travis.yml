@@ -1,0 +1,16 @@
+language: elixir
+
+cache:
+  directories:
+    - ~/.hex
+    - ~/.mix
+    - deps
+
+elixir:
+  - '1.3'
+  - '1.4'
+  - '1.5'
+  - '1.6'
+
+script:
+  - mix test
