@@ -1,7 +1,7 @@
 defmodule UeberauthGoogle.Mixfile do
   use Mix.Project
 
-  @version "0.7.0"
+  @version "0.8.0"
   @url "https://github.com/ueberauth/ueberauth_google"
 
   def project do
