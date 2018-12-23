@@ -16,8 +16,7 @@ defmodule Ueberauth.Config do
   @doc """
   Return the configured json lib
   """
-  @json_lib Application.get_env(:ueberauth, :json_library) || @jason || @poison
   def json_library do
-    @json_lib
+    Application.get_env(:ueberauth, :json_library) || @jason || @poison
   end
 end

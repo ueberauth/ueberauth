@@ -170,7 +170,7 @@ config :ueberauth, Ueberauth,
 
 ## Customizing JSON Serializer
 
-Your json encoder/decoder can be configured.  Defaults to Poison in other ueberauth libraries such as [ueberauth_google](https://github.com/ueberauth/ueberauth_google) and [ueberauth_twitter](https://github.com/ueberauth/ueberauth_twitter).  If you only have [Jason](https://github.com/michalmuskala/jason) installed, then it is a good idea to take advantage of this configuration property.
+Your json encoder/decoder can be configured depending what you have installed.  Defaults to Poison in other ueberauth libraries such as [ueberauth_google](https://github.com/ueberauth/ueberauth_google) and [ueberauth_twitter](https://github.com/ueberauth/ueberauth_twitter).  If you only have [Jason](https://github.com/michalmuskala/jason) installed, then you can configure Ueberauth like so:.
 
 ```elixir
 config :ueberauth, Ueberauth,
