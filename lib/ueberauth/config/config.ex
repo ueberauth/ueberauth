@@ -1,22 +1,26 @@
 defmodule Ueberauth.Config do
-  @moduledoc false
+  @moduledoc """
+  A json library is required for Ueberauth to operate.
+  In config.exs your implicit or expicit configuration is:
+    config ueberauth,
+      json_library: Jason # defaults to Jason but can be configured to Poison
 
-  Module.put_attribute(
-    __MODULE__,
-    :poison,
-    if(Code.ensure_loaded?(Poison), do: Poison, else: nil)
-  )
+  In mix.exs you will need something like:
+    def deps() do
+      [
+        ...
+        {:jason, :version} # or {:poison, :version}
+      ]
+    end
 
-  Module.put_attribute(
-    __MODULE__,
-    :jason,
-    if(Code.ensure_loaded?(Jason), do: Jason, else: nil)
-  )
+  This file will serve underlying Ueberauth libraries as a hook to grab the
+  configured json library.
+  """
 
   @doc """
   Return the configured json lib
   """
   def json_library do
-    Application.get_env(:ueberauth, :json_library) || @jason || @poison
+    Application.get_env(:ueberauth, :json_library, Jason)
   end
 end
