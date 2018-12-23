@@ -141,6 +141,7 @@ defmodule Ueberauth do
           identity: {Ueberauth.Strategies.Identity, [request_path: "/login/identity",
                                                      callback_path: "/login/identity/callback"]}
         ]
+        json_library: Poison # or Jason
 
   #### Http Methods
 

@@ -168,6 +168,15 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+## Customizing JSON Serializer
+
+Your json encoder/decoder can be configured.  Defaults to Poison in other ueberauth libraries such as [ueberauth_google](https://github.com/ueberauth/ueberauth_google) and [ueberauth_twitter](https://github.com/ueberauth/ueberauth_twitter).  If you only have [Jason](https://github.com/michalmuskala/jason) installed, then it is a good idea to take advantage of this configuration property.
+
+```elixir
+config :ueberauth, Ueberauth,
+  json_library: Poison # or Jason
+```
+
 ## HTTP Methods
 
 By default, all callback urls are only available via the `"GET"` method. You
