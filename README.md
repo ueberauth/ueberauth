@@ -168,6 +168,15 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+## Customizing JSON Serializer
+
+Your json serializer can be configured depending on what you have installed in your application.  Defaults to [Jason](https://github.com/michalmuskala/jason).
+
+```elixir
+config :ueberauth, Ueberauth,
+  json_library: Poison # default is Jason
+```
+
 ## HTTP Methods
 
 By default, all callback urls are only available via the `"GET"` method. You
