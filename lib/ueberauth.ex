@@ -194,7 +194,11 @@ defmodule Ueberauth do
   @doc false
   def init(opts \\ []) do
     {provider_list, opts} = Keyword.pop(opts, :providers, :all)
-    opts = Keyword.merge(Application.get_env(:ueberauth, Ueberauth), opts)
+
+    opts =
+      :ueberauth
+      |> Application.fetch_env!(Ueberauth)
+      |> Keyword.merge(opts)
 
     {base_path, opts} = Keyword.pop(opts, :base_path, "/auth")
     {all_providers, _opts} = Keyword.pop(opts, :providers)
