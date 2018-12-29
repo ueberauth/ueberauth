@@ -194,6 +194,7 @@ defmodule Ueberauth do
   @doc false
   def init(opts \\ []) do
     config_opts = Application.get_env(:ueberauth, Ueberauth)
+
     if config_opts == nil do
       raise "Missing configuration for this environment."
     end
