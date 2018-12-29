@@ -193,14 +193,8 @@ defmodule Ueberauth do
 
   @doc false
   def init(opts \\ []) do
-    config_opts = Application.get_env(:ueberauth, Ueberauth)
-
-    if config_opts == nil do
-      raise "Missing configuration for this environment."
-    end
-
     {provider_list, opts} = Keyword.pop(opts, :providers, :all)
-    opts = Keyword.merge(config_opts, opts)
+    opts = Keyword.merge(Application.fetch_env!(:ueberauth, Ueberauth), opts)
 
     {base_path, opts} = Keyword.pop(opts, :base_path, "/auth")
     {all_providers, _opts} = Keyword.pop(opts, :providers)
