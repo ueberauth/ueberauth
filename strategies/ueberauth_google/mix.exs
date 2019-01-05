@@ -25,7 +25,7 @@ defmodule UeberauthGoogle.Mixfile do
 
   defp deps do
     [
-     {:oauth2, "~> 0.9"},
+     {:oauth2, github: "scrogson/oauth2", branch: "register_serializers"},
      {:ueberauth, "~> 0.4"},
 
      {:credo, "~> 0.8", only: [:dev, :test]},
