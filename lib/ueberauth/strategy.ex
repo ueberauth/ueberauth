@@ -256,7 +256,7 @@ defmodule Ueberauth.Strategy do
   customization.
   """
   defmacro __using__(opts \\ []) do
-    quote do
+    quote location: :keep do
       @behaviour Ueberauth.Strategy
       import Ueberauth.Strategy.Helpers
       import Plug.Conn, except: [request_url: 1]
