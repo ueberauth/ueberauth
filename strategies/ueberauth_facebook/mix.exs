@@ -1,7 +1,7 @@
 defmodule Ueberauth.Facebook.Mixfile do
   use Mix.Project
 
-  @version "0.7.0"
+  @version "0.8.0"
   @url "https://github.com/ueberauth/ueberauth_facebook"
 
   def project do
@@ -28,7 +28,7 @@ defmodule Ueberauth.Facebook.Mixfile do
      {:oauth2, "~> 0.9"},
 
      {:credo, "~> 0.8.10", only: [:dev, :test]},
-     {:ex_doc, "~> 0.16", only: :dev},
+     {:ex_doc, "~> 0.19", only: :dev},
      {:earmark, ">= 0.0.0", only: :dev}]
   end
 
