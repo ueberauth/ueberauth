@@ -25,13 +25,8 @@ defmodule Ueberauth.Strategy.Google.OAuth do
   These options are only useful for usage outside the normal callback phase of Ueberauth.
   """
   def client(opts \\ []) do
-    config = Application.get_env(:ueberauth, Ueberauth.Strategy.Google.OAuth)
-
-    opts =
-      @defaults
-      |> Keyword.merge(opts)
-      |> Keyword.merge(config)
-
+    config = Application.get_env(:ueberauth, __MODULE__, [])
+    opts = @defaults |> Keyword.merge(opts) |> Keyword.merge(config) |> resolve_values()
     OAuth2.Client.new(opts)
   end
 
@@ -75,4 +70,13 @@ defmodule Ueberauth.Strategy.Google.OAuth do
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
   end
+
+  defp resolve_values(list) do
+    for {key, value} <- list do
+      {key, resolve_value(value)}
+    end
+  end
+  
+  defp resolve_value({m, f, a}) when is_atom(m) and is_atom(f), do: apply(m, f, a)
+  defp resolve_value(v), do: v
 end

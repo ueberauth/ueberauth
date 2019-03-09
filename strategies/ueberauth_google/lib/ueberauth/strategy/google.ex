@@ -24,17 +24,17 @@ defmodule Ueberauth.Strategy.Google do
       |> with_param(:prompt, conn)
       |> with_param(:state, conn)
 
-    opts = [redirect_uri: callback_url(conn)]
-
+    opts = oauth_client_options_from_conn(conn)
     redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(params, opts))
   end
-
+  
   @doc """
   Handles the callback from Google.
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     params = [code: code]
-    opts = [redirect_uri: callback_url(conn)]
+    opts = oauth_client_options_from_conn(conn)
+
     case Ueberauth.Strategy.Google.OAuth.get_access_token(params, opts) do
       {:ok, token} ->
         fetch_user(conn, token)
@@ -116,7 +116,6 @@ defmodule Ueberauth.Strategy.Google do
     }
   end
 
-
   defp fetch_user(conn, token) do
     conn = put_private(conn, :google_token, token)
 
@@ -142,6 +141,17 @@ defmodule Ueberauth.Strategy.Google do
 
   defp with_optional(opts, key, conn) do
     if option(conn, key), do: Keyword.put(opts, key, option(conn, key)), else: opts
+  end
+
+  defp oauth_client_options_from_conn(conn) do
+    base_options = [redirect_uri: callback_url(conn)]
+    request_options = conn.private[:ueberauth_request_options].options
+    
+    case {request_options[:client_id], request_options[:client_secret]} do
+      {nil, _} -> base_options
+      {_, nil} -> base_options
+      {id, secret} -> [client_id: id, client_secret: secret] ++ base_options
+    end
   end
 
   defp option(conn, key) do
