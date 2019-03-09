@@ -191,7 +191,7 @@ defmodule Ueberauth.Strategy.Facebook do
   defp option(value, _conn, _key), do: value
 
   defp maybe_replace_param(params, conn, name, config_key) do
-    if params[name] do
+    if params[name] || is_nil(option(params[name], conn, config_key)) do
       params
     else
       Map.put(
