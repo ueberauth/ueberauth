@@ -126,6 +126,32 @@ defmodule Ueberauth do
   This will allow you to have different login points in your
   application selectively using some or all of the providers.
 
+  #### Configuration of different Providers per OTP app
+
+  If you wish to use Ueberauth in multiple OTP apps, and configure each instance of
+  Ueberauth with a different list of Providers, you will need to do some things
+  differently. When providing configuration for Ueberauth, you should set anything that
+  differs by OTP app under the name of your OTP app, for example:
+
+      config :my_app, Ueberauth,
+        providers: [
+          …
+        ]
+
+  Further, when using the Ueberauth plug, you should pass the `:otp_app` option,
+  for example:
+
+      defmodule MyApp.Admin.AuthController do
+        user MyApp.Web :controller
+        plug Ueberauth,
+          otp_app: :my_app,
+          providers: [:identity],
+          base_path: "/admin/auth"
+      end
+
+  This ensures that in addition to globally configured values under `:ueberauth`,
+  values set under your own namespace are used with priority.
+
   #### Customizing Paths
 
   These paths can be configured on a per strategy basis by setting options on
@@ -173,8 +199,18 @@ defmodule Ueberauth do
   @doc """
   A json library is required for Ueberauth to operate.
   In config.exs your implicit or expicit configuration is:
-    config ueberauth,
-      json_library: Jason # defaults to Jason but can be configured to Poison
+
+    config ueberauth, Ueberauth, json_library: Jason 
+
+  Or:
+
+    config ueberauth, json_library: Jason 
+
+  If you are using per-app configuration, you can also use:
+
+    config :my_app, Ueberauth, json_library: Jason
+
+  The JSON library defaults to Jason but can be configured to Poison.
 
   In mix.exs you will need something like:
     def deps() do
@@ -187,92 +223,148 @@ defmodule Ueberauth do
   This file will serve underlying Ueberauth libraries as a hook to grab the
   configured json library.
   """
-  def json_library do
-    Application.get_env(:ueberauth, :json_library, Jason)
+  def json_library(otp_app \\ nil) do
+    environment = get_env([:ueberauth, otp_app])
+    Keyword.get(environment, :json_library, Application.get_env(:ueberauth, :json_library, Jason))
+  end
+
+  @type path :: String.t()
+  @type method :: String.t()
+  @type route :: {{path, method}, mfa()}
+  @type routes :: [route]
+
+  @doc false
+  def init(options \\ []) do
+    environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
+    providers = get_providers(environment, options)
+    base_path = get_base_path(environment, options)
+    Enum.flat_map(providers, &build_routes(base_path, &1))
   end
 
   @doc false
-  def init(opts \\ []) do
-    {provider_list, opts} = Keyword.pop(opts, :providers, :all)
+  def call(conn, routes) do
+    route_path = String.replace_trailing(conn.request_path, "/", "")
+    route_key = {route_path, conn.method}
 
-    opts =
-      :ueberauth
-      |> Application.fetch_env!(Ueberauth)
-      |> Keyword.merge(opts)
-
-    {base_path, opts} = Keyword.pop(opts, :base_path, "/auth")
-    {all_providers, _opts} = Keyword.pop(opts, :providers)
-
-    providers =
-      if provider_list == :all do
-        all_providers
-      else
-        all_providers
-        |> Keyword.split(provider_list)
-        |> elem(0)
-      end
-
-    Enum.reduce(providers, %{}, fn {_name, {module, _}} = strategy, acc ->
-      %{callback_methods: methods} = opts = strategy_opts(strategy, base_path)
-
-      acc = Map.put(acc, {opts.request_path, "GET"}, {module, :run_request, opts})
-
-      Enum.reduce(methods, acc, fn method, acc ->
-        Map.put(acc, {opts.callback_path, method}, {module, :run_callback, opts})
-      end)
-    end)
-  end
-
-  @doc false
-  def call(%{request_path: request_path, method: method} = conn, opts) do
-    if strategy = Map.get(opts, {String.replace_trailing(request_path, "/", ""), method}) do
-      run!(conn, strategy)
-    else
-      conn
+    case List.keyfind(routes, route_key, 0) do
+      {_, route_mfa} -> run(conn, route_mfa)
+      _ -> conn
     end
   end
 
-  defp run!(conn, {module, :run_request, opts}) do
+  defp run(conn, {module, :run_request, options}) do
     conn
-    |> Plug.Conn.put_private(:ueberauth_request_options, opts)
+    |> Plug.Conn.put_private(:ueberauth_request_options, options)
     |> Strategy.run_request(module)
   end
 
-  defp run!(conn, {module, :run_callback, opts}) do
-    if conn.method in opts[:callback_methods] do
-      conn
-      |> Plug.Conn.put_private(:ueberauth_request_options, opts)
-      |> Strategy.run_callback(module)
-    else
-      conn
+  defp run(conn, {module, :run_callback, options}) do
+    conn
+    |> Plug.Conn.put_private(:ueberauth_request_options, options)
+    |> Strategy.run_callback(module)
+  end
+
+  defp build_routes(base_path, strategy) do
+    #
+    # Given a Strategy (passed as providers in environment) and a base_path,
+    # build a list of routes that can be used later on in `call/2`.
+    # The request route must be GET, but there can be as many callback routes
+    # as there are callback methods.
+
+    {_, {module, _}} = strategy
+    strategy_options = build_strategy_options(base_path, strategy)
+
+    request_mfa = {module, :run_request, strategy_options}
+    request_route = {{strategy_options.request_path, "GET"}, request_mfa}
+
+    callback_mfa = {module, :run_callback, strategy_options}
+
+    callback_routes =
+      for callback_method <- strategy_options.callback_methods do
+        {{strategy_options.callback_path, callback_method}, callback_mfa}
+      end
+
+    [request_route | callback_routes]
+  end
+
+  defp get_env(value) do
+    #
+    # Return the environment via `Application.get_env/3` with nil app names
+    # yielding empty list, so the results can be used with `Keyword.merge/2`.
+
+    case value do
+      nil -> []
+      name when is_atom(name) -> Application.get_env(name, __MODULE__, [])
+      list when is_list(list) -> list |> Enum.map(&get_env/1) |> Enum.reduce(&Keyword.merge/2)
     end
   end
 
-  defp strategy_opts({name, {module, opts}} = strategy, base_path) do
+  defp get_providers(environment, options) do
+    #
+    # Used within `init/1`. Return a filtered Keyword list of providers,
+    # taking into account whether the providers have been filtered via options.
+
+    {:ok, providers} = Keyword.fetch(environment, :providers)
+
+    case Keyword.get(options, :providers, :all) do
+      :all -> providers
+      provider_names -> Keyword.take(providers, provider_names)
+    end
+  end
+
+  defp get_base_path(environment, options) do
+    #
+    # Used within `init/1`. Form the base_path from configuration
+    # in environment and options.
+
+    Keyword.get(options, :base_path, Keyword.get(environment, :base_path, "/auth"))
+  end
+
+  defp build_strategy_options(base_path, strategy) do
+    #
+    # Used within `build_routes/2`. Form an internal struct which holds
+    # specifics that are expected by downstream Strategies when they are run.
+
+    {name, {module, options}} = strategy
+
     %{
-      strategy_name: name,
       strategy: module,
-      callback_path: callback_path(base_path, strategy),
-      request_path: request_path(base_path, strategy),
-      callback_methods: callback_methods(opts),
-      options: opts,
-      callback_url: Keyword.get(opts, :callback_url),
-      callback_params: Keyword.get(opts, :callback_params)
+      strategy_name: name,
+      request_path: get_request_path(base_path, strategy),
+      callback_path: get_callback_path(base_path, strategy),
+      callback_methods: get_callback_methods(options),
+      options: options,
+      callback_url: Keyword.get(options, :callback_url),
+      callback_params: Keyword.get(options, :callback_params)
     }
   end
 
-  defp request_path(base_path, {name, {_, opts}}) do
+  defp get_request_path(base_path, strategy) do
+    #
+    # Used within `build_strategy_options/2`. Form the Request Path
+    # from the base path and name of the Strategy as specified in Providers.
+
+    {name, {_, options}} = strategy
     default_path = Path.join(["/", base_path, to_string(name)])
-    String.replace_trailing(Keyword.get(opts, :request_path, default_path), "/", "")
+    String.replace_trailing(Keyword.get(options, :request_path, default_path), "/", "")
   end
 
-  defp callback_path(base_path, {name, {_, opts}}) do
+  defp get_callback_path(base_path, strategy) do
+    #
+    # Used within `build_strategy_options/2`. Form the Callback Path
+    # from the base path and name of the Strategy as specified in Providers.
+
+    {name, {_, options}} = strategy
     default_path = Path.join(["/", base_path, to_string(name), "callback"])
-    Keyword.get(opts, :callback_path, default_path)
+    Keyword.get(options, :callback_path, default_path)
   end
 
-  defp callback_methods(opts) do
-    opts
+  defp get_callback_methods(options) do
+    #
+    # Used within `build_strategy_options/2`. Form the list of Callback Methods
+    # from options provided.
+
+    options
     |> Keyword.get(:callback_methods, ["GET"])
     |> Enum.map(&String.upcase(to_string(&1)))
   end
