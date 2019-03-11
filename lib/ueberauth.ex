@@ -119,7 +119,7 @@ defmodule Ueberauth do
   you can specify a list of configured providers
 
       defmodule MyApp.Admin.AuthController do
-        user MyApp.Web :controller
+        use MyApp.Web, :controller
         plug Ueberauth, providers: [:identity], base_path: "/admin/auth"
       end
 
@@ -142,7 +142,7 @@ defmodule Ueberauth do
   for example:
 
       defmodule MyApp.Admin.AuthController do
-        user MyApp.Web :controller
+        use MyApp.Web, :controller
         plug Ueberauth,
           otp_app: :my_app,
           providers: [:identity],
