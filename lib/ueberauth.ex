@@ -32,7 +32,6 @@ defmodule Ueberauth do
 
   This may be done from anywhere in your application including sockets, channels, controller or as implemented by `Ueberauth.Plug`
 
-
   ### Using with Ueberauth.Plug
 
   You can of course call the strategies authenticate or request_url functions at any time in your application. However when you use the `Ueberauth.Plug`

@@ -53,9 +53,9 @@ defmodule Ueberauth.Strategy.Slack do
 
   alias Ueberauth.{
     Auth,
-    Auth.Info,
     Auth.Credentials,
     Auth.Extra,
+    Auth.Info,
     Failure.Error,
     Strategy.Slack.OAuth
   }

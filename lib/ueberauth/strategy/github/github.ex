@@ -33,7 +33,6 @@ defmodule Ueberauth.Strategy.Github do
         get "/:provider/callback", AuthController, :callback
       end
 
-
   Create an endpoint for the callback where you will handle the `Ueberauth.Auth` struct
 
       defmodule MyApp.AuthController do
@@ -74,9 +73,9 @@ defmodule Ueberauth.Strategy.Github do
 
   alias Ueberauth.{
     Auth,
-    Auth.Info,
     Auth.Credentials,
     Auth.Extra
+    Auth.Info,
   }
 
   @default_uid_field :id

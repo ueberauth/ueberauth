@@ -8,8 +8,8 @@ defmodule Ueberauth.Strategy.Google do
   alias Ueberauth.{
     Auth,
     Auth.Credentials,
-    Auth.Info,
     Auth.Extra,
+    Auth.Info,
     Strategy.Helpers
   }
 
@@ -30,9 +30,7 @@ defmodule Ueberauth.Strategy.Google do
   # handle in-app request url call
   def challenge(%{callback_url: url} = params, opts) do
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]) do
-      scopes =
-        params
-        |> Map.get(:scope, Keyword.get(opts, :scope, @default_scope))
+      scopes = Map.get(params, :scope, Keyword.get(opts, :scope, @default_scope))
 
       params =
         [scope: scopes]

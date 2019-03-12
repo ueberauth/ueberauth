@@ -75,7 +75,6 @@ defmodule Ueberauth.Plug do
       # OR to use configuration coming from mix
       plug Ueberauth.Plug, Uebeauth.Plug.lookup_config_func([:ueberauth, Ueberauth])
 
-
       # should never be called but should be routed to as `/path/for/auth/:provider`
       def request(conn, _) do
         raise "should not be called"

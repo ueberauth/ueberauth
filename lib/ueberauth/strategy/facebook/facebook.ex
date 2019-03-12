@@ -11,9 +11,9 @@ defmodule Ueberauth.Strategy.Facebook do
 
   alias Ueberauth.{
     Auth,
-    Auth.Info,
     Auth.Credentials,
     Auth.Extra,
+    Auth.Info,
     Failure.Error
   }
 
@@ -171,22 +171,21 @@ defmodule Ueberauth.Strategy.Facebook do
     do: {:error, create_failure(provider, __MODULE__, [error("OAuth2", "invalid params")])}
 
   defp construct_auth(provider, token, user, opts) do
-    %Auth{
+    auth = %Auth{
       provider: provider,
       strategy: __MODULE__,
       credentials: credentials(token),
       info: info(user),
       extra: extra(token, user)
     }
-    |> apply_uid(opts)
+
+    apply_uid(auth, opts)
   end
 
   defp exchange_code_for_token(%{callback_url: url, code: code}, opts) do
-    client =
-      [code: code, redirect_uri: url]
-      |> Ueberauth.Strategy.Facebook.OAuth.get_token!(opts)
-
-    client.token
+    [code: code, redirect_uri: url]
+    |> Ueberauth.Strategy.Facebook.OAuth.get_token!(opts)
+    |> Map.get(:token)
   end
 
   defp fetch_user(token, opts) do
