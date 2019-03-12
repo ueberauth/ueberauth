@@ -1,7 +1,7 @@
 defmodule Ueberauth.Mixfile do
   use Mix.Project
 
-  @version "0.5.0"
+  @version "0.6.0"
 
   def project do
     [
@@ -41,7 +41,7 @@ defmodule Ueberauth.Mixfile do
       {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:excoveralls, ">= 0.0.0", only: [:test], runtime: false},
-      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+      {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
       {:inch_ex, ">= 0.0.0", only: [:dev], runtime: false}
     ]
   end
