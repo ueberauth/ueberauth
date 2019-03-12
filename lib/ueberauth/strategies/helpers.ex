@@ -67,7 +67,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
   This method will filter conn.params with whitelisted params from :callback_params settings
   """
-  @spec callback_params(Plug.Conn.t()) :: list(String.t())
+  @spec callback_params(Plug.Conn.t()) :: keyword()
   def callback_params(conn, opts \\ []) do
     callback_params = from_private(conn, :callback_params) || []
 
