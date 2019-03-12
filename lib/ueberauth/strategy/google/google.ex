@@ -121,12 +121,12 @@ defmodule Ueberauth.Strategy.Google do
     auth = %Auth{
       provider: provider,
       credentials: %Credentials{
-        expires: !!token.expires_at,
+        expires: not is_nil(token.expires_at),
         expires_at: token.expires_at,
-        scopes: scopes,
-        token_type: Map.get(token, :token_type),
         refresh_token: token.refresh_token,
-        token: token.access_token
+        scopes: scopes,
+        token: token.access_token,
+        token_type: Map.get(token, :token_type)
       },
       info: %Info{
         email: user["email"],
@@ -151,12 +151,11 @@ defmodule Ueberauth.Strategy.Google do
   end
 
   defp resolve_uid(auth, opts) do
-    case Keyword.get(opts, :uid_field, @uid_field) do
-      f when is_atom(f) ->
-        Map.get(auth.extra.raw_info.user, f)
+    field = Keyword.get(opts, :uid_field, @uid_field)
 
-      f when is_function(f) ->
-        f.(auth)
+    cond do
+      is_atom(field) -> Map.get(auth.extra.raw_info.user, field)
+      is_function(field) -> apply(field, [])
     end
   end
 end

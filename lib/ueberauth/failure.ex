@@ -14,10 +14,10 @@ defmodule Ueberauth.Failure do
   + `:uid` - An identifier unique to the given provider, such as a Twitter user ID. Should be stored as a string
   """
   @type t :: %__MODULE__{
-    errors: list(Ueberauth.Failure.Error),
-    provider: binary(),
-    strategy: module(),
-  }
+          errors: list(Ueberauth.Failure.Error),
+          provider: binary(),
+          strategy: module()
+        }
 
   defstruct errors: [],
             provider: nil,

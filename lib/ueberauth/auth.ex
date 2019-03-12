@@ -7,7 +7,8 @@ defmodule Ueberauth.Auth do
   `:ueberauth_auth` key
   """
 
-  alias Ueberauth.{Auth, Auth.Info, Auth.Credentials, Auth.Extra}
+  alias Ueberauth.Auth
+  alias Ueberauth.Auth.{Credentials, Extra, Info}
 
   @typedoc """
   The request's authentication information
@@ -20,13 +21,13 @@ defmodule Ueberauth.Auth do
   + `:uid` - An identifier unique to the given provider, such as a Twitter user ID. Should be stored as a string
   """
   @type t :: %__MODULE__{
-    credentials: Credentials.t(),
-    extra: Extra.t(),
-    info: Info.t(),
-    provider: String.t() | atom(),
-    strategy: module,
-    uid: String.t()
-  }
+          credentials: Credentials.t(),
+          extra: Extra.t(),
+          info: Info.t(),
+          provider: String.t() | atom(),
+          strategy: module,
+          uid: String.t()
+        }
 
   defstruct credentials: %Credentials{},
             extra: %Extra{},
@@ -35,7 +36,9 @@ defmodule Ueberauth.Auth do
             strategy: nil,
             uid: nil
 
-  def valid?(%Auth{} = auth),
-    do: !!(auth.uid && auth.provider && auth.info && Info.valid?(auth.info))
+  def valid?(%Auth{info: nil}), do: false
+  def valid?(%Auth{provider: nil}), do: false
+  def valid?(%Auth{uid: nil}), do: false
+  def valid?(%Auth{} = auth), do: Info.valid?(auth.info)
   def valid?(_), do: false
 end

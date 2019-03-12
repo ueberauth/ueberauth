@@ -9,8 +9,8 @@ defmodule Ueberauth.Auth.Extra do
   In the example of Twitter, this will represent the user's information returned from the Twitter API.
   """
   @type t :: %__MODULE__{
-    raw_info: map
-  }
+          raw_info: map
+        }
 
   defstruct raw_info: %{}
 end

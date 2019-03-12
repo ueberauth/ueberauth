@@ -101,8 +101,8 @@ defmodule Ueberauth.Strategy.Facebook do
   @spec authenticate(Ueberauth.Strategy.provider_name(), authenticate_params, options) ::
           {:ok, Auth.t()} | {:error, Failure.t()}
   def authenticate(provider, %{query: params, conn: conn}, opts) do
-    callback_uri = request_uri(conn)
-    callback_uri = %{callback_uri | query: nil}
+    callback_uri = %{request_uri(conn) | query: nil}
+
     params =
       params
       |> map_string_to_atom([
@@ -124,6 +124,7 @@ defmodule Ueberauth.Strategy.Facebook do
 
   def authenticate(provider, %{callback_url: _url, code: _code} = params, opts) do
     opts = opts ++ @defaults
+
     with {:ok, _} <- validate_options(opts, [:client_id, :client_secret]),
          {:token, %{access_token: at} = token} when not is_nil(at) <-
            {:token, exchange_code_for_token(params, opts)},
@@ -222,11 +223,13 @@ defmodule Ueberauth.Strategy.Facebook do
   end
 
   defp credentials(token) do
-    scopes = token.other_params["scope"] || ""
-    scopes = String.split(scopes, ",")
+    scopes =
+      token
+      |> Map.get("scope", "")
+      |> String.split(",")
 
     %Credentials{
-      expires: !!token.expires_at,
+      expires: not is_nil(token.expires_at),
       expires_at: token.expires_at,
       scopes: scopes,
       token: token.access_token

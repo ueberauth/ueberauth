@@ -10,8 +10,8 @@ defmodule Ueberauth.Strategy.Slack do
 
   ```elixir
   config :ueberauth, Ueberauth,
-    providers: [
-      slack: { Ueberauth.Strategy.Slack, [uid_field: :nickname, default_scope: "users:read,users:write"] }
+  providers: [
+  slack: { Ueberauth.Strategy.Slack, [uid_field: :nickname, default_scope: "users:read,users:write"] }
   ]
   ```
   """
@@ -19,27 +19,27 @@ defmodule Ueberauth.Strategy.Slack do
   @behaviour Ueberauth.Strategy
 
   @type challenge_params :: %{
-          required(:callback_url) => String.t(),
-          optional(:conn) => Plug.Conn.t(),
-          optional(:scope) => String.t(),
-          optional(:state) => String.t()
-        }
+    required(:callback_url) => String.t(),
+    optional(:conn) => Plug.Conn.t(),
+    optional(:scope) => String.t(),
+    optional(:state) => String.t()
+  }
 
   @type options :: [
-          {:client_id, String.t()},
-          {:client_secret, String.t()},
-          {:oauth2_module, module},
-          {:scope, String.t()},
-          {:team, String.t()},
-          {:uid_field, atom | (Auth.t() -> String.t())}
-        ]
+    {:client_id, String.t()},
+    {:client_secret, String.t()},
+    {:oauth2_module, module},
+    {:scope, String.t()},
+    {:team, String.t()},
+    {:uid_field, atom | (Auth.t() -> String.t())}
+  ]
 
   @type authenticate_params :: %{
-          required(:callback_url) => String.t(),
-          optional(:conn) => Plug.Conn.t(),
-          optional(:code) => String.t(),
-          optional(:state) => String.t()
-        }
+    required(:callback_url) => String.t(),
+    optional(:conn) => Plug.Conn.t(),
+    optional(:code) => String.t(),
+    optional(:state) => String.t()
+  }
 
   @default_scope "users:read"
 
@@ -56,10 +56,10 @@ defmodule Ueberauth.Strategy.Slack do
     Auth.Info,
     Auth.Credentials,
     Auth.Extra,
-    Failure.Error
+    Failure.Error,
+    Strategy.Slack.OAuth
   }
 
-  @spec challenge(challenge_params, options) :: String.t()
   @impl true
   def challenge(%{conn: conn} = params, opts) do
     opts = opts ++ @defaults
@@ -102,10 +102,9 @@ defmodule Ueberauth.Strategy.Slack do
 
   @impl true
   @spec authenticate(Ueberauth.Strategy.provider_name(), authenticate_params, options) ::
-          {:ok, Auth.t()} | {:error, Failure.t()}
+  {:ok, Auth.t()} | {:error, Failure.t()}
   def authenticate(provider, %{conn: conn, query: %{"code" => _code} = params}, opts) do
-    auth_url = request_uri(conn)
-    auth_url = %{auth_url | query: nil}
+    auth_url = %{request_uri(conn) | query: nil}
 
     params =
       params
@@ -131,22 +130,21 @@ defmodule Ueberauth.Strategy.Slack do
           |> Enum.into([])
           |> module.get_token!(opts)
 
-        with {:access_token, token, at} when not is_nil(at) <-
-               {:access_token, token, token.access_token},
-             {:fetch_auth, {:ok, slack_auth}} <- {:fetch_auth, fetch_auth(token)},
-             {:fetch_user, {:ok, slack_user}} <- {:fetch_user, fetch_user(token, slack_auth)},
-             {:fetch_team, {:ok, slack_team}} <- {:fetch_team, fetch_team(token)} do
-          {:ok, construct_auth(provider, token, slack_auth, slack_user, slack_team, opts)}
-        else
-          {:access_token, token, nil} ->
-            {:error,
-             create_failure(provider, __MODULE__, [
-               error(token.other_params["error"], token.other_params["error_description"])
-             ])}
+          with {:access_token, token, at} when not is_nil(at) <- {:access_token, token, token.access_token},
+               {:fetch_auth, {:ok, slack_auth}} <- {:fetch_auth, fetch_auth(token)},
+               {:fetch_user, {:ok, slack_user}} <- {:fetch_user, fetch_user(token, slack_auth)},
+               {:fetch_team, {:ok, slack_team}} <- {:fetch_team, fetch_team(token)} do
+                 {:ok, construct_auth(provider, token, slack_auth, slack_user, slack_team, opts)}
+          else
+            {:access_token, token, nil} ->
+              {:error,
+                create_failure(provider, __MODULE__, [
+                  error(token.other_params["error"], token.other_params["error_description"])
+                ])}
 
-          {_, {:error, %Error{} = err}} ->
-            {:error, create_failure(provider, __MODULE__, [err])}
-        end
+            {_, {:error, %Error{} = err}} ->
+              {:error, create_failure(provider, __MODULE__, [err])}
+               end
 
       {:error, reason} when is_atom(reason) ->
         reason_string = to_string(reason)
@@ -156,20 +154,21 @@ defmodule Ueberauth.Strategy.Slack do
 
   def authenticate(provider, _, _opts) do
     {:error,
-     create_failure(provider, __MODULE__, [
-       error(:invalid_callback_params, "invalid callback params")
-     ])}
+      create_failure(provider, __MODULE__, [
+        error(:invalid_callback_params, "invalid callback params")
+      ])}
   end
 
   defp construct_auth(provider, token, slack_auth, slack_user, slack_team, opts) do
-    %Auth{
+    auth = %Auth{
       provider: provider,
       strategy: __MODULE__,
       credentials: credentials(token, slack_auth, slack_user),
       info: info(slack_auth, slack_user),
       extra: extra(token, slack_auth, slack_user, slack_team)
     }
-    |> apply_uid(opts)
+
+    apply_uid(auth, opts)
   end
 
   defp fetch_auth(token) do
@@ -177,7 +176,7 @@ defmodule Ueberauth.Strategy.Slack do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         {:error, error("token", "unauthorized")}
 
-      {:ok, %OAuth2.Response{status_code: status_code, body: auth}}
+        {:ok, %OAuth2.Response{status_code: status_code, body: auth}}
       when status_code in 200..399 ->
         if auth["ok"] do
           {:ok, auth}
@@ -190,94 +189,96 @@ defmodule Ueberauth.Strategy.Slack do
     end
   end
 
-  defp fetch_user(token, auth) do
-    scope_string = token.other_params["scope"] || ""
-    scopes = String.split(scope_string, ",")
+  defp fetch_user(token, %{"user_id" => user_id}) do
+    scopes =
+      token
+      |> Map.get("scope", "")
+      |> String.split(",")
 
-    case "users:read" in scopes do
+    with true <- "users:read" in scopes,
+         {:ok, %{status_code: status} = resp} when status in 200..399 <- OAuth.get(token, "/users.info", %{user: user_id}),
+         %{"ok" => true, "user" => user} <- Map.get(resp, :body)
+    do
+      user
+    else
       false ->
         {:ok, nil}
 
-      true ->
-        case Ueberauth.Strategy.Slack.OAuth.get(token, "/users.info", %{user: auth["user_id"]}) do
-          {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
-            {:error, error("token", "unauthorized")}
+      {:ok, %{status_code: 401}} ->
+        {:error, error("token", "unauthorized")}
 
-          {:ok, %OAuth2.Response{status_code: status_code, body: user}}
-          when status_code in 200..399 ->
-            if user["ok"] do
-              {:ok, user["user"]}
-            else
-              {:error, error(user["error"], user["error"])}
-            end
+      {:error, %{reason: reason}} ->
+        {:error, error("OAuth2", reason)}
 
-          {:error, %OAuth2.Error{reason: reason}} ->
-            {:error, error("OAuth2", reason)}
-        end
+      %{"error" => error} ->
+        {:error, error("Slack", error)}
     end
   end
 
   defp fetch_team(token) do
-    scope_string = token.other_params["scope"] || ""
-    scopes = String.split(scope_string, ",")
+    scopes =
+      token
+      |> Map.get("scope", "")
+      |> String.split(",")
 
-    case "team:read" in scopes do
+    with true <- "team:read" in scopes,
+         {:ok, %{status_code: status} = resp} when status in 200..399 <- OAuth.get(token, "/team.info"),
+         %{"ok" => true, "team" => team} <- Map.get(resp, :body)
+    do
+      team
+    else
       false ->
         {:ok, nil}
 
-      true ->
-        case Ueberauth.Strategy.Slack.OAuth.get(token, "/team.info") do
-          {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
-            {:error, error("token", "unauthorized")}
+      {:ok, %{status_code: 401}} ->
+        {:error, error("token", "unauthorized")}
 
-          {:ok, %OAuth2.Response{status_code: status_code, body: team}}
-          when status_code in 200..399 ->
-            if team["ok"] do
-              {:ok, team["team"]}
-            else
-              {:error, error(team["error"], team["error"])}
-            end
+      {:error, %{reason: reason}} ->
+        {:error, error("OAuth2", reason)}
 
-          {:error, %OAuth2.Error{reason: reason}} ->
-            {:error, error("OAuth2", reason)}
-        end
+      %{"error" => error} ->
+        {:error, error("Slack", error)}
     end
   end
 
   defp apply_uid(%Auth{} = auth, opts) do
-    case Keyword.get(opts, :uid_field) do
-      field when is_atom(field) ->
+    field = Keyword.get(opts, :uid_field)
+
+    cond do
+      is_atom(field) ->
         %{auth | uid: Map.get(auth.info, field)}
 
-      fun when is_function(fun) ->
-        uid = fun.(auth)
+      is_function(field) ->
+        uid = apply(field, [auth])
         %{auth | uid: uid}
     end
   end
 
   @doc false
   def credentials(token, auth, user) do
-    scope_string = token.other_params["scope"] || ""
-    scopes = String.split(scope_string, ",")
+    scopes =
+      token
+      |> Map.get("scope", "")
+      |> String.split(",")
 
     %Credentials{
-      token: token.access_token,
-      refresh_token: token.refresh_token,
+      expires: not is_nil(token.expires_at),
       expires_at: token.expires_at,
-      token_type: token.token_type,
-      expires: !!token.expires_at,
+      refresh_token: token.refresh_token,
       scopes: scopes,
+      token: token.access_token,
+      token_type: token.token_type,
       other:
-        Map.merge(
-          %{
-            user: auth["user"],
-            user_id: auth["user_id"],
-            team: auth["team"],
-            team_id: auth["team_id"],
-            team_url: auth["url"]
-          },
-          user_credentials(user)
-        )
+      Map.merge(
+        %{
+          user: auth["user"],
+          user_id: auth["user_id"],
+          team: auth["team"],
+          team_id: auth["team_id"],
+          team_url: auth["url"]
+        },
+        user_credentials(user)
+      )
     }
   end
 

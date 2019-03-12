@@ -145,11 +145,13 @@ defmodule Ueberauth.Strategy.Github do
           [scope: scopes]
         end
 
-      query_params =
+      authorization_url =
         query_params
         |> put_non_nil(:state, Map.get(params, :state))
+        |> mod.authorize_url!(opts)
+        |> URI.parse()
 
-      {:ok, query_params |> mod.authorize_url!(opts) |> URI.parse()}
+      {:ok, authorization_url}
     end
   end
 
@@ -237,17 +239,19 @@ defmodule Ueberauth.Strategy.Github do
     |> fetch_uid(user)
   end
 
-  defp build_credentials(token) do
-    scope_string = token.other_params["scope"] || ""
-    scopes = String.split(scope_string, ",")
+  defp build_credentials(%{other_params: others} = token) do
+    scopes =
+      others
+      |> Map.get("scope", "")
+      |> String.split(",")
 
     %Credentials{
-      token: token.access_token,
-      refresh_token: token.refresh_token,
+      expires: not is_nil(token.expires_at),
       expires_at: token.expires_at,
-      token_type: token.token_type,
-      expires: !!token.expires_at,
-      scopes: scopes
+      refresh_token: token.refresh_token,
+      scopes: scopes,
+      token: token.access_token,
+      token_type: token.token_type
     }
   end
 

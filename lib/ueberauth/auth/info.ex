@@ -22,17 +22,17 @@ defmodule Ueberauth.Auth.Info do
   """
 
   @type t :: %__MODULE__{
-    description: binary | nil,
-    email: binary | nil,
-    first_name: binary | nil,
-    image: binary | nil,
-    last_name: binary | nil,
-    location: binary | nil,
-    name: binary | nil,
-    nickname: binary | nil,
-    phone: binary | nil,
-    urls: map,
-  }
+          description: binary | nil,
+          email: binary | nil,
+          first_name: binary | nil,
+          image: binary | nil,
+          last_name: binary | nil,
+          location: binary | nil,
+          name: binary | nil,
+          nickname: binary | nil,
+          phone: binary | nil,
+          urls: map
+        }
 
   defstruct description: nil,
             email: nil,

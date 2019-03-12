@@ -16,15 +16,15 @@ defmodule Ueberauth.Auth.Credentials do
   + `:other` - Other credentials that may not fit in the other fields.
   """
   @type t :: %__MODULE__{
-    expires: boolean | nil,
-    expires_at: number | nil,
-    other: map(),
-    refresh_token: binary | nil,
-    scopes: list(String.t()),
-    secret: binary | nil,
-    token: binary | nil,
-    token_type: String.t() | nil
-  }
+          expires: boolean | nil,
+          expires_at: number | nil,
+          other: map(),
+          refresh_token: binary | nil,
+          scopes: list(String.t()),
+          secret: binary | nil,
+          token: binary | nil,
+          token_type: String.t() | nil
+        }
 
   defstruct expires: nil,
             expires_at: nil,
