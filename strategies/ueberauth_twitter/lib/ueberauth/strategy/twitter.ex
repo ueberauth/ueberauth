@@ -105,13 +105,13 @@ defmodule Ueberauth.Strategy.Twitter do
       {:ok, %{status_code: 401, body: _, headers: _}} ->
         set_errors!(conn, [error("token", "unauthorized")])
       {:ok, %{status_code: status_code, body: body, headers: _}} when status_code in 200..399 ->
-        body = Poison.decode!(body)
+        body = Ueberauth.json_library().decode!(body)
 
         conn
         |> put_private(:twitter_token, token)
         |> put_private(:twitter_user, body)
       {:ok, %{status_code: _, body: body, headers: _}} ->
-        body = Poison.decode!(body)
+        body = Ueberauth.json_library().decode!(body)
         error = List.first(body["errors"])
         set_errors!(conn, [error("token", error["message"])])
     end

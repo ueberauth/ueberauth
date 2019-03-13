@@ -19,7 +19,7 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
 
   def access_token({token, token_secret}, verifier, opts \\ []) do
     opts
-    |> client
+    |> client()
     |> to_url(:access_token)
     |> Internal.get([{"oauth_verifier", verifier}], consumer(client()), token, token_secret)
     |> decode_response
@@ -34,7 +34,7 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
 
   def authorize_url!({token, _token_secret}, opts \\ []) do
     opts
-    |> client
+    |> client()
     |> to_url(:authorize_url, %{"oauth_token" => token})
   end
 
