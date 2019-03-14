@@ -1,3 +1,7 @@
+# 0.6.1
+
++ Fix versioning for `plug` dependency
+
 # 0.4.0
 
 + Target Elixir 1.3 and above
