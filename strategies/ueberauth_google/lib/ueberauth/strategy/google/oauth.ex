@@ -79,7 +79,6 @@ defmodule Ueberauth.Strategy.Google.OAuth do
       {key, resolve_value(value)}
     end
   end
-
   defp resolve_value({m, f, a}) when is_atom(m) and is_atom(f), do: apply(m, f, a)
   defp resolve_value(v), do: v
 end
