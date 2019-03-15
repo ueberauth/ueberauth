@@ -1,3 +1,8 @@
+# 0.3.0
+
+* Use JSON library from Ueberauth
+* Bump version of Ueberauth to `0.6`
+
 # v 0.2.4
 
 * Add Poison dependency
