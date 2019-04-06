@@ -200,11 +200,11 @@ defmodule Ueberauth do
   A json library is required for Ueberauth to operate.
   In config.exs your implicit or expicit configuration is:
 
-    config ueberauth, Ueberauth, json_library: Jason 
+    config :ueberauth, Ueberauth, json_library: Jason 
 
   Or:
 
-    config ueberauth, json_library: Jason 
+    config :ueberauth, json_library: Jason 
 
   If you are using per-app configuration, you can also use:
 
