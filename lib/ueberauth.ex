@@ -243,8 +243,9 @@ defmodule Ueberauth do
 
   @doc false
   def call(conn, routes) do
-    route_path = String.replace_trailing(conn.request_path, "/", "")
-    route_key = {route_path, conn.method}
+    route_prefix = Path.join(["/" | conn.script_name])
+    route_path = Path.relative_to(conn.request_path, route_prefix)
+    route_key = {"/" <> route_path, conn.method}
 
     case List.keyfind(routes, route_key, 0) do
       {_, route_mfa} -> run(conn, route_mfa)
@@ -253,14 +254,22 @@ defmodule Ueberauth do
   end
 
   defp run(conn, {module, :run_request, options}) do
+    to_request_path = Path.join(["/", conn.script_name, options.request_path])
+    to_callback_path = Path.join(["/", conn.script_name, options.callback_path])
+    to_options = %{options | request_path: to_request_path, callback_path: to_callback_path}
+
     conn
-    |> Plug.Conn.put_private(:ueberauth_request_options, options)
+    |> Plug.Conn.put_private(:ueberauth_request_options, to_options)
     |> Strategy.run_request(module)
   end
 
   defp run(conn, {module, :run_callback, options}) do
+    to_request_path = Path.join(["/", conn.script_name, options.request_path])
+    to_callback_path = Path.join(["/", conn.script_name, options.callback_path])
+    to_options = %{options | request_path: to_request_path, callback_path: to_callback_path}
+
     conn
-    |> Plug.Conn.put_private(:ueberauth_request_options, options)
+    |> Plug.Conn.put_private(:ueberauth_request_options, to_options)
     |> Strategy.run_callback(module)
   end
 
