@@ -20,14 +20,16 @@ defmodule Ueberauth.Strategy.Google do
       |> with_optional(:hd, conn)
       |> with_optional(:prompt, conn)
       |> with_optional(:access_type, conn)
+      |> with_optional(:login_hint, conn)
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
+      |> with_param(:login_hint, conn)
       |> with_param(:state, conn)
 
     opts = oauth_client_options_from_conn(conn)
     redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(params, opts))
   end
-  
+
   @doc """
   Handles the callback from Google.
   """
@@ -146,7 +148,7 @@ defmodule Ueberauth.Strategy.Google do
   defp oauth_client_options_from_conn(conn) do
     base_options = [redirect_uri: callback_url(conn)]
     request_options = conn.private[:ueberauth_request_options].options
-    
+
     case {request_options[:client_id], request_options[:client_secret]} do
       {nil, _} -> base_options
       {_, nil} -> base_options
