@@ -49,11 +49,11 @@ defmodule Ueberauth.Strategy.Apple.OAuth do
   def get_access_token(params \\ [], opts \\ []) do
     case opts |> client |> OAuth2.Client.get_token(params) do
       {:error, %{body: %{"error" => error}}} ->
-        {:error, error}
+        {:error, {error, "error requesting token"}}
 
       {:ok, %{token: %{access_token: nil} = token}} ->
         %{"error" => error} = token.other_params
-        {:error, error}
+        {:error, {error, "no access token"}}
 
       {:ok, %{token: token}} ->
         {:ok, token}
