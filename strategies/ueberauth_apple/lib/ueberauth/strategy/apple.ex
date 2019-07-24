@@ -9,8 +9,6 @@ defmodule Ueberauth.Strategy.Apple do
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
 
-  @public_key_url "https://appleid.apple.com/auth/keys"
-
   @doc """
   Handles initial request for Apple authentication.
   """
@@ -40,7 +38,7 @@ defmodule Ueberauth.Strategy.Apple do
       {:ok, token} ->
         user =
           %{}
-          |> Map.put("uid", uid_from_id_token(token.other_params["id_token"]))
+          |> Map.put("uid", UeberauthApple.uid_from_id_token(token.other_params["id_token"]))
 
         conn
         |> put_private(:apple_token, token)
@@ -122,17 +120,6 @@ defmodule Ueberauth.Strategy.Apple do
         user: conn.private.apple_user
       }
     }
-  end
-
-  defp uid_from_id_token(id_token) do
-    with {:ok, %{body: response_body}} <- HTTPoison.get(@public_key_url),
-         {true, %JOSE.JWT{fields: fields}, _jws} <-
-           Ueberauth.json_library().decode!(response_body)["keys"]
-           |> List.first()
-           |> JOSE.JWT.verify(id_token),
-         {:ok, uid} <- {:ok, fields["sub"]} do
-      uid
-    end
   end
 
   defp with_param(opts, key, conn) do
