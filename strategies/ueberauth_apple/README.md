@@ -4,7 +4,7 @@
 
 ## Installation
 
-1. Setup your application at [Apple Developer Console](https://developers.apple.com).
+1. Setup your application at [Apple Developer Console](https://developer.apple.com).
 
 1. Add `:ueberauth_apple` to your list of dependencies in `mix.exs`:
 
