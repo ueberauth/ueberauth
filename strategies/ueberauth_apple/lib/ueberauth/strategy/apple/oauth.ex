@@ -29,12 +29,10 @@ defmodule Ueberauth.Strategy.Apple.OAuth do
   def client(opts \\ []) do
     config = Application.get_env(:ueberauth, __MODULE__, [])
     opts = @defaults |> Keyword.merge(opts) |> Keyword.merge(config) |> resolve_values()
-    json_library = Ueberauth.json_library()
 
     opts
     |> add_client_secret()
     |> OAuth2.Client.new()
-    |> OAuth2.Client.put_serializer("application/json", json_library)
   end
 
   def generate_client_secret(
