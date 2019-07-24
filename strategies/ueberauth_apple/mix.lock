@@ -21,6 +21,6 @@
   "plug": {:hex, :plug, "1.8.2", "0bcce1daa420f189a6491f3940cc77ea7fb1919761175c9c3b59800d897440fc", [:mix], [{:mime, "~> 1.0", [hex: :mime, repo: "hexpm", optional: false]}, {:plug_crypto, "~> 1.0", [hex: :plug_crypto, repo: "hexpm", optional: false]}, {:telemetry, "~> 0.4", [hex: :telemetry, repo: "hexpm", optional: true]}], "hexpm"},
   "plug_crypto": {:hex, :plug_crypto, "1.0.0", "18e49317d3fa343f24620ed22795ec29d4a5e602d52d1513ccea0b07d8ea7d4d", [:mix], [], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
-  "ueberauth": {:hex, :ueberauth, "0.6.1", "9e90d3337dddf38b1ca2753aca9b1e53d8a52b890191cdc55240247c89230412", [:mix], [{:plug, "~> 1.5", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
+  "ueberauth": {:hex, :ueberauth, "0.5.0", "4570ec94d7f784dc4c4aa94c83391dbd9b9bd7b66baa30e95a666c5ec1b168b1", [:mix], [{:plug, "~> 1.2", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
   "unicode_util_compat": {:hex, :unicode_util_compat, "0.4.1", "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"},
 }
