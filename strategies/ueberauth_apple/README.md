@@ -22,7 +22,7 @@
     end
     ```
 
-1. Add Google to your Überauth configuration:
+1. Add Apple to your Überauth configuration:
 
     ```elixir
     config :ueberauth, Ueberauth,
@@ -33,26 +33,24 @@
 
 1.  Update your provider configuration:
 
+    If you don't have the client secret, generate the client secret:
+
+    ```elixir
+    UeberauthApple.generate_client_secret(%{
+      client_id: "com.example.service",
+      key_id: "10digitkey",
+      team_id: "teamid",
+      private_key: "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
+      })
+    ```
+
     Use that if you want to read client ID/secret from the environment
     variables in the compile time:
 
     ```elixir
     config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
       client_id: System.get_env("APPLE_CLIENT_ID"),
-      key_id: System.get_env("APPLE_KEY_ID"),
-      private_key: System.get_env("APPLE_PRIVATE_KEY"),
-      team_id: System.get_env("APPLE_TEAM_ID")
-    ```
-
-    Use that if you want to read client ID/secret from the environment
-    variables in the run time:
-
-    ```elixir
-    config :ueberauth, Ueberauth.Strategy.Google.OAuth,
-      client_id: {System, :get_env, ["APPLE_CLIENT_ID"]},
-      key_id: {System, :get_env, ["APPLE_KEY_ID"]},
-      private_key: {System, :get_env, ["APPLE_PRIVATE_KEY"]},
-      team_id: {System, :get_env, ["APPLE_TEAM_ID"]},
+      client_secret: System.get_env("APPLE_CLIENT_SECRET")
     ```
 
 1.  Include the Überauth plug in your controller:

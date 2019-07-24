@@ -3,7 +3,7 @@ defmodule Ueberauth.Strategy.Apple do
   Google Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :sub, default_scope: "name email"
+  use Ueberauth.Strategy, uid_field: :uid, default_scope: "name email"
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -32,18 +32,15 @@ defmodule Ueberauth.Strategy.Apple do
   @doc """
   Handles the callback from Apple.
   """
-  def handle_callback!(
-        %Plug.Conn{params: %{"code" => code, "id_token" => id_token, "user" => user_json}} = conn
-      ) do
+  def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     params = [code: code]
     opts = oauth_client_options_from_conn(conn)
 
     case Ueberauth.Strategy.Apple.OAuth.get_access_token(params, opts) do
       {:ok, token} ->
         user =
-          (user_json || "{}")
-          |> Ueberauth.json_library().decode!()
-          |> Map.put("uid", uid_from_id_token(id_token))
+          %{}
+          |> Map.put("uid", uid_from_id_token(token.other_params["id_token"]))
 
         conn
         |> put_private(:apple_token, token)
@@ -132,8 +129,9 @@ defmodule Ueberauth.Strategy.Apple do
          {true, %JOSE.JWT{fields: fields}, _jws} <-
            Ueberauth.json_library().decode!(response_body)["keys"]
            |> List.first()
-           |> JOSE.JWT.verify(id_token) do
-      {:ok, fields["sub"]}
+           |> JOSE.JWT.verify(id_token),
+         {:ok, uid} <- {:ok, fields["sub"]} do
+      uid
     end
   end
 
