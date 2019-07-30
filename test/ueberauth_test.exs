@@ -163,6 +163,29 @@ defmodule UeberauthTest do
     assert Ueberauth.Strategy.Helpers.callback_url(conn) == "http://www.example.com?type=user"
   end
 
+  test "run_request" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.SimpleProvider, [callback_path: "/oauth/simple-provider/callback"]}
+      )
+
+    location = conn |> Plug.Conn.get_resp_header("location") |> List.first()
+    assert location === "/oauth/simple-provider/callback?code=foo"
+  end
+
+  test "run_callback" do
+    conn =
+      conn(:get, "/oauth/simple-provider/callback", id: "foo", code: "simple-code")
+      |> Ueberauth.run_callback(
+        "simple-provider",
+        {Support.SimpleProvider, [token_prefix: "token-"]}
+      )
+
+    assert conn.assigns[:ueberauth_auth].credentials.token === "token-simple-code"
+  end
+
   defp assert_standard_info(auth) do
     info = auth.info
 
