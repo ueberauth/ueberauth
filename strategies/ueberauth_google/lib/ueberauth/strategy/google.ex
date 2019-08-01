@@ -97,6 +97,7 @@ defmodule Ueberauth.Strategy.Google do
       image: user["picture"],
       last_name: user["family_name"],
       name: user["name"],
+      birthday: user["birthday"],
       urls: %{
         profile: user["profile"],
         website: user["hd"]
