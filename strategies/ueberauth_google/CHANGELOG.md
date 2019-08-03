@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.9.0
+
+### Enhancement
+
+* Add support for optional login_hint param [#61](https://github.com/ueberauth/ueberauth_google/pull/61)
+* Use json_library method from Ueberauth config [#58](https://github.com/ueberauth/ueberauth_google/pull/58)
+* Allows specifying `{m, f, a}` tuples for things such as Client ID
+  and Client Secret [#60](https://github.com/ueberauth/ueberauth_google/pull/60)
+
 ## v0.6.0
 
 * Add support for access_type per request using url parameter.
