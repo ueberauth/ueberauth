@@ -28,9 +28,8 @@ defmodule UeberauthGoogle.Mixfile do
      {:oauth2, "~> 1.0 or ~> 2.0"},
      {:ueberauth, "~> 0.6.0"},
 
-     {:credo, "~> 0.8", only: [:dev, :test]},
-     {:earmark, ">= 0.0.0", only: :dev},
-     {:ex_doc, "~> 0.3", only: :dev},
+     {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
+     {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
     ]
   end
 
