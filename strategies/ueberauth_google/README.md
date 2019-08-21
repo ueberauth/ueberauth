@@ -1,4 +1,4 @@
-# Überauth Google
+# Überauth Google [![Hex Version](https://img.shields.io/hexpm/v/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
 
 > Google OAuth2 strategy for Überauth.
 
