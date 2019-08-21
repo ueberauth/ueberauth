@@ -1,6 +1,7 @@
 # Contributing to Ueberauth Google
 
 ## Pull Requests Welcome
+
 1. Fork ueberauth_google
 2. Create a topic branch
 3. Make logically-grouped commits with clear commit messages
