@@ -33,7 +33,7 @@
 
 1.  Update your provider configuration:
 
-    Use that if you want to read client ID/secret from the environment 
+    Use that if you want to read client ID/secret from the environment
     variables in the compile time:
 
     ```elixir
@@ -42,7 +42,7 @@
       client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
     ```
 
-    Use that if you want to read client ID/secret from the environment 
+    Use that if you want to read client ID/secret from the environment
     variables in the run time:
 
     ```elixir
@@ -95,7 +95,7 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
-You can also pass options such as the `hd` parameter to limit sign-in to a particular Google Apps hosted domain, or `prompt` and `access_type` options to request refresh_tokens and offline access.
+You can also pass options such as the `hd` parameter to suggest a particular Google Apps hosted domain (caution, can still be overridden by the user), or `prompt` and `access_type` options to request refresh_tokens and offline access.
 
 ```elixir
 config :ueberauth, Ueberauth,
