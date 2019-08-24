@@ -8,6 +8,7 @@
 * Use json_library method from Ueberauth config [#58](https://github.com/ueberauth/ueberauth_google/pull/58)
 * Allows specifying `{m, f, a}` tuples for things such as Client ID
   and Client Secret [#60](https://github.com/ueberauth/ueberauth_google/pull/60)
+* Allows the newest oauth2 package versions with potential security fixes [#68](https://github.com/ueberauth/ueberauth_google/pull/68)
 
 ## v0.6.0
 
