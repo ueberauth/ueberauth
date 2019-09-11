@@ -1,25 +1,30 @@
-# 0.6.1
+# Changelog
 
-+ Fix versioning for `plug` dependency
+## v0.6.2
 
-# 0.4.0
+- Fixed Ueberauth request not respecting Script Name [#97](https://github.com/ueberauth/ueberauth/pull/97)
 
-+ Target Elixir 1.3 and above
-+ Fix Elixir 1.4 warnings
-+ Fix bug preventing multiple providers
+## v0.6.1
 
-# 0.3.0
+- Fix versioning for `plug` dependency
 
-+ Allow `:redirect_url` to be configured
-+ Handle requests with or without trailing slash
+## v0.4.0
 
-# 0.2.1
+- Target Elixir 1.3 and above
+- Fix Elixir 1.4 warnings
+- Fix bug preventing multiple providers
 
-* Add the ability to select which providers to use on a per-plug basis
+## v0.3.0
 
-# 0.2.0
+- Allow `:redirect_url` to be configured
+- Handle requests with or without trailing slash
 
-* Remove the Ueberauth.plug function in favour of making Ueberauth a plug
+## v0.2.1
+
+- Add the ability to select which providers to use on a per-plug basis
+
+## v0.2.0
+
+- Remove the Ueberauth.plug function in favour of making Ueberauth a plug
 
 2015-11-15 Initial release
-
