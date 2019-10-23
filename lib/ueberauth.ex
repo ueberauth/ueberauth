@@ -253,6 +253,58 @@ defmodule Ueberauth do
     end
   end
 
+  @doc """
+  run_request allows you to manually request authentication against a provider
+  specified dynamically in arguments. For example, you can specify in a
+  controller:
+
+    def request(conn, %{"provider_name" => provider_name} = _params) do
+      provider_config = case provider_name do
+        "github" ->
+          { Ueberauth.Strategy.Github, [
+            default_scope: "user",
+            request_path:  provider_auth_path(conn, :request, provider_name),
+            callback_path: provider_auth_path(conn, :callback, provider_name),
+          ]}
+      end
+      conn
+      |> Ueberauth.run_request(provider_name, provider_config)
+    end
+  """
+  def run_request(conn, provider_name, {provider, provider_options}, options \\ []) do
+    environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
+    base_path = get_base_path(environment, options)
+
+    to_options = build_strategy_options(base_path, {provider_name, {provider, provider_options}})
+    run(conn, {provider, :run_request, to_options})
+  end
+
+  @doc """
+  run_callback allows you to manually request authentication against a provider
+  specified dynamically in arguments.
+
+    def callback(conn, %{"provider_name" => provider_name} = _params) do
+      provider_config = case provider_name do
+        "github" ->
+          { Ueberauth.Strategy.Github, [
+            default_scope: "user",
+            request_path:  provider_auth_path(conn, :request, provider_name),
+            callback_path: provider_auth_path(conn, :callback, provider_name),
+          ]}
+      end
+      conn
+      |> Ueberauth.run_callback(provider_name, provider_config)
+      |> handle_callback(params, provider)
+    end
+  """
+  def run_callback(conn, provider_name, {provider, provider_options}, options \\ []) do
+    environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
+    base_path = get_base_path(environment, options)
+
+    to_options = build_strategy_options(base_path, {provider_name, {provider, provider_options}})
+    run(conn, {provider, :run_callback, to_options})
+  end
+
   defp run(conn, {module, :run_request, options}) do
     to_request_path = Path.join(["/", conn.script_name, options.request_path])
     to_callback_path = Path.join(["/", conn.script_name, options.callback_path])
