@@ -17,6 +17,18 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
              request_token: "/oauth/request_token",
              site: "https://api.twitter.com"]
 
+  defmodule ApiError do
+    @moduledoc "Raised on OAuth API errors."
+
+    defexception [:message, :code]
+
+    def message(e = %{code: nil}), do: e.message
+
+    def message(e) do
+      "#{e.message} (Code #{e.code})"
+    end
+  end
+
   def access_token({token, token_secret}, verifier, opts \\ []) do
     opts
     |> client()
@@ -73,19 +85,22 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
 
   defp consumer(client), do: {client.consumer_key, client.consumer_secret, :hmac_sha1}
 
-  defp decode_response({:ok, %{status_code: 200, body: body, headers: _}}) do
+  defp decode_response({:ok, %{status_code: 200, body: body}}) do
     params = Internal.params_decode(body)
     token = Internal.token(params)
     token_secret = Internal.token_secret(params)
 
     {:ok, {token, token_secret}}
   end
-  defp decode_response({:ok, %{status_code: status_code, body: _, headers: _}}) do
-    {:error, "#{status_code}"}
+
+  defp decode_response({:ok, %{status_code: status_code, body: %{"errors" => [error | _]}}}) do
+    {:error, %ApiError{message: error["message"], code: error["code"]}}
   end
+
   defp decode_response({:error, %{reason: reason}}) do
     {:error, "#{reason}"}
   end
+
   defp decode_response(error) do
     {:error, error}
   end

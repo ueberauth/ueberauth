@@ -15,8 +15,29 @@ defmodule Ueberauth.Strategy.Twitter.OAuth.Internal do
       |> OAuther.sign(url, extraparams, creds)
       |> OAuther.header
 
-    HTTPoison.get(url, [header], params: params)
+    HTTPoison.get(url, [header, {"Accept", "application/json"}], params: params)
+    |> decode_body()
   end
+
+  def decode_body({:ok, response}) do
+    content_type =
+      Enum.find_value(response.headers, fn
+        {"content-type", val} -> val
+        _ -> nil
+      end)
+
+    case content_type do
+      "application/json" <> _ ->
+        json_body = Ueberauth.json_library().decode!(response.body)
+        json_response = %{response | body: json_body}
+        {:ok, json_response}
+
+      _ ->
+        {:ok, response}
+    end
+  end
+
+  def decode_body(other), do: other
 
   def params_decode(resp) do
     resp
