@@ -197,6 +197,7 @@ defmodule UeberauthTest do
     assert info.location == "Some location"
     assert info.description == "Some description"
     assert info.phone == "555-555-5555"
+    assert info.birthday == "2000-01-01"
     assert info.urls == %{"Blog" => "http://foo.com", "Thing" => "http://thing.com"}
   end
 

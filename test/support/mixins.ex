@@ -19,6 +19,7 @@ defmodule Support.Mixins do
           location: "Some location",
           description: "Some description",
           phone: "555-555-5555",
+          birthday: "2000-01-01",
           urls: %{
             "Blog" => "http://foo.com",
             "Thing" => "http://thing.com"
