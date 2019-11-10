@@ -12,7 +12,7 @@ Ueberauth is two-phase authentication framework that provides a clear API -
 allowing for many strategies to be created and shared within the community. It
 is heavily inspired by [Omniauth](https://github.com/intridea/omniauth). You
 could call it a port but it is significantly different in operation - but
-almost the same by concept. Huge hat tip to [Intridea](https://github.com/intridea).
+almost the same concept. Huge hat tip to [Intridea](https://github.com/intridea).
 
 Ueberauth provides only the initial authentication challenge, (initial OAuth
 flow, collecting the information from a login form, etc). It does not
@@ -45,7 +45,7 @@ information. When a request comes in on the request phase url the relevant
 strategy will receive the `handle_request!` call.
 
 In some cases (default) the application using Ueberauth is responsible for
-implementing the request phase. That is, you should setup a route to receive
+implementing the request phase. That is, you should set up a route to receive
 the request phase and provide a form etc. In some cases, like OAuth, the
 request phase is used to redirect your user to a 3rd party site to fulfill
 the request.
