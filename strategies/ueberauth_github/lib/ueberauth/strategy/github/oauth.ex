@@ -31,8 +31,8 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     config =
     :ueberauth
     |> Application.fetch_env!(Ueberauth.Strategy.Github.OAuth)
-    |> check_config_key_exists(:client_id)
-    |> check_config_key_exists(:client_secret)
+    |> check_credential(:client_id)
+    |> check_credential(:client_secret)
 
     client_opts =
       @defaults
@@ -80,6 +80,22 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     |> put_param("client_secret", client.client_secret)
     |> put_header("Accept", "application/json")
     |> OAuth2.Strategy.AuthCode.get_token(params, headers)
+  end
+
+  defp check_credential(config, key) do
+    check_config_key_exists(config, key)
+
+    case Keyword.get(config, key) do
+      value when is_binary(value) ->
+        config
+      {:system, env_key} ->
+        case System.get_env(env_key) do
+          nil ->
+            raise "#{inspect (env_key)} missing from environment, expected in config :ueberauth, Ueberauth.Strategy.Github"
+          value ->
+            Keyword.put(config, key, value)
+        end
+    end
   end
 
   defp check_config_key_exists(config, key) when is_list(config) do

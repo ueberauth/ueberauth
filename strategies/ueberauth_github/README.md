@@ -39,6 +39,14 @@
       client_secret: System.get_env("GITHUB_CLIENT_SECRET")
     ```
 
+    Or, to read the client credentials at runtime:
+
+    ```elixir
+    config :ueberauth, Ueberauth.Strategy.Github.OAuth,
+      client_id: {:system, "GITHUB_CLIENT_ID"},
+      client_secret: {:system, "GITHUB_CLIENT_SECRET"}
+    ```
+
 1.  Include the Überauth plug in your controller:
 
     ```elixir
