@@ -12,16 +12,9 @@ _Note_: Sessions are required for this strategy.
 
     ```elixir
     def deps do
-      [{:ueberauth_twitter, "~> 0.2"},
-       {:oauth, github: "tim/erlang-oauth"}]
-    end
-    ```
-
-1. Add the strategy to your applications:
-
-    ```elixir
-    def application do
-      [applications: [:ueberauth_twitter]]
+      [
+        {:ueberauth_twitter, "~> 0.3"}
+      ]
     end
     ```
 
