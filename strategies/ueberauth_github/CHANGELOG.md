@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.1
+
+* Adds the ability to read GitHub client credentials at runtime, rather than only at compile time.
+
 ## v0.8.0
 
 * Allow private emails [#42](https://github.com/ueberauth/ueberauth_github/pull/42)
