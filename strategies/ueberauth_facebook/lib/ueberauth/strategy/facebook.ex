@@ -45,15 +45,20 @@ defmodule Ueberauth.Strategy.Facebook do
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     opts = [redirect_uri: callback_url(conn)]
-    client = Ueberauth.Strategy.Facebook.OAuth.get_token!([code: code], opts)
-    token = client.token
+    try do
+      client = Ueberauth.Strategy.Facebook.OAuth.get_token!([code: code], opts)
+      token = client.token
 
-    if token.access_token == nil do
-      err = token.other_params["error"]
-      desc = token.other_params["error_description"]
-      set_errors!(conn, [error(err, desc)])
-    else
-      fetch_user(conn, client)
+      if token.access_token == nil do
+        err = token.other_params["error"]
+        desc = token.other_params["error_description"]
+        set_errors!(conn, [error(err, desc)])
+      else
+        fetch_user(conn, client)
+      end
+    rescue
+      OAuth2.Error ->
+        set_errors!(conn, [error("invalid_code", "The code has been used or has expired")])
     end
   end
 
