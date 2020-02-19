@@ -10,7 +10,7 @@
 
     ```elixir
     def deps do
-      [{:ueberauth_apple, "~> 0.1"}]
+      [{:ueberauth_apple, "~> 0.2"}]
     end
     ```
 

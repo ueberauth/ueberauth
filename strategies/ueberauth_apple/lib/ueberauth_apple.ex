@@ -3,14 +3,27 @@ defmodule UeberauthApple do
   @public_key_url "https://appleid.apple.com/auth/keys"
 
   def uid_from_id_token(id_token) do
-    with {:ok, %{body: response_body}} <- HTTPoison.get(@public_key_url),
-         {true, %JOSE.JWT{fields: fields}, _jws} <-
-           Ueberauth.json_library().decode!(response_body)["keys"]
-           |> List.first()
-           |> JOSE.JWT.verify(id_token),
+    with keys <- fetch_public_keys(),
+         key <- get_appropriate_key(keys, id_token),
+         {true, %JOSE.JWT{fields: fields}, _JWS} <- JOSE.JWT.verify(key, id_token),
          {:ok, uid} <- {:ok, fields["sub"]} do
       uid
     end
+  end
+
+  # As of Feb 12th 2020, this fetches a list of public keys from Apple
+  defp fetch_public_keys() do
+    {:ok, %{body: response_body}} = HTTPoison.get(@public_key_url)
+
+    Ueberauth.json_library().decode!(response_body)["keys"]
+  end
+
+  defp get_appropriate_key(keys, id_token) do
+    # Extracts the Key ID (kid) from JWT headers
+    %JOSE.JWS{fields: %{"kid" => kid}} = JOSE.JWT.peek_protected(id_token)
+
+    # Select the public key corresponding to the right kid
+    Enum.find(keys, fn x -> x["kid"] == kid end)
   end
 
   @doc """
