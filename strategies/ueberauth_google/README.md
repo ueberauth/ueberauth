@@ -104,6 +104,27 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+In some cases, it may be necessary to update the user info endpoint, such as when deploying to countries that block access to the default endpoint.
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [userinfo_endpoint: "https://www.googleapis.cn/oauth2/v3/userinfo"]}
+  ]
+```
+
+This may also be set via runtime configuration by passing a 2 or 3 argument tuple. To use this feature, the first argument must be the atom `:system`, and the second argument must represent the environment variable containing the endpoint url. 
+A third argument may be passed representing a default value if the environment variable is not found, otherwise the library default will be used. 
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [
+      userinfo_endpoint: {:system, "GOOGLE_USERINFO_ENDPOINT", "https://www.googleapis.cn/oauth2/v3/userinfo"}
+    ]}
+  ]
+```
+
 To guard against client-side request modification, it's important to still check the domain in `info.urls[:website]` within the `Ueberauth.Auth` struct if you want to limit sign-in to a specific domain.
 
 ## License

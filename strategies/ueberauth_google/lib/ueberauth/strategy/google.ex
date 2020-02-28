@@ -3,7 +3,11 @@ defmodule Ueberauth.Strategy.Google do
   Google Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :sub, default_scope: "email", hd: nil
+  use Ueberauth.Strategy,
+    uid_field: :sub,
+    default_scope: "email",
+    hd: nil,
+    userinfo_endpoint: "https://www.googleapis.com/oauth2/v3/userinfo"
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -122,7 +126,17 @@ defmodule Ueberauth.Strategy.Google do
     conn = put_private(conn, :google_token, token)
 
     # userinfo_endpoint from https://accounts.google.com/.well-known/openid-configuration
-    path = "https://www.googleapis.com/oauth2/v3/userinfo"
+    # the userinfo_endpoint may be overridden in options when necessary.
+    path =
+      case option(conn, :userinfo_endpoint) do
+        {:system, varname, default} ->
+          System.get_env(varname, default)
+        {:system, varname} ->
+          System.get_env(varname, Keyword.get(default_options(), :userinfo_endpoint))
+        other ->
+          other
+      end
+
     resp = Ueberauth.Strategy.Google.OAuth.get(token, path)
 
     case resp do
