@@ -26,7 +26,14 @@ defmodule Ueberauth.Strategy.Apple.OAuth do
   """
   def client(opts \\ []) do
     config = Application.get_env(:ueberauth, __MODULE__, [])
-    opts = @defaults |> Keyword.merge(opts) |> Keyword.merge(config) |> resolve_values()
+
+    opts =
+      @defaults
+      |> Keyword.merge(opts)
+      |> Keyword.merge(config)
+      |> resolve_values()
+      |> generate_secret()
+
     OAuth2.Client.new(opts)
   end
 
@@ -81,4 +88,14 @@ defmodule Ueberauth.Strategy.Apple.OAuth do
 
   defp resolve_value({m, f, a}) when is_atom(m) and is_atom(f), do: apply(m, f, a)
   defp resolve_value(v), do: v
+
+  defp generate_secret(opts) do
+    if is_tuple(opts[:client_secret]) do
+      {module, fun} = opts[:client_secret]
+      secret = apply(module, fun, [opts])
+      Keyword.put(opts, :client_secret, secret)
+    else
+      opts
+    end
+  end
 end

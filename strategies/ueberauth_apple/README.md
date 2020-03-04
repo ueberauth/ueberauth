@@ -6,7 +6,7 @@
 
 1. Setup your application at [Apple Developer Console](https://developer.apple.com).
 
-1. Add `:ueberauth_apple` to your list of dependencies in `mix.exs`:
+2. Add `:ueberauth_apple` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
@@ -14,7 +14,7 @@
     end
     ```
 
-1. Add the strategy to your applications:
+3. Add the strategy to your applications:
 
     ```elixir
     def application do
@@ -22,7 +22,7 @@
     end
     ```
 
-1. Add Apple to your Überauth configuration:
+4. Add Apple to your Überauth configuration:
 
     ```elixir
     config :ueberauth, Ueberauth,
@@ -31,7 +31,9 @@
       ]
     ```
 
-1.  Update your provider configuration:
+5.  Update your provider configuration:
+
+    Option 1 - Generate secret manually:
 
     If you don't have the client secret, generate the client secret:
 
@@ -53,7 +55,35 @@
       client_secret: System.get_env("APPLE_CLIENT_SECRET")
     ```
 
-1.  Include the Überauth plug in your controller:
+    Option 2 - Generate secret programmatically:
+
+    ```elixir
+    config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
+      client_id: System.get_env("APPLE_CLIENT_ID"),
+      client_secret: {YourApp.SomeModule, :secret_function}
+    ```
+
+    And implement the function to generate the secret, once you generate the secret, store it in Redis so the secret does not generate every time.
+
+    ```elixir
+    function secret_function(ueberauth_config) do
+      secret = get_secret_from_redis()
+      if secret do
+        secret
+      else
+        secret = UeberauthApple.generate_client_secret(%{
+          client_id: opts[:client_id],
+          key_id: Application.get_env(:naboo, Naboo.Auth.Apple)[:key_id],
+          team_id: Application.get_env(:naboo, Naboo.Auth.Apple)[:team_id],
+          private_key: Application.get_env(:naboo, Naboo.Auth.Apple)[:private_key]
+        })
+        set_secret_to_redis(secret)
+        secret
+      end
+    end
+    ```
+
+6.  Include the Überauth plug in your controller:
 
     ```elixir
     defmodule MyApp.AuthController do
@@ -63,7 +93,7 @@
     end
     ```
 
-1.  Create the request and callback routes if you haven't already:
+7.  Create the request and callback routes if you haven't already:
 
     ```elixir
     scope "/auth", MyApp do
@@ -74,26 +104,40 @@
     end
     ```
 
-1. Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
+8. Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
 
 For an example implementation see the [Überauth Example](https://github.com/ueberauth/ueberauth_example) application.
 
 ## Calling
 
-Depending on the configured url you can initiate the request through:
+Since Apple only supports form post, you need to create a Sign-in button:
 
-    /auth/apple
+```html
+<html>
+    <head>
+    </head>
+    <body>
+        <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
+        <div id="appleid-signin" data-color="black" data-border="true" data-type="sign in"></div>
+        <script type="text/javascript">
+            AppleID.auth.init({
+                clientId : '<%= Application.get_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth)[:client_id] %>',
+                scope : 'email name',
+                redirectURI : '<%= Routes.auth_url(@conn, :callback, "apple") %>',
+                state : '[STATE]',
+                usePopup : true //or false defaults to false
+            });
+        </script>
+    </body>
+</html>
+```
 
-Or with options:
-
-    /auth/apple?scope=email%20name
-
-By default the requested scope is "name". Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
+Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    google: {Ueberauth.Strategy.Apple, [default_scope: "name email"]}
+    apple: {Ueberauth.Strategy.Apple, [default_scope: "name email", callback_methods: ["POST"]]}
   ]
 ```
 
