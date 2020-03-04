@@ -30,19 +30,18 @@ defmodule Ueberauth.Strategy.Apple do
   @doc """
   Handles the callback from Apple.
   """
-  def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
-    params = [code: code]
+  def handle_callback!(%Plug.Conn{params: %{"code" => code} = params} = conn) do
+    user = (params["user"] && Ueberauth.json_library().decode!(params["user"])) || %{}
     opts = oauth_client_options_from_conn(conn)
 
-    case Ueberauth.Strategy.Apple.OAuth.get_access_token(params, opts) do
+    case Ueberauth.Strategy.Apple.OAuth.get_access_token([code: code], opts) do
       {:ok, token} ->
-        user =
-          %{}
-          |> Map.put("uid", UeberauthApple.uid_from_id_token(token.other_params["id_token"]))
+        apple_user =
+          Map.put(user, "uid", UeberauthApple.uid_from_id_token(token.other_params["id_token"]))
 
         conn
         |> put_private(:apple_token, token)
-        |> put_private(:apple_user, user)
+        |> put_private(:apple_user, apple_user)
 
       {:error, {error_code, error_description}} ->
         set_errors!(conn, [error(error_code, error_description)])
