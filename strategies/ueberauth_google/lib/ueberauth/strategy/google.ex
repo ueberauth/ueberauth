@@ -130,9 +130,9 @@ defmodule Ueberauth.Strategy.Google do
     path =
       case option(conn, :userinfo_endpoint) do
         {:system, varname, default} ->
-          System.get_env(varname, default)
+          System.get_env(varname) || default
         {:system, varname} ->
-          System.get_env(varname, Keyword.get(default_options(), :userinfo_endpoint))
+          System.get_env(varname) || Keyword.get(default_options(), :userinfo_endpoint)
         other ->
           other
       end
