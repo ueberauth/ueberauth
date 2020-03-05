@@ -30,6 +30,7 @@ defmodule UeberauthGoogle.Mixfile do
 
      {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+     {:mock, "~> 0.3", only: :test}
     ]
   end
 
