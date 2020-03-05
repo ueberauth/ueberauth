@@ -1,7 +1,7 @@
 defmodule UeberauthGoogle.Mixfile do
   use Mix.Project
 
-  @version "0.8.0"
+  @version "0.9.0"
   @url "https://github.com/ueberauth/ueberauth_google"
 
   def project do
@@ -28,9 +28,9 @@ defmodule UeberauthGoogle.Mixfile do
      {:oauth2, "~> 1.0 or ~> 2.0"},
      {:ueberauth, "~> 0.6.1"},
 
-     {:credo, "~> 0.8", only: [:dev, :test]},
-     {:earmark, ">= 0.0.0", only: :dev},
-     {:ex_doc, "~> 0.3", only: :dev},
+     {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
+     {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
+     {:mock, "~> 0.3", only: :test}
     ]
   end
 

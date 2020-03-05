@@ -1,4 +1,4 @@
-# Überauth Google
+# Überauth Google [![Hex Version](https://img.shields.io/hexpm/v/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
 
 > Google OAuth2 strategy for Überauth.
 
@@ -33,7 +33,7 @@
 
 1.  Update your provider configuration:
 
-    Use that if you want to read client ID/secret from the environment 
+    Use that if you want to read client ID/secret from the environment
     variables in the compile time:
 
     ```elixir
@@ -42,7 +42,7 @@
       client_secret: System.get_env("GOOGLE_CLIENT_SECRET")
     ```
 
-    Use that if you want to read client ID/secret from the environment 
+    Use that if you want to read client ID/secret from the environment
     variables in the run time:
 
     ```elixir
@@ -95,12 +95,33 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
-You can also pass options such as the `hd` parameter to limit sign-in to a particular Google Apps hosted domain, or `prompt` and `access_type` options to request refresh_tokens and offline access.
+You can also pass options such as the `hd` parameter to suggest a particular Google Apps hosted domain (caution, can still be overridden by the user), or `prompt` and `access_type` options to request refresh_tokens and offline access.
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
     google: {Ueberauth.Strategy.Google, [hd: "example.com", prompt: "select_account", access_type: "offline"]}
+  ]
+```
+
+In some cases, it may be necessary to update the user info endpoint, such as when deploying to countries that block access to the default endpoint.
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [userinfo_endpoint: "https://www.googleapis.cn/oauth2/v3/userinfo"]}
+  ]
+```
+
+This may also be set via runtime configuration by passing a 2 or 3 argument tuple. To use this feature, the first argument must be the atom `:system`, and the second argument must represent the environment variable containing the endpoint url. 
+A third argument may be passed representing a default value if the environment variable is not found, otherwise the library default will be used. 
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [
+      userinfo_endpoint: {:system, "GOOGLE_USERINFO_ENDPOINT", "https://www.googleapis.cn/oauth2/v3/userinfo"}
+    ]}
   ]
 ```
 
