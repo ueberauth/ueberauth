@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.6.3
+- Dynamic providers
+- Birthday part of info struct
+
 ## v0.6.2
 
 - Fixed Ueberauth request not respecting Script Name [#97](https://github.com/ueberauth/ueberauth/pull/97)

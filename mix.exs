@@ -1,7 +1,7 @@
 defmodule Ueberauth.Mixfile do
   use Mix.Project
 
-  @version "0.6.2"
+  @version "0.6.3"
 
   def project do
     [
