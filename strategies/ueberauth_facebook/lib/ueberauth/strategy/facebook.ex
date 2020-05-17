@@ -137,7 +137,7 @@ defmodule Ueberauth.Strategy.Facebook do
   end
 
   defp fetch_image(uid) do
-    "https://graph.facebook.com/#{uid}/picture?type=square"
+    "https://graph.facebook.com/#{uid}/picture?type=large"
   end
 
   defp fetch_user(conn, client) do
