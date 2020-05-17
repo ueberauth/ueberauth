@@ -78,12 +78,6 @@ Looking for an example? Take a look [ueberauth/ueberauth_example](https://github
 ```elixir
 # mix.exs
 
-def application do
-  # Add the application to your list of applications.
-  # This will ensure that it will be included in a release.
-  [applications: [:logger, :ueberauth]]
-end
-
 defp deps do
   # Add the dependency
   [{:ueberauth, "~> 0.6"}]
