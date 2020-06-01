@@ -68,9 +68,10 @@ defmodule Ueberauth.Strategy.Github do
 
   Default is empty ("") which "Grants read-only access to public information (includes public user profile info, public repository info, and gists)"
   """
-  use Ueberauth.Strategy, uid_field: :id,
-                          default_scope: "",
-                          oauth2_module: Ueberauth.Strategy.Github.OAuth
+  use Ueberauth.Strategy,
+    uid_field: :id,
+    default_scope: "",
+    oauth2_module: Ueberauth.Strategy.Github.OAuth
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -112,7 +113,9 @@ defmodule Ueberauth.Strategy.Github do
     token = apply(module, :get_token!, [[code: code]])
 
     if token.access_token == nil do
-      set_errors!(conn, [error(token.other_params["error"], token.other_params["error_description"])])
+      set_errors!(conn, [
+        error(token.other_params["error"], token.other_params["error_description"])
+      ])
     else
       fetch_user(conn, token)
     end
@@ -143,9 +146,9 @@ defmodule Ueberauth.Strategy.Github do
   Includes the credentials from the Github response.
   """
   def credentials(conn) do
-    token        = conn.private.github_token
-    scope_string = (token.other_params["scope"] || "")
-    scopes       = String.split(scope_string, ",")
+    token = conn.private.github_token
+    scope_string = token.other_params["scope"] || ""
+    scopes = String.split(scope_string, ",")
 
     %Credentials{
       token: token.access_token,
@@ -193,7 +196,7 @@ defmodule Ueberauth.Strategy.Github do
   Stores the raw information (including the token) obtained from the Github callback.
   """
   def extra(conn) do
-    %Extra {
+    %Extra{
       raw_info: %{
         token: conn.private.github_token,
         user: conn.private.github_user
@@ -212,15 +215,15 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   defp fetch_email!(user, allow_private_emails) do
-    user["email"] || 
-    get_primary_email!(user) ||
-    get_private_email!(user, allow_private_emails) ||
-    raise "Unable to access the user's email address"
+    user["email"] ||
+      get_primary_email!(user) ||
+      get_private_email!(user, allow_private_emails) ||
+      raise "Unable to access the user's email address"
   end
 
   defp get_primary_email!(user) do
-    if user["emails"] && (Enum.count(user["emails"]) > 0) do
-      Enum.find(user["emails"], &(&1["primary"]))["email"]     
+    if user["emails"] && Enum.count(user["emails"]) > 0 do
+      Enum.find(user["emails"], & &1["primary"])["email"]
     end
   end
 
@@ -236,16 +239,28 @@ defmodule Ueberauth.Strategy.Github do
     case Ueberauth.Strategy.Github.OAuth.get(token, "/user") do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
-      {:ok, %OAuth2.Response{status_code: status_code, body: user}} when status_code in 200..399 ->
+
+      {:ok, %OAuth2.Response{status_code: status_code, body: user}}
+      when status_code in 200..399 ->
         case Ueberauth.Strategy.Github.OAuth.get(token, "/user/emails") do
-          {:ok, %OAuth2.Response{status_code: status_code, body: emails}} when status_code in 200..399 ->
-            user = Map.put user, "emails", emails
+          {:ok, %OAuth2.Response{status_code: status_code, body: emails}}
+          when status_code in 200..399 ->
+            user = Map.put(user, "emails", emails)
             put_private(conn, :github_user, user)
-          {:error, _} -> # Continue on as before
+
+          # Continue on as before
+          {:error, _} ->
             put_private(conn, :github_user, user)
         end
+
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
+
+      {:error, %OAuth2.Response{body: %{"message" => reason}}} ->
+        set_errors!(conn, [error("OAuth2", reason)])
+
+      {:error, _} ->
+        set_errors!(conn, [error("OAuth2", "uknown error")])
     end
   end
 
