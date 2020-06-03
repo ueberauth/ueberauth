@@ -47,11 +47,12 @@
       client_secret: {:system, "GITHUB_CLIENT_SECRET"}
     ```
 
-1.  Include the Überauth plug in your controller:
+1.  Include the Überauth plug in your router:
 
     ```elixir
-    defmodule MyApp.AuthController do
-      use MyApp.Web, :controller
+    defmodule MyApp.Router do
+      use MyApp.Web, :router
+
 
       pipeline :browser do
         plug Ueberauth
