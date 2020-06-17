@@ -245,7 +245,12 @@ defmodule Ueberauth do
   def call(conn, routes) do
     route_prefix = Path.join(["/" | conn.script_name])
     route_path = Path.relative_to(conn.request_path, route_prefix)
-    route_key = {"/" <> route_path, conn.method}
+
+    route_key =
+      case route_path do
+        "/" <> _rest -> {route_path, conn.method}
+        route_path -> {"/" <> route_path, conn.method}
+      end
 
     case List.keyfind(routes, route_key, 0) do
       {_, route_mfa} -> run(conn, route_mfa)
