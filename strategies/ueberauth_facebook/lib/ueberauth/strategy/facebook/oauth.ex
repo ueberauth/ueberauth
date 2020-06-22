@@ -26,7 +26,7 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
   of Ueberauth.
   """
   def client(opts \\ []) do
-    config = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)
+    config = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth, [])
 
     opts =
       @defaults

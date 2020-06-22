@@ -3,17 +3,17 @@ defmodule Ueberauth.Strategy.Facebook do
   Facebook Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, default_scope: "email,public_profile",
-                          profile_fields: "id,email,gender,link,locale,name,timezone,updated_time,verified",
-                          uid_field: :id,
-                          allowed_request_params: [
-                            :auth_type,
-                            :scope,
-                            :locale,
-                            :state,
-                            :display
-                          ]
-
+  use Ueberauth.Strategy,
+    default_scope: "email,public_profile",
+    profile_fields: "id,email,gender,link,locale,name,timezone,updated_time,verified",
+    uid_field: :id,
+    allowed_request_params: [
+      :auth_type,
+      :scope,
+      :locale,
+      :state,
+      :display
+    ]
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -23,11 +23,15 @@ defmodule Ueberauth.Strategy.Facebook do
   Handles initial request for Facebook authentication.
   """
   def handle_request!(conn) do
-    allowed_params = conn
-     |> option(:allowed_request_params)
-     |> Enum.map(&to_string/1)
+    allowed_params =
+      conn
+      |> option(:allowed_request_params)
+      |> Enum.map(&to_string/1)
 
-    authorize_url = conn.params
+    opts = oauth_client_options_from_conn(conn)
+
+    authorize_url =
+      conn.params
       |> maybe_replace_param(conn, "auth_type", :auth_type)
       |> maybe_replace_param(conn, "scope", :default_scope)
       |> maybe_replace_param(conn, "state", :state)
@@ -35,7 +39,7 @@ defmodule Ueberauth.Strategy.Facebook do
       |> Enum.filter(fn {k, _v} -> Enum.member?(allowed_params, k) end)
       |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
       |> Keyword.put(:redirect_uri, callback_url(conn))
-      |> Ueberauth.Strategy.Facebook.OAuth.authorize_url!
+      |> Ueberauth.Strategy.Facebook.OAuth.authorize_url!(opts)
 
     redirect!(conn, authorize_url)
   end
@@ -44,7 +48,13 @@ defmodule Ueberauth.Strategy.Facebook do
   Handles the callback from Facebook.
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
-    opts = [redirect_uri: callback_url(conn)]
+    opts = oauth_client_options_from_conn(conn)
+
+    config =
+      :ueberauth
+      |> Application.get_env(Ueberauth.Strategy.Facebook.OAuth, [])
+      |> Keyword.merge(opts)
+
     try do
       client = Ueberauth.Strategy.Facebook.OAuth.get_token!([code: code], opts)
       token = client.token
@@ -54,7 +64,7 @@ defmodule Ueberauth.Strategy.Facebook do
         desc = token.other_params["error_description"]
         set_errors!(conn, [error(err, desc)])
       else
-        fetch_user(conn, client)
+        fetch_user(conn, client, config)
       end
     rescue
       OAuth2.Error ->
@@ -140,30 +150,32 @@ defmodule Ueberauth.Strategy.Facebook do
     "https://graph.facebook.com/#{uid}/picture?type=large"
   end
 
-  defp fetch_user(conn, client) do
+  defp fetch_user(conn, client, config) do
     conn = put_private(conn, :facebook_token, client.token)
-    query = user_query(conn, client.token)
+    query = user_query(conn, client.token, config)
     path = "/me?#{query}"
+
     case OAuth2.Client.get(client, path) do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
+
       {:ok, %OAuth2.Response{status_code: status_code, body: user}}
-        when status_code in 200..399 ->
+      when status_code in 200..399 ->
         put_private(conn, :facebook_user, user)
+
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
   end
 
-  defp user_query(conn, token) do
-    %{"appsecret_proof" => appsecret_proof(token)}
+  defp user_query(conn, token, config) do
+    %{"appsecret_proof" => appsecret_proof(token, config)}
     |> Map.merge(query_params(conn, :locale))
     |> Map.merge(query_params(conn, :profile))
-    |> URI.encode_query
+    |> URI.encode_query()
   end
 
-  defp appsecret_proof(token) do
-    config = Application.get_env(:ueberauth, Ueberauth.Strategy.Facebook.OAuth)
+  defp appsecret_proof(token, config) do
     client_secret = Keyword.get(config, :client_secret)
 
     token.access_token
@@ -178,6 +190,7 @@ defmodule Ueberauth.Strategy.Facebook do
   defp query_params(conn, :profile) do
     %{"fields" => option(conn, :profile_fields)}
   end
+
   defp query_params(conn, :locale) do
     case option(conn, :locale) do
       nil -> %{}
@@ -192,6 +205,7 @@ defmodule Ueberauth.Strategy.Facebook do
     |> options
     |> Keyword.get(key, default)
   end
+
   defp option(nil, conn, key), do: option(conn, key)
   defp option(value, _conn, _key), do: value
 
@@ -204,6 +218,17 @@ defmodule Ueberauth.Strategy.Facebook do
         name,
         option(params[name], conn, config_key)
       )
+    end
+  end
+
+  defp oauth_client_options_from_conn(conn) do
+    base_options = [redirect_uri: callback_url(conn)]
+    request_options = conn.private[:ueberauth_request_options].options
+
+    case {request_options[:client_id], request_options[:client_secret]} do
+      {nil, _} -> base_options
+      {_, nil} -> base_options
+      {id, secret} -> [client_id: id, client_secret: secret] ++ base_options
     end
   end
 end
