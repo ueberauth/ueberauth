@@ -165,37 +165,16 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   defp full_url(conn, path, opts) do
-    scheme =
-      conn
-      |> forwarded_proto
-      |> coalesce(conn.scheme)
-      |> normalize_scheme
+    endpoint = Phoenix.Controller.endpoint_module(conn)
+    uri = endpoint.struct_url()
 
     %URI{
-      host: conn.host,
-      port: normalize_port(scheme, conn.port),
-      path: path,
-      query: encode_query(opts),
-      scheme: to_string(scheme)
+      uri
+      | path: endpoint.path(path),
+        query: encode_query(opts)
     }
     |> to_string
   end
-
-  defp forwarded_proto(conn) do
-    conn
-    |> Plug.Conn.get_req_header("x-forwarded-proto")
-    |> List.first()
-  end
-
-  defp normalize_scheme("https"), do: :https
-  defp normalize_scheme("http"), do: :http
-  defp normalize_scheme(scheme), do: scheme
-
-  defp coalesce(nil, second), do: second
-  defp coalesce(first, _), do: first
-
-  defp normalize_port(:https, 80), do: 443
-  defp normalize_port(_, port), do: port
 
   defp encode_query([]), do: nil
   defp encode_query(opts), do: URI.encode_query(opts)
