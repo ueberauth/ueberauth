@@ -245,7 +245,7 @@ defmodule Ueberauth do
   def call(conn, routes) do
     route_prefix = Path.join(["/" | conn.script_name])
     route_path = Path.relative_to(conn.request_path, route_prefix)
-    route_key = {"/" <> route_path, conn.method}
+    route_key = {normalize_route_path(route_path), conn.method}
 
     case List.keyfind(routes, route_key, 0) do
       {_, route_mfa} -> run(conn, route_mfa)
@@ -359,6 +359,10 @@ defmodule Ueberauth do
       list when is_list(list) -> list |> Enum.map(&get_env/1) |> Enum.reduce(&Keyword.merge/2)
     end
   end
+
+  # Used by `call/2`. Prefixes the route_path with a "/" only if there is not one already.
+  defp normalize_route_path("/" <> _rest = route_path), do: route_path
+  defp normalize_route_path(route_path), do: "/" <> route_path
 
   defp get_providers(environment, options) do
     #
