@@ -1,7 +1,7 @@
 defmodule UeberauthApple.Mixfile do
   use Mix.Project
 
-  @version "0.4.0"
+  @version "0.5.0"
   @url "https://github.com/loopsocial/ueberauth_apple"
 
   def project do
@@ -27,7 +27,7 @@ defmodule UeberauthApple.Mixfile do
 
   defp deps do
     [
-      {:oauth2, ">= 0.0.0"},
+      {:oauth2, "~> 2.0"},
       {:ueberauth, "~> 0.5"},
       {:jose, "~> 1.0"},
       {:httpoison, "~> 1.0"},

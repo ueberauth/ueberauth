@@ -34,7 +34,9 @@ defmodule Ueberauth.Strategy.Apple.OAuth do
       |> resolve_values()
       |> generate_secret()
 
-    OAuth2.Client.new(opts)
+    opts
+    |> OAuth2.Client.new()
+    |> OAuth2.Client.put_serializer("application/json", Ueberauth.json_library())
   end
 
   @doc """
