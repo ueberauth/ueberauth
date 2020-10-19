@@ -21,6 +21,7 @@ defmodule Ueberauth.Strategy.Apple do
       |> with_optional(:access_type, conn)
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
+      |> with_param(:response_mode, conn)
       |> with_param(:state, conn)
 
     opts = oauth_client_options_from_conn(conn)
