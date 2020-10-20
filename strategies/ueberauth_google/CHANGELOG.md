@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.11.0 (Unreleased)
+
+
+## v0.10.0
+
+### Enhancement
+
+* Updated docs [#69](https://github.com/ueberauth/ueberauth_google/pull/69) [#70](https://github.com/ueberauth/ueberauth_google/pull/70)
+* Support for birthday [#73](https://github.com/ueberauth/ueberauth_google/pull/73)
+* Allow for userinfo endpoint to be configured [#75](https://github.com/ueberauth/ueberauth_google/pull/75)
+* Updated plug and ueberauth packages [#76](https://github.com/ueberauth/ueberauth_google/pull/76)
+
+Thanks goes to all the contributes
+
 ## v0.9.0
 
 ### Enhancement
