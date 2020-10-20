@@ -25,6 +25,7 @@ defmodule Ueberauth.Strategy.Google do
       |> with_optional(:prompt, conn)
       |> with_optional(:access_type, conn)
       |> with_optional(:login_hint, conn)
+      |> with_optional(:include_granted_scopes, conn)
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
       |> with_param(:login_hint, conn)
