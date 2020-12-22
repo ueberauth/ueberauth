@@ -306,7 +306,6 @@ defmodule Ueberauth.Strategy do
       strategy
       |> apply(:handle_callback!, [conn])
       |> handle_callback_result(strategy)
-      |> handle_callback_result(strategy)
 
     apply(strategy, :handle_cleanup!, [handled_conn])
   end
