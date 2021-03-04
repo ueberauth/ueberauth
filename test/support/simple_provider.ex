@@ -3,9 +3,9 @@ defmodule Support.SimpleProvider do
 
   use Ueberauth.Strategy
 
-  def uid(%{body_params: %{"id" => id}} = _conn), do: id
+  def uid(%{params: %{"id" => id}} = _conn), do: id
 
-  def credentials(%{body_params: %{"code" => code}} = conn) do
+  def credentials(%{params: %{"code" => code}} = conn) do
     prefix = options(conn)[:token_prefix]
 
     %Ueberauth.Auth.Credentials{
