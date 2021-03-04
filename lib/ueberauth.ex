@@ -10,7 +10,7 @@ defmodule Ueberauth do
   flow, collecting the information from a login form, etc). It does not
   authenticate each request, that's up to your application. You could issue a
   token or put the result into a session for your applications needs. Libraries
-  like [Guardian](https://github.com/hassox/guardian) can help you with that
+  like (Guardian)[https://github.com/hassox/guardian] can help you with that
   aspect of authentication.
 
   The two phases are `request` and `callback`. These phases are implemented by
@@ -32,7 +32,7 @@ defmodule Ueberauth do
   be a redirect to an OAuth2 authorization url or a form for collecting username
   and password. The request phase is concerned with only the collection of
   information. When a request comes in on the request phase url the relevant
-  strategy will receive the `c:Ueberauth.Strategy.handle_request!/1` call.
+  strategy will receive the `handle_request!` call.
 
   In some cases (default) the application using Ueberauth is responsible for
   implementing the request phase. That is, you should setup a route to receive
@@ -47,7 +47,7 @@ defmodule Ueberauth do
 
   Another example is simple email/password authentication. A request is made by
   the client to the request phase path and the host application displays a form.
-  The strategy will likely not do anything with the incoming `c:Ueberauth.Strategy.handle_request!/1`
+  The strategy will likely not do anything with the incoming `handle_request!`
   request and simply pass through to the application. Once the form is completed,
   the POST should go to the callback url where it is handled (passwords checked,
   users created / authenticated).
@@ -57,7 +57,7 @@ defmodule Ueberauth do
   The callback phase is where the fun happens. Once a successful request phase
   has been completed, the request phase provider (OAuth provider or host site etc)
   should call the callback url. The strategy will intercept the request via the
-  `c:Ueberauth.Strategy.handle_callback!/1`. If successful it should prepare the connection so the
+  `handle_callback!`. If successful it should prepare the connection so the
   `Ueberauth.Auth` struct can be created, or set errors to indicate a failure.
 
   See `Ueberauth.Strategy` for more information on constructing the
@@ -162,11 +162,11 @@ defmodule Ueberauth do
   #### Example
 
       config :ueberauth, Ueberauth,
-        base_path: "/login", # default is "/auth"
+        base_path: "/login" # default is "/auth"
         providers: [
           identity: {Ueberauth.Strategies.Identity, [request_path: "/login/identity",
                                                      callback_path: "/login/identity/callback"]}
-        ],
+        ]
         json_library: Poison # or Jason
 
   #### Http Methods
@@ -184,8 +184,6 @@ defmodule Ueberauth do
   modify the behaviour of the strategy.
   """
 
-  @behaviour Plug
-
   alias Ueberauth.Strategy
 
   @doc """
@@ -199,32 +197,28 @@ defmodule Ueberauth do
   end
 
   @doc """
-  Fetch the configured JSON library.
-
   A json library is required for Ueberauth to operate.
-
   In config.exs your implicit or expicit configuration is:
 
-      config :ueberauth, Ueberauth, json_library: Jason
+    config :ueberauth, Ueberauth, json_library: Jason 
 
   Or:
 
-      config :ueberauth, json_library: Jason
+    config :ueberauth, json_library: Jason 
 
   If you are using per-app configuration, you can also use:
 
-      config :my_app, Ueberauth, json_library: Jason
+    config :my_app, Ueberauth, json_library: Jason
 
   The JSON library defaults to Jason but can be configured to Poison.
 
   In mix.exs you will need something like:
-
-      def deps() do
-        [
-          ...
-          {:jason, "<version>"} # or {:poison, "<version>"}
-        ]
-      end
+    def deps() do
+      [
+        ...
+        {:jason, :version} # or {:poison, :version}
+      ]
+    end
 
   This file will serve underlying Ueberauth libraries as a hook to grab the
   configured json library.
@@ -239,10 +233,7 @@ defmodule Ueberauth do
   @type route :: {{path, method}, mfa()}
   @type routes :: [route]
 
-  @doc """
-  Implements `c:Plug.init/1`
-  """
-  @impl Plug
+  @doc false
   def init(options \\ []) do
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
     providers = get_providers(environment, options)
@@ -250,10 +241,7 @@ defmodule Ueberauth do
     Enum.flat_map(providers, &build_routes(base_path, &1))
   end
 
-  @doc """
-  Implements `c:Plug.call/2`
-  """
-  @impl Plug
+  @doc false
   def call(conn, routes) do
     route_prefix = Path.join(["/" | conn.script_name])
     route_path = Path.relative_to(conn.request_path, route_prefix)
@@ -266,23 +254,22 @@ defmodule Ueberauth do
   end
 
   @doc """
-  Request authentication against a provider.
-
+  run_request allows you to manually request authentication against a provider
   specified dynamically in arguments. For example, you can specify in a
   controller:
 
-      def request(conn, %{"provider_name" => provider_name} = _params) do
-        provider_config = case provider_name do
-          "github" ->
-            { Ueberauth.Strategy.Github, [
-              default_scope: "user",
-              request_path:  provider_auth_path(conn, :request, provider_name),
-              callback_path: provider_auth_path(conn, :callback, provider_name),
-            ]}
-        end
-        conn
-        |> Ueberauth.run_request(provider_name, provider_config)
+    def request(conn, %{"provider_name" => provider_name} = _params) do
+      provider_config = case provider_name do
+        "github" ->
+          { Ueberauth.Strategy.Github, [
+            default_scope: "user",
+            request_path:  provider_auth_path(conn, :request, provider_name),
+            callback_path: provider_auth_path(conn, :callback, provider_name),
+          ]}
       end
+      conn
+      |> Ueberauth.run_request(provider_name, provider_config)
+    end
   """
   def run_request(conn, provider_name, {provider, provider_options}, options \\ []) do
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
@@ -293,21 +280,22 @@ defmodule Ueberauth do
   end
 
   @doc """
-  Request authentication against a provider.
+  run_callback allows you to manually request authentication against a provider
+  specified dynamically in arguments.
 
-      def callback(conn, %{"provider_name" => provider_name} = _params) do
-        provider_config = case provider_name do
-          "github" ->
-            { Ueberauth.Strategy.Github, [
-              default_scope: "user",
-              request_path:  provider_auth_path(conn, :request, provider_name),
-              callback_path: provider_auth_path(conn, :callback, provider_name),
-            ]}
-        end
-        conn
-        |> Ueberauth.run_callback(provider_name, provider_config)
-        |> handle_callback(params, provider)
+    def callback(conn, %{"provider_name" => provider_name} = _params) do
+      provider_config = case provider_name do
+        "github" ->
+          { Ueberauth.Strategy.Github, [
+            default_scope: "user",
+            request_path:  provider_auth_path(conn, :request, provider_name),
+            callback_path: provider_auth_path(conn, :callback, provider_name),
+          ]}
       end
+      conn
+      |> Ueberauth.run_callback(provider_name, provider_config)
+      |> handle_callback(params, provider)
+    end
   """
   def run_callback(conn, provider_name, {provider, provider_options}, options \\ []) do
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])

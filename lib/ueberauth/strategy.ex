@@ -63,7 +63,7 @@ defmodule Ueberauth.Strategy do
         end
       end
 
-  After the strategy has run through the `c:handle_callback!/1` function, since
+  After the strategy has run through the `handle_callback!` function, since
   there are no errors added, Ueberauth will add the constructed auth struct to
   the connection.
 
@@ -87,7 +87,7 @@ defmodule Ueberauth.Strategy do
   ### Redirecting during the request phase
 
   Many strategies may require a redirect (looking at you OAuth). To do this,
-  implement the `c:handle_request!/1` function.
+  implement the `handle_request!` function.
 
       def handle_request!(conn)
         callback_url = callback_url(conn)
@@ -101,7 +101,7 @@ defmodule Ueberauth.Strategy do
   functions for the components of the struct and fetch the information from the
   connection struct.
 
-  In the case where you do need to take some other step, the `c:handle_callback!/1`
+  In the case where you do need to take some other step, the `handle_callback!`
   function is where its at.
 
       def handle_callback!(conn) do
@@ -131,7 +131,7 @@ defmodule Ueberauth.Strategy do
   the cleanup phase exists to cleanup that temporary storage after the strategy
   has everything it needs.
 
-  Implement the `c:handle_cleanup!/1` function and return the cleaned conn struct.
+  Implement the `handle_cleanup!` function and return the cleaned conn struct.
 
   ### Adding errors during callback
 
@@ -139,7 +139,7 @@ defmodule Ueberauth.Strategy do
   connection go through and Ueberauth will construct the auth hash for you, or
   you can add errors.
 
-  You should add errors before you leave your `c:handle_callback!/1` function.
+  You should add errors before you leave your `handle_callback!` function.
 
       def handle_callback!(conn) do
         errors = []
