@@ -157,10 +157,15 @@ defmodule Ueberauth.Strategy do
   `:ueberauth_failure` with the information provided detailing the failure.
   """
 
+  alias Plug.Conn
+  alias Ueberauth.Strategy.Helpers
+  alias Ueberauth.Failure.Error
   alias Ueberauth.Auth
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Extra
+
+  @state_param_cookie_name "ueberauth.state_param"
 
   @doc """
   The request phase implementation for your strategy.
@@ -297,17 +302,16 @@ defmodule Ueberauth.Strategy do
 
   @doc false
   def run_request(conn, strategy) do
-    apply(strategy, :handle_request!, [conn])
+    conn
+    |> maybe_add_state_param(strategy)
+    |> run_handle_request(strategy)
   end
 
   @doc false
   def run_callback(conn, strategy) do
-    handled_conn =
-      strategy
-      |> apply(:handle_callback!, [conn])
-      |> handle_callback_result(strategy)
-
-    apply(strategy, :handle_cleanup!, [handled_conn])
+    strategy
+    |> get_ignores_csrf_attack_option()
+    |> maybe_run_handle_callback(conn, strategy)
   end
 
   defp handle_callback_result(%{halted: true} = conn, _), do: conn
@@ -317,5 +321,88 @@ defmodule Ueberauth.Strategy do
   defp handle_callback_result(conn, strategy) do
     auth = apply(strategy, :auth, [conn])
     Plug.Conn.assign(conn, :ueberauth_auth, auth)
+  end
+
+  defp maybe_run_handle_callback(true, conn, strategy) do
+    run_handle_callback(conn, strategy)
+  end
+
+  defp maybe_run_handle_callback(_ignore_state_param, conn, strategy) do
+    if state_param_matches?(conn) do
+      run_handle_callback(conn, strategy)
+    else
+      add_state_mismatch_error(conn, strategy)
+    end
+  end
+
+  defp state_param_matches?(conn) do
+    get_state_cookie(conn) == conn.params["state"]
+  end
+
+  defp add_state_mismatch_error(conn, strategy) do
+    conn
+    |> Helpers.set_errors!([
+      %Error{message_key: :csrf_attack, message: "Cross-Site Request Forgery attack"}
+    ])
+    |> run_handle_cleanup(strategy)
+  end
+
+  defp run_handle_request(conn, strategy) do
+    apply(strategy, :handle_request!, [conn])
+  end
+
+  defp run_handle_callback(conn, strategy) do
+    strategy
+    |> apply(:handle_callback!, [conn])
+    |> handle_callback_result(strategy)
+    |> run_handle_cleanup(strategy)
+  end
+
+  defp run_handle_cleanup(conn, strategy) do
+    # TODO: should we remove the cookie always?
+    conn = remove_state_cookie(conn)
+    apply(strategy, :handle_cleanup!, [conn])
+  end
+
+  defp maybe_add_state_param(conn, strategy) do
+    strategy
+    |> get_ignores_csrf_attack_option()
+    |> add_state_param(conn)
+  end
+
+  defp get_ignores_csrf_attack_option(strategy) do
+    strategy
+    |> apply(:default_options, [])
+    # TODO: should we force them to turn it off
+    |> Keyword.get(:ignores_csrf_attack, false)
+  end
+
+  defp add_state_param(true, conn) do
+    conn
+  end
+
+  defp add_state_param(false, conn) do
+    state = create_state_param()
+
+    conn
+    # TODO: should we use Conn.put_session instead?
+    |> Conn.put_resp_cookie(@state_param_cookie_name, state,
+      # TODO: what would be a good default
+      same_site: "Strict"
+    )
+    |> Helpers.add_state_param(state)
+  end
+
+  defp get_state_cookie(conn) do
+    conn.cookies[@state_param_cookie_name]
+  end
+
+  defp remove_state_cookie(conn) do
+    Conn.delete_resp_cookie(conn, @state_param_cookie_name)
+  end
+
+  defp create_state_param do
+    # TODO: do people want to handle their own token generator?
+    :crypto.strong_rand_bytes(24) |> Base.url_encode64() |> binary_part(0, 24)
   end
 end

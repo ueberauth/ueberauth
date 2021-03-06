@@ -159,6 +159,14 @@ defmodule Ueberauth.Strategy.Helpers do
     |> halt
   end
 
+  @doc """
+  Add state parameter to the `%Plug.Conn{}`.
+  """
+  @spec add_state_param(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
+  def add_state_param(conn, value) do
+    Plug.Conn.put_private(conn, :ueberauth_state_param, value)
+  end
+
   defp from_private(conn, key) do
     opts = conn.private[:ueberauth_request_options]
     if opts, do: opts[key], else: nil
