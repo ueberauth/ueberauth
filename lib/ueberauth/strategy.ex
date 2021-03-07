@@ -392,7 +392,6 @@ defmodule Ueberauth.Strategy do
     state = create_state_param()
 
     conn
-    # TODO: should we use Conn.put_session instead?
     |> Conn.put_resp_cookie(@state_param_cookie_name, state,
       # TODO: what would be a good default
       same_site: "Strict"
