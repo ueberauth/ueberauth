@@ -197,7 +197,7 @@ defmodule UeberauthTest do
       conn(:get, "/oauth/simple-provider/", id: "foo")
       |> Ueberauth.run_request(
         "simple-provider",
-        {Support.ProviderIgnoresCsrfAttack, [callback_path: "/oauth/simple-provider/callback"]}
+        {Support.SimpleProvider, [callback_path: "/oauth/simple-provider/callback"]}
       )
 
     assert conn.private[:ueberauth_state_param] == nil
