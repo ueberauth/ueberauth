@@ -89,7 +89,7 @@ defmodule Ueberauth.Strategy do
   Many strategies may require a redirect (looking at you OAuth). To do this,
   implement the `c:handle_request!/1` function.
 
-      def handle_request!(conn)
+      def handle_request!(conn) do
         callback_url = callback_url(conn)
         redirect!(conn, callback_url)
       end
