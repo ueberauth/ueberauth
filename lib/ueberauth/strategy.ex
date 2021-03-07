@@ -259,6 +259,20 @@ defmodule Ueberauth.Strategy do
   These options are made available to your strategy at `YourStrategy.default_options`.
   On a per usage level, other options can also be passed to the strategy to provide
   customization.
+
+  ### Cross-Site Request Forgery
+
+  By default strategies must implement https://tools.ietf.org/html/rfc6749#section-10.12
+  if you wish to disabled such feature, use `:ignores_csrf_attack` option:
+
+      defmodule MyStrategy do
+        use Ueberauth.Strategy,
+          ignores_csrf_attack: true
+        # …
+      end
+
+  Althought we strongly recommend never disable such feature, unless you have
+  some technical limitations that forces you to use such `:ignores_csrf_attack`.
   """
   defmacro __using__(opts \\ []) do
     quote location: :keep do
