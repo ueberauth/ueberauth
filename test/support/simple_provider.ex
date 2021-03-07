@@ -1,7 +1,7 @@
 defmodule Support.SimpleProvider do
   @moduledoc false
 
-  use Ueberauth.Strategy
+  use Ueberauth.Strategy, ignores_csrf_attack: true
 
   def uid(%{params: %{"id" => id}} = _conn), do: id
 

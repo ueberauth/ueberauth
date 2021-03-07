@@ -1,7 +1,7 @@
 defmodule Support.WithErrors do
   @moduledoc false
 
-  use Ueberauth.Strategy, the_uid: "default uid"
+  use Ueberauth.Strategy, the_uid: "default uid", ignores_csrf_attack: true
   use Support.Mixins
 
   def handle_callback!(conn) do
