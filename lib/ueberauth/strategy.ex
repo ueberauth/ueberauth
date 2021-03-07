@@ -394,7 +394,10 @@ defmodule Ueberauth.Strategy do
   end
 
   defp get_state_cookie(conn) do
-    conn.cookies[@state_param_cookie_name]
+    conn
+    |> Conn.fetch_session()
+    |> Map.get(:cookies)
+    |> Map.get(@state_param_cookie_name)
   end
 
   defp remove_state_cookie(conn) do

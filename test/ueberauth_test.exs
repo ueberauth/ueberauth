@@ -6,6 +6,11 @@ defmodule UeberauthTest do
   alias Support.SpecRouter
 
   @opts Support.SpecRouter.init([])
+  @session_options Plug.Session.init(
+                     store: Plug.Session.COOKIE,
+                     key: "_hello_key",
+                     signing_salt: "CXlmrshG"
+                   )
 
   test "simple request phase" do
     conn = conn(:get, "/auth/simple")
@@ -178,6 +183,7 @@ defmodule UeberauthTest do
   test "run_callback" do
     conn =
       conn(:get, "/oauth/simple-provider/callback", id: "foo", code: "simple-code")
+      |> Plug.Session.call(@session_options)
       |> Ueberauth.run_callback(
         "simple-provider",
         {Support.SimpleProvider, [token_prefix: "token-"]}
