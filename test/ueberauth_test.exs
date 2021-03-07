@@ -180,6 +180,29 @@ defmodule UeberauthTest do
     assert location === "/oauth/simple-provider/callback?code=foo"
   end
 
+  test "run_request with a state param by default" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.SimpleProvider, [callback_path: "/oauth/simple-provider/callback"]}
+      )
+
+    assert conn.private[:ueberauth_state_param] != nil
+  end
+
+  test "run_request with state param disabled" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.SimpleProvider,
+         [callback_path: "/oauth/simple-provider/callback", ignores_csrf_attack: true]}
+      )
+
+    assert conn.private[:ueberauth_state_param] == nil
+  end
+
   test "run_callback" do
     conn =
       conn(:get, "/oauth/simple-provider/callback", id: "foo", code: "simple-code")
