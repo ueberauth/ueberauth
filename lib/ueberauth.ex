@@ -104,7 +104,7 @@ defmodule Ueberauth do
   checks so your strategies will only fire for relevant requests.
 
   Now that you have this, your strategies will intercept relevant requests for
-  each strategy for both request and callback phases. The default urls are (for
+  each strategy for both request and callback phases. The default URLs are (for
   our Facebook & GitHub example)
 
       # Request phase paths
@@ -171,7 +171,7 @@ defmodule Ueberauth do
 
   #### Http Methods
 
-  By default, all callback urls are only available via the `"GET"` method. You
+  By default, all callback URLs are only available via the `"GET"` method. You
   can override this via options to your strategy.
 
       providers: [
@@ -201,9 +201,9 @@ defmodule Ueberauth do
   @doc """
   Fetch the configured JSON library.
 
-  A json library is required for Ueberauth to operate.
+  A JSON library is required for Ueberauth to operate.
 
-  In config.exs your implicit or expicit configuration is:
+  In config.exs your implicit or explicit configuration is:
 
       config :ueberauth, Ueberauth, json_library: Jason
 
@@ -227,7 +227,7 @@ defmodule Ueberauth do
       end
 
   This file will serve underlying Ueberauth libraries as a hook to grab the
-  configured json library.
+  configured JSON library.
   """
   def json_library(otp_app \\ nil) do
     environment = get_env([:ueberauth, otp_app])

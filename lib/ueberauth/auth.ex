@@ -4,7 +4,7 @@ defmodule Ueberauth.Auth do
 
   This struct is constructed by the strategy by using functions defined in the
   strategy and is provided to the downstream plug in the connections assigns
-  `:ueberauth_auth` key
+  `:ueberauth_auth` key.
   """
 
   alias Ueberauth.Auth

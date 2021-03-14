@@ -13,7 +13,7 @@ defmodule Ueberauth.Failure do
 
   # the provider name
   defstruct provider: nil,
-            # the strategy module tha ran
+            # the strategy module that ran
             strategy: nil,
             # Ueberauth.Failure.Error collection of strategy defined errors
             errors: []
