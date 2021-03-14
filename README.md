@@ -1,10 +1,14 @@
 # Überauth
+
 [![Build Status](https://travis-ci.org/ueberauth/ueberauth.svg?branch=master)](https://travis-ci.org/ueberauth/ueberauth)
 [![Codecov](https://codecov.io/gh/ueberauth/ueberauth/branch/master/graph/badge.svg)](https://codecov.io/gh/ueberauth/ueberauth)
 [![Inline docs](http://inch-ci.org/github/ueberauth/ueberauth.svg)](http://inch-ci.org/github/ueberauth/ueberauth)
 [![Hex Version](http://img.shields.io/hexpm/v/ueberauth.svg)](https://hex.pm/packages/ueberauth)
 [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg)](https://hexdocs.pm/ueberauth)
+[![Total Download](https://img.shields.io/hexpm/dt/ueberauth.svg)](https://hex.pm/packages/ueberauth)
 [![License](https://img.shields.io/hexpm/l/ueberauth.svg)](https://github.com/ueberauth/ueberauth/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg)](https://github.com/ueberauth/ueberauth/commits/master)
+
 
 > An Elixir Authentication System for Plug-based Web Applications
 
@@ -164,7 +168,7 @@ config :ueberauth, Ueberauth,
 
 ## Customizing JSON Serializer
 
-Your json serializer can be configured depending on what you have installed in your application.  Defaults to [Jason](https://github.com/michalmuskala/jason).
+Your JSON serializer can be configured depending on what you have installed in your application.  Defaults to [Jason](https://github.com/michalmuskala/jason).
 
 ```elixir
 config :ueberauth, Ueberauth,
@@ -173,7 +177,7 @@ config :ueberauth, Ueberauth,
 
 ## HTTP Methods
 
-By default, all callback urls are only available via the `"GET"` method. You
+By default, all callback URLs are only available via the `"GET"` method. You
 can override this via options to your strategy.
 
 ```elixir
@@ -187,5 +191,8 @@ providers: [
 All options that are passed into your strategy are available at runtime to
 modify the behaviour of the strategy.
 
-## License
-See [LICENSE](https://raw.githubusercontent.com/ueberauth/ueberauth/master/LICENSE).
+## Copyright and License
+
+Copyright (c) 2015 Sonny Scroggin
+
+Released under the MIT License, which can be found in the repository in [`LICENSE`](https://raw.githubusercontent.com/ueberauth/ueberauth/master/LICENSE).

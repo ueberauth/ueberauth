@@ -1,6 +1,6 @@
 defmodule Ueberauth.Auth.Info do
   @moduledoc """
-  Provides a place within the Ueberauth.Auth struct for information about the user.
+  Provides a place within the `Ueberauth.Auth` struct for information about the user.
   """
   alias Ueberauth.Auth.Info
 

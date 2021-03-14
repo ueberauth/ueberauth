@@ -1,6 +1,7 @@
 defmodule Ueberauth.Mixfile do
   use Mix.Project
 
+  @source_url "https://github.com/ueberauth/ueberauth"
   @version "0.6.3"
 
   def project do
@@ -8,13 +9,11 @@ defmodule Ueberauth.Mixfile do
       app: :ueberauth,
       name: "Überauth",
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      source_url: "https://github.com/ueberauth/ueberauth",
-      homepage_url: "https://github.com/ueberauth/ueberauth",
       description: description(),
       deps: deps(),
       docs: docs(),
@@ -41,13 +40,19 @@ defmodule Ueberauth.Mixfile do
       {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
       {:excoveralls, ">= 0.0.0", only: [:test], runtime: false},
-      {:ex_doc, "~> 0.19", only: [:dev], runtime: false},
+      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false},
       {:inch_ex, ">= 0.0.0", only: [:dev], runtime: false}
     ]
   end
 
   defp docs do
-    [extras: ["README.md", "CONTRIBUTING.md"]]
+    [
+      extras: ["CHANGELOG.md", "README.md", "CONTRIBUTING.md"],
+      main: "readme",
+      source_url: @source_url,
+      homepage_url: @source_url,
+      formatters: ["html"]
+    ]
   end
 
   defp description do
@@ -56,10 +61,13 @@ defmodule Ueberauth.Mixfile do
 
   defp package do
     [
-      files: ["lib", "mix.exs", "README.md", "LICENSE"],
+      files: ["lib", "mix.exs", "CHANGELOG.md", "README.md", "LICENSE"],
       maintainers: ["Sonny Scroggin", "Daniel Neighman", "Sean Callan"],
       licenses: ["MIT"],
-      links: %{"GitHub" => "https://github.com/ueberauth/ueberauth"}
+      links: %{
+        "Changelog" => "https://hexdocs.pm/ueberauth/changelog.html",
+        "GitHub" => @source_url
+      }
     ]
   end
 end
