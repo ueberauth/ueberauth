@@ -1,4 +1,4 @@
-# Contributing to Ueberauth Google
+# Contributing
 
 ## Pull Requests Welcome
 

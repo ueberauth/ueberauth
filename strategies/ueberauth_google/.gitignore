@@ -5,7 +5,10 @@
 /_build
 /cover
 /deps
+/tmp
+/.fetch
 erl_crash.dump
+ueberauth_google-*.tar
 *.ez
 *.beam
 

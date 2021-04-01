@@ -4,9 +4,10 @@ defmodule Ueberauth.Strategy.Google.OAuth do
 
   Add `client_id` and `client_secret` to your configuration:
 
-  config :ueberauth, Ueberauth.Strategy.Google.OAuth,
-    client_id: System.get_env("GOOGLE_APP_ID"),
-    client_secret: System.get_env("GOOGLE_APP_SECRET")
+      config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+        client_id: System.get_env("GOOGLE_APP_ID"),
+        client_secret: System.get_env("GOOGLE_APP_SECRET")
+
   """
   use OAuth2.Strategy
 

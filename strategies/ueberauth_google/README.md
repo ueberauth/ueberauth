@@ -1,28 +1,40 @@
-# Überauth Google [![Hex Version](https://img.shields.io/hexpm/v/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
+# Überauth Google
+
+[![Build Status](https://travis-ci.org/ueberauth/ueberauth_google.svg?branch=master)](https://travis-ci.org/ueberauth/ueberauth_google)
+[![Module Version](https://img.shields.io/hexpm/v/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_google/)
+[![Total Download](https://img.shields.io/hexpm/dt/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
+[![License](https://img.shields.io/hexpm/l/ueberauth_google.svg)](https://github.com/ueberauth/ueberauth_google/blob/master/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth_google.svg)](https://github.com/ueberauth/ueberauth_google/commits/master)
+
 
 > Google OAuth2 strategy for Überauth.
 
 ## Installation
 
-1. Setup your application at [Google Developer Console](https://console.developers.google.com/home).
+1.  Setup your application at [Google Developer Console](https://console.developers.google.com/home).
 
-1. Add `:ueberauth_google` to your list of dependencies in `mix.exs`:
+2.  Add `:ueberauth_google` to your list of dependencies in `mix.exs`:
 
     ```elixir
     def deps do
-      [{:ueberauth_google, "~> 0.10"}]
+      [
+        {:ueberauth_google, "~> 0.10"}
+      ]
     end
     ```
 
-1. Add the strategy to your applications:
+3.  Add the strategy to your applications:
 
     ```elixir
     def application do
-      [applications: [:ueberauth_google]]
+      [
+        applications: [:ueberauth_google]
+      ]
     end
     ```
 
-1. Add Google to your Überauth configuration:
+4.  Add Google to your Überauth configuration:
 
     ```elixir
     config :ueberauth, Ueberauth,
@@ -31,7 +43,7 @@
       ]
     ```
 
-1.  Update your provider configuration:
+5.  Update your provider configuration:
 
     Use that if you want to read client ID/secret from the environment
     variables in the compile time:
@@ -51,7 +63,7 @@
       client_secret: {System, :get_env, ["GOOGLE_CLIENT_SECRET"]}
     ```
 
-1.  Include the Überauth plug in your controller:
+6.  Include the Überauth plug in your controller:
 
     ```elixir
     defmodule MyApp.AuthController do
@@ -61,7 +73,7 @@
     end
     ```
 
-1.  Create the request and callback routes if you haven't already:
+7.  Create the request and callback routes if you haven't already:
 
     ```elixir
     scope "/auth", MyApp do
@@ -72,7 +84,7 @@
     end
     ```
 
-1. Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
+8.  Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
 
 For an example implementation see the [Überauth Example](https://github.com/ueberauth/ueberauth_example) application.
 
@@ -113,8 +125,8 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
-This may also be set via runtime configuration by passing a 2 or 3 argument tuple. To use this feature, the first argument must be the atom `:system`, and the second argument must represent the environment variable containing the endpoint url. 
-A third argument may be passed representing a default value if the environment variable is not found, otherwise the library default will be used. 
+This may also be set via runtime configuration by passing a 2 or 3 argument tuple. To use this feature, the first argument must be the atom `:system`, and the second argument must represent the environment variable containing the endpoint url.
+A third argument may be passed representing a default value if the environment variable is not found, otherwise the library default will be used.
 
 ```elixir
 config :ueberauth, Ueberauth,
@@ -127,6 +139,8 @@ config :ueberauth, Ueberauth,
 
 To guard against client-side request modification, it's important to still check the domain in `info.urls[:website]` within the `Ueberauth.Auth` struct if you want to limit sign-in to a specific domain.
 
-## License
+## Copyright and License
 
-Please see [LICENSE](https://github.com/ueberauth/ueberauth_google/blob/master/LICENSE) for licensing details.
+Copyright (c) 2015 Sean Callan
+
+Released under the MIT License, which can be found in the repository in [LICENSE](https://github.com/ueberauth/ueberauth_google/blob/master/LICENSE).
