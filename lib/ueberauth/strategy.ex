@@ -323,9 +323,12 @@ defmodule Ueberauth.Strategy do
 
   @doc false
   def run_callback(conn, strategy) do
-    strategy
-    |> get_ignores_csrf_attack_option()
-    |> maybe_run_handle_callback(conn, strategy)
+    with false <- get_ignores_csrf_attack_option(strategy),
+         false <- state_param_matches?(conn) do
+      add_state_mismatch_error(conn, strategy)
+    else
+      true -> run_handle_callback(conn, strategy)
+    end
   end
 
   defp handle_callback_result(%{halted: true} = conn, _), do: conn
@@ -335,18 +338,6 @@ defmodule Ueberauth.Strategy do
   defp handle_callback_result(conn, strategy) do
     auth = apply(strategy, :auth, [conn])
     Plug.Conn.assign(conn, :ueberauth_auth, auth)
-  end
-
-  defp maybe_run_handle_callback(true, conn, strategy) do
-    run_handle_callback(conn, strategy)
-  end
-
-  defp maybe_run_handle_callback(_ignore_state_param, conn, strategy) do
-    if state_param_matches?(conn) do
-      run_handle_callback(conn, strategy)
-    else
-      add_state_mismatch_error(conn, strategy)
-    end
   end
 
   defp state_param_matches?(conn) do
@@ -386,23 +377,20 @@ defmodule Ueberauth.Strategy do
   end
 
   defp maybe_add_state_param(conn, strategy) do
-    strategy
-    |> get_ignores_csrf_attack_option()
-    |> add_state_param(conn)
+    if get_ignores_csrf_attack_option(strategy) do
+      conn
+    else
+      add_state_param(conn)
+    end
   end
 
   defp get_ignores_csrf_attack_option(strategy) do
     strategy
     |> apply(:default_options, [])
-    # TODO: should we force them to turn it off
     |> Keyword.get(:ignores_csrf_attack, false)
   end
 
-  defp add_state_param(true, conn) do
-    conn
-  end
-
-  defp add_state_param(false, conn) do
+  defp add_state_param(conn) do
     state = create_state_param()
 
     conn
@@ -425,7 +413,6 @@ defmodule Ueberauth.Strategy do
   end
 
   defp create_state_param do
-    # TODO: do people want to handle their own token generator?
     :crypto.strong_rand_bytes(24) |> Base.url_encode64() |> binary_part(0, 24)
   end
 end
