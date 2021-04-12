@@ -371,7 +371,6 @@ defmodule Ueberauth.Strategy do
   end
 
   defp run_handle_cleanup(conn, strategy) do
-    # TODO: should we remove the cookie always?
     conn = remove_state_cookie(conn)
     apply(strategy, :handle_cleanup!, [conn])
   end
@@ -394,10 +393,7 @@ defmodule Ueberauth.Strategy do
     state = create_state_param()
 
     conn
-    |> Conn.put_resp_cookie(@state_param_cookie_name, state,
-      # TODO: what would be a good default
-      same_site: "Strict"
-    )
+    |> Conn.put_resp_cookie(@state_param_cookie_name, state, same_site: "Lax")
     |> Helpers.add_state_param(state)
   end
 
