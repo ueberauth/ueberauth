@@ -413,6 +413,6 @@ defmodule Ueberauth.Strategy do
   end
 
   defp create_state_param do
-    :crypto.strong_rand_bytes(24) |> Base.url_encode64() |> binary_part(0, 24)
+    24 |> :crypto.strong_rand_bytes() |> Base.url_encode64() |> binary_part(0, 24)
   end
 end
