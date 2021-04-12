@@ -177,7 +177,7 @@ defmodule Ueberauth.Strategy.Helpers do
   def with_state_param(opts, conn) do
     state = conn.private[:ueberauth_state_param]
 
-    if state == nil do
+    if is_nil(state) do
       opts
     else
       Keyword.put(opts, :state, state)
