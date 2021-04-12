@@ -341,14 +341,8 @@ defmodule Ueberauth.Strategy do
   end
 
   defp state_param_matches?(conn) do
-    state_cookie = get_state_cookie(conn)
     param_cookie = conn.params["state"]
-
-    case {state_cookie, param_cookie} do
-      {nil, nil} -> false
-      {value, value} -> true
-      {_, _} -> false
-    end
+    not is_nil(param_cookie) and param_cookie == get_state_cookie(conn)
   end
 
   defp add_state_mismatch_error(conn, strategy) do
