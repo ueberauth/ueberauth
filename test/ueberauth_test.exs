@@ -188,7 +188,9 @@ defmodule UeberauthTest do
         {Support.ProviderWithCsrfAttackEnabled,
          [callback_path: "/oauth/simple-provider/callback"]}
       )
+      |> Plug.Conn.fetch_cookies()
 
+    assert conn.cookies["ueberauth.state_param"] != nil
     assert conn.private[:ueberauth_state_param] != nil
   end
 
