@@ -14,14 +14,6 @@
     end
     ```
 
-1. Add the strategy to your applications:
-
-    ```elixir
-    def application do
-      [applications: [:ueberauth_github]]
-    end
-    ```
-
 1. Add GitHub to your Überauth configuration:
 
     ```elixir
