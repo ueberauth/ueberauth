@@ -6,6 +6,11 @@ defmodule UeberauthTest do
   alias Support.SpecRouter
 
   @opts Support.SpecRouter.init([])
+  @session_options Plug.Session.init(
+                     store: Plug.Session.COOKIE,
+                     key: "_hello_key",
+                     signing_salt: "CXlmrshG"
+                   )
 
   test "simple request phase" do
     conn = conn(:get, "/auth/simple")
@@ -175,15 +180,54 @@ defmodule UeberauthTest do
     assert location === "/oauth/simple-provider/callback?code=foo"
   end
 
+  test "run_request with a state param by default" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.ProviderWithCsrfAttackEnabled,
+         [callback_path: "/oauth/simple-provider/callback"]}
+      )
+      |> Plug.Conn.fetch_cookies()
+
+    assert conn.cookies["ueberauth.state_param"] != nil
+    assert conn.private[:ueberauth_state_param] != nil
+  end
+
+  test "run_request with state param disabled" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.SimpleProvider, [callback_path: "/oauth/simple-provider/callback"]}
+      )
+
+    assert conn.private[:ueberauth_state_param] == nil
+  end
+
   test "run_callback" do
     conn =
       conn(:get, "/oauth/simple-provider/callback", id: "foo", code: "simple-code")
+      |> Plug.Session.call(@session_options)
       |> Ueberauth.run_callback(
         "simple-provider",
         {Support.SimpleProvider, [token_prefix: "token-"]}
       )
 
     assert conn.assigns[:ueberauth_auth].credentials.token === "token-simple-code"
+  end
+
+  test "run_callback triggers an error if the state does not match" do
+    conn =
+      conn(:get, "/oauth/simple-provider/callback", id: "foo", code: "simple-code")
+      |> Plug.Session.call(@session_options)
+      |> Ueberauth.run_callback(
+        "simple-provider",
+        {Support.ProviderWithCsrfAttackEnabled, [token_prefix: "token-"]}
+      )
+
+    assert conn.assigns.ueberauth_failure != nil
+    assert List.first(conn.assigns.ueberauth_failure.errors).message_key == :csrf_attack
   end
 
   defp assert_standard_info(auth) do

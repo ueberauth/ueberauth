@@ -1,6 +1,6 @@
 defmodule Support.SimpleCallback do
   @moduledoc false
 
-  use Ueberauth.Strategy
+  use Ueberauth.Strategy, ignores_csrf_attack: true
   use Support.Mixins
 end

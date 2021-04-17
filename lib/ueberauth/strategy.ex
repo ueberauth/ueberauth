@@ -157,10 +157,15 @@ defmodule Ueberauth.Strategy do
   `:ueberauth_failure` with the information provided detailing the failure.
   """
 
+  alias Plug.Conn
+  alias Ueberauth.Strategy.Helpers
+  alias Ueberauth.Failure.Error
   alias Ueberauth.Auth
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Extra
+
+  @state_param_cookie_name "ueberauth.state_param"
 
   @doc """
   The request phase implementation for your strategy.
@@ -254,6 +259,20 @@ defmodule Ueberauth.Strategy do
   These options are made available to your strategy at `YourStrategy.default_options`.
   On a per usage level, other options can also be passed to the strategy to provide
   customization.
+
+  ### Cross-Site Request Forgery
+
+  By default strategies must implement https://tools.ietf.org/html/rfc6749#section-10.12
+  if you wish to disabled such feature, use `:ignores_csrf_attack` option:
+
+      defmodule MyStrategy do
+        use Ueberauth.Strategy,
+          ignores_csrf_attack: true
+        # …
+      end
+
+  Althought we strongly recommend never disable such feature, unless you have
+  some technical limitations that forces you to use such `:ignores_csrf_attack`.
   """
   defmacro __using__(opts \\ []) do
     quote location: :keep do
@@ -297,17 +316,19 @@ defmodule Ueberauth.Strategy do
 
   @doc false
   def run_request(conn, strategy) do
-    apply(strategy, :handle_request!, [conn])
+    conn
+    |> maybe_add_state_param(strategy)
+    |> run_handle_request(strategy)
   end
 
   @doc false
   def run_callback(conn, strategy) do
-    handled_conn =
-      strategy
-      |> apply(:handle_callback!, [conn])
-      |> handle_callback_result(strategy)
-
-    apply(strategy, :handle_cleanup!, [handled_conn])
+    with false <- get_ignores_csrf_attack_option(strategy),
+         false <- state_param_matches?(conn) do
+      add_state_mismatch_error(conn, strategy)
+    else
+      true -> run_handle_callback(conn, strategy)
+    end
   end
 
   defp handle_callback_result(%{halted: true} = conn, _), do: conn
@@ -317,5 +338,71 @@ defmodule Ueberauth.Strategy do
   defp handle_callback_result(conn, strategy) do
     auth = apply(strategy, :auth, [conn])
     Plug.Conn.assign(conn, :ueberauth_auth, auth)
+  end
+
+  defp state_param_matches?(conn) do
+    param_cookie = conn.params["state"]
+    not is_nil(param_cookie) and param_cookie == get_state_cookie(conn)
+  end
+
+  defp add_state_mismatch_error(conn, strategy) do
+    conn
+    |> Helpers.set_errors!([
+      %Error{message_key: :csrf_attack, message: "Cross-Site Request Forgery attack"}
+    ])
+    |> run_handle_cleanup(strategy)
+  end
+
+  defp run_handle_request(conn, strategy) do
+    apply(strategy, :handle_request!, [conn])
+  end
+
+  defp run_handle_callback(conn, strategy) do
+    strategy
+    |> apply(:handle_callback!, [conn])
+    |> handle_callback_result(strategy)
+    |> run_handle_cleanup(strategy)
+  end
+
+  defp run_handle_cleanup(conn, strategy) do
+    conn = remove_state_cookie(conn)
+    apply(strategy, :handle_cleanup!, [conn])
+  end
+
+  defp maybe_add_state_param(conn, strategy) do
+    if get_ignores_csrf_attack_option(strategy) do
+      conn
+    else
+      add_state_param(conn)
+    end
+  end
+
+  defp get_ignores_csrf_attack_option(strategy) do
+    strategy
+    |> apply(:default_options, [])
+    |> Keyword.get(:ignores_csrf_attack, false)
+  end
+
+  defp add_state_param(conn) do
+    state = create_state_param()
+
+    conn
+    |> Conn.put_resp_cookie(@state_param_cookie_name, state, same_site: "Lax")
+    |> Helpers.add_state_param(state)
+  end
+
+  defp get_state_cookie(conn) do
+    conn
+    |> Conn.fetch_session()
+    |> Map.get(:cookies)
+    |> Map.get(@state_param_cookie_name)
+  end
+
+  defp remove_state_cookie(conn) do
+    Conn.delete_resp_cookie(conn, @state_param_cookie_name)
+  end
+
+  defp create_state_param do
+    24 |> :crypto.strong_rand_bytes() |> Base.url_encode64() |> binary_part(0, 24)
   end
 end
