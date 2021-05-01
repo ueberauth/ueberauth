@@ -1,4 +1,4 @@
-# Contributing to Ueberauth Facebook
+# Contributing
 
 ## Pull Requests Welcome
 1. Fork ueberauth_facebook

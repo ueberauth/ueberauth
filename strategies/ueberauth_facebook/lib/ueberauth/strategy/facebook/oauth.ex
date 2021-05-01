@@ -2,11 +2,12 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
   @moduledoc """
   OAuth2 for Facebook.
 
-  Add `client_id` and `client_secret` to your configuration:
+  Add `:client_id` and `:client_secret` to your configuration:
 
-  config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
-    client_id: System.get_env("FACEBOOK_APP_ID"),
-    client_secret: System.get_env("FACEBOOK_APP_SECRET")
+      config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+        client_id: System.get_env("FACEBOOK_APP_ID"),
+        client_secret: System.get_env("FACEBOOK_APP_SECRET")
+
   """
   use OAuth2.Strategy
 
