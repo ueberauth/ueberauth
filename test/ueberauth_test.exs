@@ -230,7 +230,7 @@ defmodule UeberauthTest do
     assert List.first(conn.assigns.ueberauth_failure.errors).message_key == :csrf_attack
   end
 
-  test "make ensure run_callback is after the internal state clean" do
+  test "make ensure run_callback properly clean the internal state param in cookie" do
     conn =
       conn(:get, "/oauth/simple-provider/", id: "foo")
       |> Ueberauth.run_request(
