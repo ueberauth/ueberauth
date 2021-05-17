@@ -230,6 +230,33 @@ defmodule UeberauthTest do
     assert List.first(conn.assigns.ueberauth_failure.errors).message_key == :csrf_attack
   end
 
+  test "make ensure run_callback is after the internal state clean" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.ProviderWithCsrfAttackEnabled,
+         [callback_path: "/oauth/simple-provider/callback"]}
+      )
+      |> Plug.Conn.fetch_cookies()
+
+    state = conn.private[:ueberauth_state_param]
+    code = "simple-code"
+
+    conn =
+      conn(:get, "/oauth/simple-provider/callback", next_url: "http://localhost/fetch_user", id: "foo", code: code, state: state)
+      |> Map.put(:cookies, conn.cookies)
+      |> Map.put(:req_cookies, conn.req_cookies)
+      |> Plug.Session.call(@session_options)
+      |> Ueberauth.run_callback(
+        "simple-provider",
+        {Support.ProviderWithCsrfAttackEnabled, []}
+      )
+
+    assert conn.halted == true and conn.cookies == %{}
+    assert conn.resp_body =~ ~s|http://localhost/fetch_user?code=#{code}|
+  end
+
   defp assert_standard_info(auth) do
     info = auth.info
 
