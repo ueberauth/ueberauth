@@ -232,7 +232,8 @@ defmodule UeberauthTest do
 
   test "make ensure run_callback properly clean the internal state param in cookie" do
     conn =
-      conn(:get, "/oauth/simple-provider/", id: "foo")
+      :get
+      |> conn("/oauth/simple-provider/", id: "foo")
       |> Ueberauth.run_request(
         "simple-provider",
         {Support.ProviderWithCsrfAttackEnabled,
@@ -244,7 +245,8 @@ defmodule UeberauthTest do
     code = "simple-code"
 
     conn =
-      conn(:get, "/oauth/simple-provider/callback", next_url: "http://localhost/fetch_user", id: "foo", code: code, state: state)
+      :get
+      |> conn("/oauth/simple-provider/callback", next_url: "http://localhost/fetch_user", id: "foo", code: code, state: state)
       |> Map.put(:cookies, conn.cookies)
       |> Map.put(:req_cookies, conn.req_cookies)
       |> Plug.Session.call(@session_options)

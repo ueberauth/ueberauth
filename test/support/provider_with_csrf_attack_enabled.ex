@@ -6,8 +6,8 @@ defmodule Support.ProviderWithCsrfAttackEnabled do
   def handle_callback!(%Plug.Conn{params: %{"code" => code, "next_url" => url}} = conn) do
     uri = URI.parse(url)
     uri_query = uri.query || ""
-    query = URI.decode_query(uri_query) |> Map.put("code", code) |> URI.encode_query()
-    uri = %{uri | query: query} |> URI.to_string()
+    query = uri_query |> URI.decode_query() |> Map.put("code", code) |> URI.encode_query()
+    uri = URI.to_string(%{uri | query: query})
     redirect!(conn, uri)
   end
 
@@ -18,5 +18,4 @@ defmodule Support.ProviderWithCsrfAttackEnabled do
   def handle_callback!(conn) do
     set_errors!(conn, [error("missing_code", "No code received")])
   end
-
 end
