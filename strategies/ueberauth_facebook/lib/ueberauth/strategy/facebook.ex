@@ -183,8 +183,14 @@ defmodule Ueberauth.Strategy.Facebook do
     |> Base.encode16(case: :lower)
   end
 
+  @compile {:no_warn_undefined, {:crypto, :mac, 4}}
+  @compile {:no_warn_undefined, {:crypto, :hmac, 3}}
   defp hmac(data, type, key) do
-    :crypto.hmac(type, key, data)
+    if function_exported?(:crypto, :mac, 4) do
+      :crypto.mac(:hmac, type, key, data)
+    else
+      :crypto.hmac(type, key, data)
+    end
   end
 
   defp query_params(conn, :profile) do
