@@ -263,7 +263,7 @@ defmodule Ueberauth.Strategy do
   ### Cross-Site Request Forgery
 
   By default strategies must implement https://tools.ietf.org/html/rfc6749#section-10.12
-  if you wish to disabled such feature, use `:ignores_csrf_attack` option:
+  if you wish to disable such feature, use `:ignores_csrf_attack` option:
 
       defmodule MyStrategy do
         use Ueberauth.Strategy,
@@ -358,6 +358,8 @@ defmodule Ueberauth.Strategy do
   end
 
   defp run_handle_callback(conn, strategy) do
+    conn = remove_state_cookie(conn)
+
     strategy
     |> apply(:handle_callback!, [conn])
     |> handle_callback_result(strategy)
@@ -365,7 +367,6 @@ defmodule Ueberauth.Strategy do
   end
 
   defp run_handle_cleanup(conn, strategy) do
-    conn = remove_state_cookie(conn)
     apply(strategy, :handle_cleanup!, [conn])
   end
 
