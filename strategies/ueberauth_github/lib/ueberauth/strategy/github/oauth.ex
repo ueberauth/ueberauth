@@ -1,12 +1,14 @@
 defmodule Ueberauth.Strategy.Github.OAuth do
   @moduledoc """
-  An implementation of OAuth2 for github.
+  An implementation of OAuth2 for GitHub.
 
-  To add your `client_id` and `client_secret` include these values in your configuration.
+  To add your `:client_id` and `:client_secret` include these values in your
+  configuration:
 
       config :ueberauth, Ueberauth.Strategy.Github.OAuth,
         client_id: System.get_env("GITHUB_CLIENT_ID"),
         client_secret: System.get_env("GITHUB_CLIENT_SECRET")
+
   """
   use OAuth2.Strategy
 
@@ -18,14 +20,18 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   ]
 
   @doc """
-  Construct a client for requests to Github.
+  Construct a client for requests to GitHub.
 
-  Optionally include any OAuth2 options here to be merged with the defaults.
+  Optionally include any OAuth2 options here to be merged with the defaults:
 
-      Ueberauth.Strategy.Github.OAuth.client(redirect_uri: "http://localhost:4000/auth/github/callback")
+      Ueberauth.Strategy.Github.OAuth.client(
+        redirect_uri: "http://localhost:4000/auth/github/callback"
+      )
 
   This will be setup automatically for you in `Ueberauth.Strategy.Github`.
-  These options are only useful for usage outside the normal callback phase of Ueberauth.
+
+  These options are only useful for usage outside the normal callback phase of
+  Ueberauth.
   """
   def client(opts \\ []) do
     config =
@@ -46,7 +52,9 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   end
 
   @doc """
-  Provides the authorize url for the request phase of Ueberauth. No need to call this usually.
+  Provides the authorize url for the request phase of Ueberauth.
+
+  No need to call this usually.
   """
   def authorize_url!(params \\ [], opts \\ []) do
     opts

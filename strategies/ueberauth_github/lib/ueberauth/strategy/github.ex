@@ -1,21 +1,22 @@
 defmodule Ueberauth.Strategy.Github do
   @moduledoc """
-  Provides an Ueberauth strategy for authenticating with Github.
+  Provides an Ueberauth strategy for authenticating with GitHub.
 
   ### Setup
 
   Create an application in Github for you to use.
 
-  Register a new application at: [your github developer page](https://github.com/settings/developers) and get the `client_id` and `client_secret`.
+  Register a new application at: [your github developer page](https://github.com/settings/developers)
+  and get the `client_id` and `client_secret`.
 
-  Include the provider in your configuration for Ueberauth
+  Include the provider in your configuration for Ueberauth;
 
       config :ueberauth, Ueberauth,
         providers: [
           github: { Ueberauth.Strategy.Github, [] }
         ]
 
-  Then include the configuration for github.
+  Then include the configuration for GitHub:
 
       config :ueberauth, Ueberauth.Strategy.Github.OAuth,
         client_id: System.get_env("GITHUB_CLIENT_ID"),
@@ -33,8 +34,8 @@ defmodule Ueberauth.Strategy.Github do
         get "/:provider/callback", AuthController, :callback
       end
 
-
-  Create an endpoint for the callback where you will handle the `Ueberauth.Auth` struct
+  Create an endpoint for the callback where you will handle the
+  `Ueberauth.Auth` struct:
 
       defmodule MyApp.AuthController do
         use MyApp.Web, :controller
@@ -48,16 +49,17 @@ defmodule Ueberauth.Strategy.Github do
         end
       end
 
-  You can edit the behaviour of the Strategy by including some options when you register your provider.
+  You can edit the behaviour of the Strategy by including some options when you
+  register your provider.
 
-  To set the `uid_field`
+  To set the `uid_field`:
 
       config :ueberauth, Ueberauth,
         providers: [
           github: { Ueberauth.Strategy.Github, [uid_field: :email] }
         ]
 
-  Default is `:id`
+  Default is `:id`.
 
   To set the default 'scopes' (permissions):
 
@@ -66,7 +68,8 @@ defmodule Ueberauth.Strategy.Github do
           github: { Ueberauth.Strategy.Github, [default_scope: "user,public_repo"] }
         ]
 
-  Default is empty ("") which "Grants read-only access to public information (includes public user profile info, public repository info, and gists)"
+  Default is empty ("") which "Grants read-only access to public information
+  (includes public user profile info, public repository info, and gists)"
   """
   use Ueberauth.Strategy,
     uid_field: :id,
@@ -80,11 +83,12 @@ defmodule Ueberauth.Strategy.Github do
   @doc """
   Handles the initial redirect to the github authentication page.
 
-  To customize the scope (permissions) that are requested by github include them as part of your url:
+  To customize the scope (permissions) that are requested by github include
+  them as part of your url:
 
       "/auth/github?scope=user,public_repo,gist"
 
-  You can also include a `state` param that github will return to you.
+  You can also include a `:state` param that github will return to you.
   """
   def handle_request!(conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
@@ -105,8 +109,11 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   @doc """
-  Handles the callback from Github. When there is a failure from Github the failure is included in the
-  `ueberauth_failure` struct. Otherwise the information returned from Github is returned in the `Ueberauth.Auth` struct.
+  Handles the callback from GitHub.
+
+  When there is a failure from Github the failure is included in the
+  `ueberauth_failure` struct. Otherwise the information returned from Github is
+  returned in the `Ueberauth.Auth` struct.
   """
   def handle_callback!(%Plug.Conn{params: %{"code" => code}} = conn) do
     module = option(conn, :oauth2_module)
@@ -127,7 +134,8 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   @doc """
-  Cleans up the private area of the connection used for passing the raw Github response around during the callback.
+  Cleans up the private area of the connection used for passing the raw GitHub
+  response around during the callback.
   """
   def handle_cleanup!(conn) do
     conn
@@ -136,14 +144,16 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   @doc """
-  Fetches the uid field from the Github response. This defaults to the option `uid_field` which in-turn defaults to `id`
+  Fetches the `:uid` field from the GitHub response.
+
+  This defaults to the option `:uid_field` which in-turn defaults to `:id`
   """
   def uid(conn) do
     conn |> option(:uid_field) |> to_string() |> fetch_uid(conn)
   end
 
   @doc """
-  Includes the credentials from the Github response.
+  Includes the credentials from the GitHub response.
   """
   def credentials(conn) do
     token = conn.private.github_token
@@ -161,7 +171,8 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   @doc """
-  Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
+  Fetches the fields to populate the info section of the `Ueberauth.Auth`
+  struct.
   """
   def info(conn) do
     user = conn.private.github_user
@@ -193,7 +204,8 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   @doc """
-  Stores the raw information (including the token) obtained from the Github callback.
+  Stores the raw information (including the token) obtained from the GitHub
+  callback.
   """
   def extra(conn) do
     %Extra{
