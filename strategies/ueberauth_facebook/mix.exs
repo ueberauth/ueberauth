@@ -29,7 +29,7 @@ defmodule Ueberauth.Facebook.Mixfile do
       {:ueberauth, "~> 0.6.0"},
       {:oauth2, "~> 1.0 or ~> 2.0"},
       {:credo, "~> 0.8.10", only: [:dev, :test]},
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+      {:ex_doc, ">= 0.24.2", only: :dev, runtime: false}
     ]
   end
 
@@ -38,7 +38,7 @@ defmodule Ueberauth.Facebook.Mixfile do
       extras: [
         "CHANGELOG.md",
         "CONTRIBUTING.md",
-        {:"LICENSE", [title: "License"]},
+        {:LICENSE, [title: "License"]},
         "README.md"
       ],
       main: "readme",
