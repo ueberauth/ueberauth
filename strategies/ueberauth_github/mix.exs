@@ -27,7 +27,7 @@ defmodule Ueberauth.Github.Mixfile do
   defp deps do
     [
       {:oauth2, "~> 1.0 or ~> 2.0"},
-      {:ueberauth, "~> 0.6.0"},
+      {:ueberauth, "~> 0.7.0"},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
