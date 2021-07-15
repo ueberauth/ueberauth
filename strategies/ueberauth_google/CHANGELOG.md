@@ -1,7 +1,11 @@
 # Changelog
 
-## v0.11.0 (Unreleased)
+## (Unreleased)
 
+## v0.10.1
+
+* Misc doc changes [81](https://github.com/ueberauth/ueberauth_google/pull/81)
+* Upgrade Ueberauth and Refactor CSRF State Logic [82](https://github.com/ueberauth/ueberauth_google/pull/82)
 
 ## v0.10.0 - 2020-10-20
 
