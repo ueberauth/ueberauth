@@ -29,7 +29,7 @@ defmodule Ueberauth.Strategy.Google do
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
       |> with_param(:login_hint, conn)
-      |> with_param(:state, conn)
+      |> with_state_param(conn)
 
     opts = oauth_client_options_from_conn(conn)
     redirect!(conn, Ueberauth.Strategy.Google.OAuth.authorize_url!(params, opts))
