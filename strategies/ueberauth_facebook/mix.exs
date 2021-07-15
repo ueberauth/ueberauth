@@ -2,7 +2,7 @@ defmodule Ueberauth.Facebook.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ueberauth/ueberauth_facebook"
-  @version "0.8.1"
+  @version "0.8.2"
 
   def project do
     [

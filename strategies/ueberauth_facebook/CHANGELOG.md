@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.8.2 - 2021-07-15
+
 * Allow OAuth options to be configured from the connection
 * Set default profile image to large
 
