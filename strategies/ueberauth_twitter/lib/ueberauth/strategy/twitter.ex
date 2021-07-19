@@ -14,11 +14,8 @@ defmodule Ueberauth.Strategy.Twitter do
   Handles initial request for Twitter authentication.
   """
   def handle_request!(conn) do
-    params =
-      []
-      |> with_state_param(conn)
-
-    token = Twitter.OAuth.request_token!([], [redirect_uri: callback_url(conn, params))
+    params = with_state_param([], conn)
+    token = Twitter.OAuth.request_token!([], redirect_uri: callback_url(conn, params))
 
     conn
     |> put_session(:twitter_token, token)
@@ -30,6 +27,7 @@ defmodule Ueberauth.Strategy.Twitter do
   """
   def handle_callback!(%Plug.Conn{params: %{"oauth_verifier" => oauth_verifier}} = conn) do
     token = get_session(conn, :twitter_token)
+
     case Twitter.OAuth.access_token(token, oauth_verifier) do
       {:ok, access_token} -> fetch_user(conn, access_token)
       {:error, error} -> set_errors!(conn, [error(error.code, error.reason)])

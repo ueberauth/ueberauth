@@ -52,7 +52,7 @@ defmodule UeberauthTwitter.Mixfile do
   defp package do
     [
       description: "An Uberauth strategy for Twitter authentication.",
-      files: ["lib", "mix.exs", "README.md", "LICENSE"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
       maintainers: ["Sean Callan"],
       licenses: ["MIT"],
       links: %{
