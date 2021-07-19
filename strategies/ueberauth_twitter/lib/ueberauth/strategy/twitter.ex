@@ -3,7 +3,7 @@ defmodule Ueberauth.Strategy.Twitter do
   Twitter Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :id_str, ignores_csrf_attack: true
+  use Ueberauth.Strategy, uid_field: :id_str
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -14,7 +14,11 @@ defmodule Ueberauth.Strategy.Twitter do
   Handles initial request for Twitter authentication.
   """
   def handle_request!(conn) do
-    token = Twitter.OAuth.request_token!([], [redirect_uri: callback_url(conn)])
+    params =
+      []
+      |> with_state_param(conn)
+
+    token = Twitter.OAuth.request_token!([], [redirect_uri: callback_url(conn, params))
 
     conn
     |> put_session(:twitter_token, token)

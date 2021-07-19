@@ -19,7 +19,7 @@ _Note_: Sessions are required for this strategy.
     ```elixir
     def deps do
       [
-        {:ueberauth_twitter, "~> 0.3"}
+        {:ueberauth_twitter, "~> 0.4"}
       ]
     end
     ```
