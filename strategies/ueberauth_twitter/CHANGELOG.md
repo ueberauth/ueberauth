@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## v0.4.0 - 2021-07-19
+## v0.4.1 - 2021-07-19
 
 * Protect against CSRF attacks by adding a state parameter
 * Bump version of Ueberauth to `0.7`
