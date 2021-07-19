@@ -3,7 +3,7 @@ defmodule Ueberauth.Strategy.Twitter do
   Twitter Strategy for Überauth.
   """
 
-  use Ueberauth.Strategy, uid_field: :id_str
+  use Ueberauth.Strategy, uid_field: :id_str, ignores_csrf_attack: true
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
