@@ -12,17 +12,19 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
 
   alias Ueberauth.Strategy.Twitter.OAuth.Internal
 
-  @defaults [access_token: "/oauth/access_token",
-             authorize_url: "/oauth/authorize",
-             request_token: "/oauth/request_token",
-             site: "https://api.twitter.com"]
+  @defaults [
+    access_token: "/oauth/access_token",
+    authorize_url: "/oauth/authorize",
+    request_token: "/oauth/request_token",
+    site: "https://api.twitter.com"
+  ]
 
   defmodule ApiError do
     @moduledoc "Raised on OAuth API errors."
 
     defexception [:message, :code]
 
-    def message(e = %{code: nil}), do: e.message
+    def message(%{code: nil} = e), do: e.message
 
     def message(e) do
       "#{e.message} (Code #{e.code})"
@@ -60,6 +62,7 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
   end
 
   def get(url, access_token), do: get(url, [], access_token)
+
   def get(url, params, {token, token_secret}) do
     client()
     |> to_url(url)
@@ -91,6 +94,10 @@ defmodule Ueberauth.Strategy.Twitter.OAuth do
     token_secret = Internal.token_secret(params)
 
     {:ok, {token, token_secret}}
+  end
+
+  defp decode_response({:ok, %{status_code: 401, body: body}}) do
+    {:error, "401: #{inspect(body)}"}
   end
 
   defp decode_response({:ok, %{body: %{"errors" => [error | _]}}}) do

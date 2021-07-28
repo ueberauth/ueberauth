@@ -5,21 +5,21 @@ defmodule Ueberauth.Strategy.Twitter do
 
   use Ueberauth.Strategy, uid_field: :id_str
 
-  alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
-  alias Ueberauth.Strategy.Twitter
+  alias Ueberauth.Auth.Info
+  alias Ueberauth.Strategy.Twitter.OAuth
 
   @doc """
   Handles initial request for Twitter authentication.
   """
   def handle_request!(conn) do
     params = with_state_param([], conn)
-    token = Twitter.OAuth.request_token!([], redirect_uri: callback_url(conn, params))
+    token = OAuth.request_token!([], redirect_uri: callback_url(conn, params))
 
     conn
     |> put_session(:twitter_token, token)
-    |> redirect!(Twitter.OAuth.authorize_url!(token))
+    |> redirect!(OAuth.authorize_url!(token))
   end
 
   @doc """
@@ -28,7 +28,7 @@ defmodule Ueberauth.Strategy.Twitter do
   def handle_callback!(%Plug.Conn{params: %{"oauth_verifier" => oauth_verifier}} = conn) do
     token = get_session(conn, :twitter_token)
 
-    case Twitter.OAuth.access_token(token, oauth_verifier) do
+    case OAuth.access_token(token, oauth_verifier) do
       {:ok, access_token} -> fetch_user(conn, access_token)
       {:error, error} -> set_errors!(conn, [error(error.code, error.reason)])
     end
@@ -104,7 +104,7 @@ defmodule Ueberauth.Strategy.Twitter do
   defp fetch_user(conn, token) do
     params = [{"include_entities", false}, {"skip_status", true}, {"include_email", true}]
 
-    case Twitter.OAuth.get("/1.1/account/verify_credentials.json", params, token) do
+    case OAuth.get("/1.1/account/verify_credentials.json", params, token) do
       {:ok, %{status_code: 401, body: _, headers: _}} ->
         set_errors!(conn, [error("token", "unauthorized")])
 

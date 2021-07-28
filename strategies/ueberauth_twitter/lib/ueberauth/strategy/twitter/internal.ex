@@ -4,18 +4,22 @@ defmodule Ueberauth.Strategy.Twitter.OAuth.Internal do
   """
 
   def get(url, extraparams, {consumer_key, consumer_secret, _}, token \\ "", token_secret \\ "") do
-    creds = OAuther.credentials(
-      consumer_key: consumer_key,
-      consumer_secret: consumer_secret,
-      token: token,
-      token_secret: token_secret
-    )
+    creds =
+      OAuther.credentials(
+        consumer_key: consumer_key,
+        consumer_secret: consumer_secret,
+        token: token,
+        token_secret: token_secret
+      )
+
     {header, params} =
       "get"
       |> OAuther.sign(url, extraparams, creds)
-      |> OAuther.header
+      |> OAuther.header()
 
-    HTTPoison.get(url, [header, {"Accept", "application/json"}], params: params)
+    response = HTTPoison.get(url, [header, {"Accept", "application/json"}], params: params)
+
+    response
     |> decode_body()
   end
 
@@ -40,12 +44,7 @@ defmodule Ueberauth.Strategy.Twitter.OAuth.Internal do
   def decode_body(other), do: other
 
   def params_decode(resp) do
-    resp
-    |> String.split("&", trim: true)
-    |> Enum.map(&String.split(&1, "="))
-    |> Enum.map(&List.to_tuple/1)
-    |> Enum.into(%{})
-    # |> Enum.reduce(%{}, fn({name, val}, acc) -> Map.put_new(acc, name, val) end)
+    URI.decode_query(resp)
   end
 
   def token(params) do

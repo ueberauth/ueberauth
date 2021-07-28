@@ -8,11 +8,13 @@ defmodule UeberauthTwitter.Mixfile do
     [
       app: :ueberauth_twitter,
       version: @version,
-      name: "Überauth Twitter",
+      name: "Ueberauth Twitter Strategy",
+      package: package(),
       elixir: "~> 1.1",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      package: package(),
+      source_url: @source_url,
+      homepage_url: @source_url,
       deps: deps(),
       docs: docs()
     ]
@@ -29,7 +31,8 @@ defmodule UeberauthTwitter.Mixfile do
       {:ueberauth, "~> 0.7"},
 
       # dev/test dependencies
-      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
+      {:earmark, ">= 0.0.0", only: :dev},
+      {:ex_doc, "~> 0.18", only: :dev},
       {:credo, "~> 0.8", only: [:dev, :test]}
     ]
   end
