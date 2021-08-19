@@ -407,7 +407,9 @@ defmodule Ueberauth do
     %{
       strategy: module,
       strategy_name: name,
+      request_scheme: Keyword.get(options, :request_scheme),
       request_path: get_request_path(base_path, strategy),
+      callback_scheme: Keyword.get(options, :callback_scheme),
       callback_path: get_callback_path(base_path, strategy),
       callback_methods: get_callback_methods(options),
       options: options,
