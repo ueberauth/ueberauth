@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.8.0 - 2021-08-19
+
+- Add support for custom URL schemes [#144](https://github.com/ueberauth/ueberauth/pull/144)
+
 ## v0.7.0 - 2020-04-17
 
 - Add support for CSRF [#136](https://github.com/ueberauth/ueberauth/pull/136)
