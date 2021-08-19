@@ -169,6 +169,22 @@ defmodule Ueberauth do
         ],
         json_library: Poison # or Jason
 
+  #### Customizing Schemes
+
+  By default, Ueberauth uses your `Plug.Conn` scheme.
+
+  A custom scheme can be provided through the request header `X-Forwarded-Proto`.
+
+  For example, in Nginx you can set it.
+
+      proxy_set_header X-Forwarded-Proto $scheme;
+
+  Another option is to override this via options to your strategy.
+
+      providers: [
+        identity: {Ueberauth.Strategies.Identity, [callback_scheme: "https"]}
+      ]
+
   #### Http Methods
 
   By default, all callback URLs are only available via the `"GET"` method. You
