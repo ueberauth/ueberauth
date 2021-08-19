@@ -49,6 +49,7 @@ defmodule Ueberauth.Strategy.Helpers do
   def request_url(conn, query_params \\ []) do
     opts = [
       scheme: from_private(conn, :request_scheme),
+      port: from_private(conn, :request_port),
       path: request_path(conn),
       query_params: query_params
     ]
@@ -69,6 +70,7 @@ defmodule Ueberauth.Strategy.Helpers do
     else
       opts = [
         scheme: from_private(conn, :callback_scheme),
+        port: from_private(conn, :callback_port),
         path: callback_path(conn),
         query_params: callback_params(conn, query_params)
       ]
@@ -212,16 +214,24 @@ defmodule Ueberauth.Strategy.Helpers do
         true -> to_string(conn.scheme)
       end
 
-    encoded_query =
+    port =
+      cond do
+        port = Keyword.get(opts, :port) -> port
+        true -> normalize_port(scheme, conn.port)
+      end
+
+    path = Keyword.fetch!(opts, :path)
+
+    query =
       opts
       |> Keyword.get(:query_params, [])
       |> encode_query()
 
     %URI{
       host: conn.host,
-      port: normalize_port(scheme, conn.port),
-      path: Keyword.fetch!(opts, :path),
-      query: encoded_query,
+      port: port,
+      path: path,
+      query: query,
       scheme: scheme
     }
     |> to_string()
