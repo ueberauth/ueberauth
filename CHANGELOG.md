@@ -3,6 +3,7 @@
 ## v0.8.0 - 2021-08-19
 
 - Add support for custom URL schemes [#144](https://github.com/ueberauth/ueberauth/pull/144)
+- Fix url path prefixes with more than one segment [#147](https://github.com/ueberauth/ueberauth/pull/147)
 
 ## v0.7.0 - 2020-04-17
 
