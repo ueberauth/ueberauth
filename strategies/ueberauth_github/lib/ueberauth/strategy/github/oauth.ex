@@ -16,7 +16,7 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     strategy: __MODULE__,
     site: "https://api.github.com",
     authorize_url: "https://github.com/login/oauth/authorize",
-    token_url: "https://github.com/login/oauth/access_token",
+    token_url: "https://github.com/login/oauth/access_token"
   ]
 
   @doc """
@@ -35,10 +35,10 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   """
   def client(opts \\ []) do
     config =
-    :ueberauth
-    |> Application.fetch_env!(Ueberauth.Strategy.Github.OAuth)
-    |> check_credential(:client_id)
-    |> check_credential(:client_secret)
+      :ueberauth
+      |> Application.fetch_env!(Ueberauth.Strategy.Github.OAuth)
+      |> check_credential(:client_id)
+      |> check_credential(:client_secret)
 
     client_opts =
       @defaults
@@ -47,7 +47,8 @@ defmodule Ueberauth.Strategy.Github.OAuth do
 
     json_library = Ueberauth.json_library()
 
-    OAuth2.Client.new(client_opts)
+    client_opts
+    |> OAuth2.Client.new()
     |> OAuth2.Client.put_serializer("application/json", json_library)
   end
 
@@ -70,10 +71,10 @@ defmodule Ueberauth.Strategy.Github.OAuth do
   end
 
   def get_token!(params \\ [], options \\ []) do
-    headers        = Keyword.get(options, :headers, [])
-    options        = Keyword.get(options, :options, [])
+    headers = Keyword.get(options, :headers, [])
+    options = Keyword.get(options, :options, [])
     client_options = Keyword.get(options, :client_options, [])
-    client         = OAuth2.Client.get_token!(client(client_options), params, headers, options)
+    client = OAuth2.Client.get_token!(client(client_options), params, headers, options)
     client.token
   end
 
@@ -96,10 +97,12 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     case Keyword.get(config, key) do
       value when is_binary(value) ->
         config
+
       {:system, env_key} ->
         case System.get_env(env_key) do
           nil ->
-            raise "#{inspect (env_key)} missing from environment, expected in config :ueberauth, Ueberauth.Strategy.Github"
+            raise "#{inspect(env_key)} missing from environment, expected in config :ueberauth, Ueberauth.Strategy.Github"
+
           value ->
             Keyword.put(config, key, value)
         end
@@ -108,10 +111,12 @@ defmodule Ueberauth.Strategy.Github.OAuth do
 
   defp check_config_key_exists(config, key) when is_list(config) do
     unless Keyword.has_key?(config, key) do
-      raise "#{inspect (key)} missing from config :ueberauth, Ueberauth.Strategy.Github"
+      raise "#{inspect(key)} missing from config :ueberauth, Ueberauth.Strategy.Github"
     end
+
     config
   end
+
   defp check_config_key_exists(_, _) do
     raise "Config :ueberauth, Ueberauth.Strategy.Github is not a keyword list, as expected"
   end
