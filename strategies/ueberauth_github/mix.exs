@@ -51,7 +51,7 @@ defmodule Ueberauth.Github.Mixfile do
   defp package do
     [
       description: "An Ueberauth strategy for using Github to authenticate your users.",
-      files: ["lib", "mix.exs", "README.md", "LICENSE"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
       maintainers: ["Daniel Neighman", "Sean Callan"],
       licenses: ["MIT"],
       links: %{
