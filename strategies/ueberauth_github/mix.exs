@@ -38,7 +38,7 @@ defmodule Ueberauth.Github.Mixfile do
       extras: [
         "CHANGELOG.md": [title: "Changelog"],
         "CONTRIBUTING.md": [title: "Contributing"],
-        "LICENSE.md": [title: "License"],
+        LICENSE: [title: "License"],
         "README.md": [title: "Overview"]
       ],
       main: "readme",
@@ -51,7 +51,7 @@ defmodule Ueberauth.Github.Mixfile do
   defp package do
     [
       description: "An Ueberauth strategy for using Github to authenticate your users.",
-      files: ["lib", "mix.exs", "README.md", "LICENSE.md"],
+      files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["Daniel Neighman", "Sean Callan"],
       licenses: ["MIT"],
       links: %{
