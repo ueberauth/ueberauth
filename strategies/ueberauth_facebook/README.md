@@ -15,23 +15,23 @@
 
 1. Add `:ueberauth_facebook` to your list of dependencies in `mix.exs`:
 
-    ```elixir
-    def deps do
-      [
-        {:ueberauth_facebook, "~> 0.8"}
-      ]
-    end
-    ```
+   ```elixir
+   def deps do
+     [
+       {:ueberauth_facebook, "~> 0.8"}
+     ]
+   end
+   ```
 
 1. Add the strategy to your applications:
 
-    ```elixir
-    def application do
-      [
-        applications: [:ueberauth_facebook]
-      ]
-    end
-    ```
+   ```elixir
+   def application do
+     [
+       applications: [:ueberauth_facebook]
+     ]
+   end
+   ```
 
 1. Add Facebook to your Überauth configuration:
 
@@ -81,7 +81,7 @@ Depending on the configured URL you can initialize the request through:
 
     /auth/facebook
 
-Or with options (`state`, `auth_type`, `scope`, `locale`, `display`):
+Or with options (`auth_type`, `scope`, `locale`, `display`):
 
     /auth/facebook?scope=email,public_profile
 
@@ -119,12 +119,6 @@ config :ueberauth, Ueberauth,
 ```
 
 See [Graph API Reference > User](https://developers.facebook.com/docs/graph-api/reference/user) for full list of fields.
-
-### Passing dynamic state
-
-A [state](https://developers.facebook.com/docs/facebook-login/security/#stateparam) parameter can be [passed with a call](https://developers.facebook.com/docs/facebook-login/manually-build-a-login-flow#login) and is returned in the redirect URI as a URL parameter.
-
-    /auth/facebook?scope=email,public_profile&state={"id":1,"field":"value"}
 
 ## Copyright and License
 

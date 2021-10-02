@@ -11,7 +11,6 @@ defmodule Ueberauth.Strategy.Facebook do
       :auth_type,
       :scope,
       :locale,
-      :state,
       :display
     ]
 
@@ -30,18 +29,17 @@ defmodule Ueberauth.Strategy.Facebook do
 
     opts = oauth_client_options_from_conn(conn)
 
-    authorize_url =
+    params =
       conn.params
       |> maybe_replace_param(conn, "auth_type", :auth_type)
       |> maybe_replace_param(conn, "scope", :default_scope)
-      |> maybe_replace_param(conn, "state", :state)
       |> maybe_replace_param(conn, "display", :display)
       |> Enum.filter(fn {k, _v} -> Enum.member?(allowed_params, k) end)
       |> Enum.map(fn {k, v} -> {String.to_existing_atom(k), v} end)
       |> Keyword.put(:redirect_uri, callback_url(conn))
-      |> Ueberauth.Strategy.Facebook.OAuth.authorize_url!(opts)
+      |> with_state_param(conn)
 
-    redirect!(conn, authorize_url)
+    redirect!(conn, Ueberauth.Strategy.Facebook.OAuth.authorize_url!(params, opts))
   end
 
   @doc """

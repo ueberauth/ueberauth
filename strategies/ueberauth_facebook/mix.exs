@@ -26,7 +26,7 @@ defmodule Ueberauth.Facebook.Mixfile do
 
   defp deps do
     [
-      {:ueberauth, "~> 0.6.0"},
+      {:ueberauth, "~> 0.7"},
       {:oauth2, "~> 1.0 or ~> 2.0"},
       {:credo, "~> 0.8.10", only: [:dev, :test]},
       {:ex_doc, ">= 0.24.2", only: :dev, runtime: false}
