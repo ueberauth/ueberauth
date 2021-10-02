@@ -36,7 +36,8 @@ defmodule Ueberauth.Strategy.Facebook.OAuth do
 
     json_library = Ueberauth.json_library()
 
-    OAuth2.Client.new(opts)
+    opts
+    |> OAuth2.Client.new()
     |> OAuth2.Client.put_serializer("application/json", json_library)
   end
 
