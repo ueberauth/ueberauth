@@ -1,51 +1,46 @@
----
-
 name: Continuous Integration
 
 on:
   pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-
+    types: [opened, reopened, synchronize]
+  push:
+    branches:
+      - 'master'
 jobs:
   Test:
     runs-on: ubuntu-latest
-
-    container:
-      image: elixir:1.11-alpine
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
+      - name: Checkout Code
+        uses: actions/checkout@v1
 
-      - name: Install (mix)
+      - name: Set up Elixir
+        uses: erlef/setup-elixir@v1
+        with:
+          elixir-version: '1.11'
+          otp-version: '22.3'
+
+      - name: Install Dependencies
         run: |
           mix local.rebar --force
           mix local.hex --force
-
-      - name: Install (deps)
-        run: mix deps.get
+          mix deps.get
 
       - name: Run Tests
         run: mix test
 
-  Format:
+  Linting:
     runs-on: ubuntu-latest
-
-    container:
-      image: elixir:1.11-alpine
-
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
+        uses: actions/checkout@v1
 
-      - name: Install (mix)
+      - name: Set up Elixir
+        uses: erlef/setup-elixir@v1
+        with:
+          elixir-version: '1.11'
+          otp-version: '22.3'
+
+      - name: Install Dependencies
         run: |
           mix local.rebar --force
           mix local.hex --force
@@ -53,29 +48,6 @@ jobs:
 
       - name: Run Formatter
         run: mix format --check-formatted
-
-  Credo:
-    runs-on: ubuntu-latest
-
-    container:
-      image: elixir:1.11-alpine
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-
-      - name: Install (os)
-        run: apk add --no-cache gcc g++ git make musl-dev tar zstd
-
-      - name: Install (mix)
-        run: |
-          mix local.rebar --force
-          mix local.hex --force
-
-      - name: Install (deps)
-        run: mix deps.get
 
       - name: Run Credo
         run: mix credo
