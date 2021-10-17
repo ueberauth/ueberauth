@@ -24,17 +24,7 @@
     end
     ```
 
-3.  Add the strategy to your applications:
-
-    ```elixir
-    def application do
-      [
-        applications: [:ueberauth_google]
-      ]
-    end
-    ```
-
-4.  Add Google to your Überauth configuration:
+3.  Add Google to your Überauth configuration:
 
     ```elixir
     config :ueberauth, Ueberauth,
@@ -43,7 +33,7 @@
       ]
     ```
 
-5.  Update your provider configuration:
+4.  Update your provider configuration:
 
     Use that if you want to read client ID/secret from the environment
     variables in the compile time:
@@ -63,7 +53,7 @@
       client_secret: {System, :get_env, ["GOOGLE_CLIENT_SECRET"]}
     ```
 
-6.  Include the Überauth plug in your controller:
+5.  Include the Überauth plug in your controller:
 
     ```elixir
     defmodule MyApp.AuthController do
@@ -73,7 +63,7 @@
     end
     ```
 
-7.  Create the request and callback routes if you haven't already:
+6.  Create the request and callback routes if you haven't already:
 
     ```elixir
     scope "/auth", MyApp do
@@ -84,7 +74,7 @@
     end
     ```
 
-8.  Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
+7.  Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
 
 For an example implementation see the [Überauth Example](https://github.com/ueberauth/ueberauth_example) application.
 
