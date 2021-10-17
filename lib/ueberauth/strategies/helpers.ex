@@ -43,23 +43,40 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   The full url for the request phase for the requests strategy.
 
-  The URL is based on the current requests host and scheme. The options will be
-  encoded as query params.
+  The URL is based on the current requests host and scheme.
   """
   @spec request_url(Plug.Conn.t()) :: String.t()
-  def request_url(conn, opts \\ []), do: full_url(conn, request_path(conn), opts)
+  def request_url(conn, query_params \\ []) do
+    opts = [
+      scheme: from_private(conn, :request_scheme),
+      port: from_private(conn, :request_port),
+      path: request_path(conn),
+      query_params: query_params
+    ]
+
+    full_url(conn, opts)
+  end
 
   @doc """
   The full URL for the callback phase for the requests strategy.
 
-  The URL is based on the current requests host and scheme. The options will be
-  encoded as query params.
+  The URL is based on the current requests host and scheme.
   """
 
   @spec callback_url(Plug.Conn.t()) :: String.t()
-  def callback_url(conn, opts \\ []) do
-    from_private(conn, :callback_url) ||
-      full_url(conn, callback_path(conn), callback_params(conn, opts))
+  def callback_url(conn, query_params \\ []) do
+    if url = from_private(conn, :callback_url) do
+      url
+    else
+      opts = [
+        scheme: from_private(conn, :callback_scheme),
+        port: from_private(conn, :callback_port),
+        path: callback_path(conn),
+        query_params: callback_params(conn, query_params)
+      ]
+
+      full_url(conn, opts)
+    end
   end
 
   @doc """
@@ -68,7 +85,7 @@ defmodule Ueberauth.Strategy.Helpers do
   This method will filter conn.params with whitelisted params from :callback_params settings
   """
   @spec callback_params(Plug.Conn.t()) :: keyword()
-  def callback_params(conn, opts \\ []) do
+  def callback_params(conn, query_params \\ []) do
     callback_params = from_private(conn, :callback_params) || []
 
     callback_params =
@@ -77,7 +94,7 @@ defmodule Ueberauth.Strategy.Helpers do
       |> Enum.filter(fn {_, v} -> v != nil end)
       |> Enum.filter(fn {k, _} -> k != "provider" end)
 
-    Keyword.merge(opts, callback_params)
+    Keyword.merge(query_params, callback_params)
   end
 
   @doc """
@@ -189,41 +206,48 @@ defmodule Ueberauth.Strategy.Helpers do
     if opts, do: opts[key], else: nil
   end
 
-  defp full_url(conn, path, opts) do
+  defp full_url(conn, opts) do
     scheme =
-      conn
-      |> forwarded_proto
-      |> coalesce(conn.scheme)
-      |> normalize_scheme
+      cond do
+        scheme = Keyword.get(opts, :scheme) -> scheme
+        scheme = get_forwarded_proto_header(conn) -> scheme
+        true -> to_string(conn.scheme)
+      end
+
+    port =
+      cond do
+        port = Keyword.get(opts, :port) -> port
+        true -> normalize_port(scheme, conn.port)
+      end
+
+    path = Keyword.fetch!(opts, :path)
+
+    query =
+      opts
+      |> Keyword.get(:query_params, [])
+      |> encode_query()
 
     %URI{
       host: conn.host,
-      port: normalize_port(scheme, conn.port),
+      port: port,
       path: path,
-      query: encode_query(opts),
-      scheme: to_string(scheme)
+      query: query,
+      scheme: scheme
     }
-    |> to_string
+    |> to_string()
   end
 
-  defp forwarded_proto(conn) do
+  defp get_forwarded_proto_header(conn) do
     conn
-    |> Plug.Conn.get_req_header("x-forwarded-proto")
+    |> get_req_header("x-forwarded-proto")
     |> List.first()
   end
 
-  defp normalize_scheme("https"), do: :https
-  defp normalize_scheme("http"), do: :http
-  defp normalize_scheme(scheme), do: scheme
-
-  defp coalesce(nil, second), do: second
-  defp coalesce(first, _), do: first
-
-  defp normalize_port(:https, 80), do: 443
+  defp normalize_port("https", 80), do: 443
   defp normalize_port(_, port), do: port
 
   defp encode_query([]), do: nil
-  defp encode_query(opts), do: URI.encode_query(opts)
+  defp encode_query(query_params), do: URI.encode_query(query_params)
 
   defp map_errors(nil), do: []
   defp map_errors([]), do: []

@@ -161,6 +161,40 @@ defmodule UeberauthTest do
              "https://www.example.com/auth/provider/callback"
   end
 
+  test "callback_url has custom scheme" do
+    conn = %{
+      conn(:get, "/")
+      | scheme: :http,
+        port: 80
+    }
+
+    conn =
+      put_private(conn, :ueberauth_request_options,
+        callback_path: "/auth/provider/callback",
+        callback_scheme: "https"
+      )
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "https://www.example.com/auth/provider/callback"
+  end
+
+  test "callback_url has custom port" do
+    conn = %{
+      conn(:get, "/")
+      | scheme: :http,
+        port: 80
+    }
+
+    conn =
+      put_private(conn, :ueberauth_request_options,
+        callback_path: "/auth/provider/callback",
+        callback_port: 4000
+      )
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://www.example.com:4000/auth/provider/callback"
+  end
+
   test "callback_url has extra params" do
     conn = conn(:get, "/")
     conn = put_private(conn, :ueberauth_request_options, callback_params: ["type"])
