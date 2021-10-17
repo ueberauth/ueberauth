@@ -214,11 +214,7 @@ defmodule Ueberauth.Strategy.Helpers do
         true -> to_string(conn.scheme)
       end
 
-    port =
-      cond do
-        port = Keyword.get(opts, :port) -> port
-        true -> normalize_port(scheme, conn.port)
-      end
+    port = Keyword.get(opts, :port) || normalize_port(scheme, conn.port)
 
     path = Keyword.fetch!(opts, :path)
 
