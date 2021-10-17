@@ -130,25 +130,14 @@ defmodule Ueberauth.Strategy.Google do
 
     # userinfo_endpoint from https://accounts.google.com/.well-known/openid-configuration
     # the userinfo_endpoint may be overridden in options when necessary.
-    path =
-      case option(conn, :userinfo_endpoint) do
-        {:system, varname, default} ->
-          System.get_env(varname) || default
-
-        {:system, varname} ->
-          System.get_env(varname) || Keyword.get(default_options(), :userinfo_endpoint)
-
-        other ->
-          other
-      end
-
-    resp = Ueberauth.Strategy.Google.OAuth.get(token, path)
+    resp = Ueberauth.Strategy.Google.OAuth.get(token, get_userinfo_endpoint(conn))
 
     case resp do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
 
-      {:ok, %OAuth2.Response{status_code: status_code, body: user}} when status_code in 200..399 ->
+      {:ok, %OAuth2.Response{status_code: status_code, body: user}}
+      when status_code in 200..399 ->
         put_private(conn, :google_user, user)
 
       {:error, %OAuth2.Response{status_code: status_code}} ->
@@ -156,6 +145,19 @@ defmodule Ueberauth.Strategy.Google do
 
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
+    end
+  end
+
+  defp get_userinfo_endpoint(conn) do
+    case option(conn, :userinfo_endpoint) do
+      {:system, varname, default} ->
+        System.get_env(varname) || default
+
+      {:system, varname} ->
+        System.get_env(varname) || Keyword.get(default_options(), :userinfo_endpoint)
+
+      other ->
+        other
     end
   end
 
