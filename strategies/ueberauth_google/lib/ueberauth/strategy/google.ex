@@ -45,6 +45,7 @@ defmodule Ueberauth.Strategy.Google do
     case Ueberauth.Strategy.Google.OAuth.get_access_token(params, opts) do
       {:ok, token} ->
         fetch_user(conn, token)
+
       {:error, {error_code, error_description}} ->
         set_errors!(conn, [error(error_code, error_description)])
     end
@@ -78,9 +79,9 @@ defmodule Ueberauth.Strategy.Google do
   Includes the credentials from the google response.
   """
   def credentials(conn) do
-    token        = conn.private.google_token
-    scope_string = (token.other_params["scope"] || "")
-    scopes       = String.split(scope_string, ",")
+    token = conn.private.google_token
+    scope_string = token.other_params["scope"] || ""
+    scopes = String.split(scope_string, ",")
 
     %Credentials{
       expires: !!token.expires_at,
@@ -133,8 +134,10 @@ defmodule Ueberauth.Strategy.Google do
       case option(conn, :userinfo_endpoint) do
         {:system, varname, default} ->
           System.get_env(varname) || default
+
         {:system, varname} ->
           System.get_env(varname) || Keyword.get(default_options(), :userinfo_endpoint)
+
         other ->
           other
       end
@@ -144,10 +147,13 @@ defmodule Ueberauth.Strategy.Google do
     case resp do
       {:ok, %OAuth2.Response{status_code: 401, body: _body}} ->
         set_errors!(conn, [error("token", "unauthorized")])
+
       {:ok, %OAuth2.Response{status_code: status_code, body: user}} when status_code in 200..399 ->
         put_private(conn, :google_user, user)
+
       {:error, %OAuth2.Response{status_code: status_code}} ->
         set_errors!(conn, [error("OAuth2", status_code)])
+
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, [error("OAuth2", reason)])
     end
