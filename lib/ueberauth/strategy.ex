@@ -233,6 +233,11 @@ defmodule Ueberauth.Strategy do
   @callback credentials(Plug.Conn.t()) :: Credentials.t()
 
   @doc """
+  Returns the default options configuration of the strategy.
+  """
+  @callback default_options() :: keyword()
+
+  @doc """
   When defining your own strategy you should use Ueberauth.Strategy.
 
   This provides default callbacks for all required callbacks to meet the
