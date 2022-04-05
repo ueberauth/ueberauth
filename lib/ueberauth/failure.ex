@@ -6,9 +6,9 @@ defmodule Ueberauth.Failure do
   """
 
   @type t :: %__MODULE__{
-          provider: binary,
+          provider: atom,
           strategy: module,
-          errors: list(Ueberauth.Failure.Error)
+          errors: list(Ueberauth.Failure.Error.t())
         }
 
   # the provider name
