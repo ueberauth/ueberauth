@@ -37,6 +37,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
   def oauth2_get_token(client, code: "success_code"), do: token(client, "success_token")
   def oauth2_get_token(client, code: "uid_code"), do: token(client, "uid_token")
   def oauth2_get_token(client, code: "userinfo_code"), do: token(client, "userinfo_token")
+  def oauth2_get_token(_client, code: "oauth2_error"), do: {:error, %OAuth2.Error{reason: :timeout}}
+  def oauth2_get_token(_client, code: "error_response"), do: {:error, %OAuth2.Response{body: %{"error" => "some error", "error_description" => "something went wrong"}}}
 
   def oauth2_get(%{token: %{access_token: "success_token"}}, _url, _, _),
     do: response(%{"sub" => "1234_fred", "name" => "Fred Jones", "email" => "fred_jones@example.com"})
@@ -152,5 +154,25 @@ defmodule Ueberauth.Strategy.GoogleTest do
     redirect_uri = URI.parse(location)
 
     assert redirect_uri.query =~ "state="
+  end
+
+  describe "error handling" do
+    test "handle_callback! handles Oauth2.Error", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
+      conn =
+        conn(:get, "/auth/google/callback", %{code: "oauth2_error", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+
+      routes = Ueberauth.init([])
+      assert %Plug.Conn{assigns: %{ueberauth_failure: failure}} = Ueberauth.call(conn, routes)
+      assert %Ueberauth.Failure{errors: [%Ueberauth.Failure.Error{message: "timeout", message_key: "error"}]} = failure
+    end
+
+    test "handle_callback! handles error response", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
+      conn =
+        conn(:get, "/auth/google/callback", %{code: "error_response", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+
+      routes = Ueberauth.init([])
+      assert %Plug.Conn{assigns: %{ueberauth_failure: failure}} = Ueberauth.call(conn, routes)
+      assert %Ueberauth.Failure{errors: [%Ueberauth.Failure.Error{message: "something went wrong", message_key: "some error"}]} = failure
+    end
   end
 end
