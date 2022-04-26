@@ -218,13 +218,15 @@ defmodule Ueberauth.Strategy.Helpers do
 
     path = Keyword.fetch!(opts, :path)
 
+    host = get_forwarded_host_header(conn) || conn.host
+
     query =
       opts
       |> Keyword.get(:query_params, [])
       |> encode_query()
 
     %URI{
-      host: conn.host,
+      host: host,
       port: port,
       path: path,
       query: query,
@@ -236,6 +238,12 @@ defmodule Ueberauth.Strategy.Helpers do
   defp get_forwarded_proto_header(conn) do
     conn
     |> get_req_header("x-forwarded-proto")
+    |> List.first()
+  end
+
+  defp get_forwarded_host_header(conn) do
+    conn
+    |> get_req_header("x-forwarded-host")
     |> List.first()
   end
 
