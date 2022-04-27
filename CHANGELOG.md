@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.9.0 - 2022-04-27
+
+- Prefer `x-forwarded-host` to construct callback_url [#161](https://github.com/ueberauth/ueberauth/pull/161)
+
 ## v0.8.0 - 2021-08-19
 
 - Add support for custom URL schemes [#144](https://github.com/ueberauth/ueberauth/pull/144)
