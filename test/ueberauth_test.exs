@@ -161,6 +161,20 @@ defmodule UeberauthTest do
              "https://www.example.com/auth/provider/callback"
   end
 
+  test "callback_url uses forwarded host" do
+    conn = %{
+      (conn(:get, "/")
+       |> put_req_header("x-forwarded-host", "changelog.com"))
+      | scheme: :http,
+        port: 80
+    }
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://changelog.com/auth/provider/callback"
+  end
+
   test "callback_url has custom scheme" do
     conn = %{
       conn(:get, "/")
