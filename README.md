@@ -69,7 +69,7 @@ users created / authenticated).
 ## Callback Phase
 
 The callback phase is where the fun happens. Once a successful request phase has been completed, the request phase provider (OAuth provider or host site, etc)
-should call the callback URL. The strategy will intercept the request via the `callback_phase!`. If successful, it should prepare the connection so the `Ueberauth.Auth` struct can be created, or set errors to indicate a failure.
+should call the callback URL. The strategy will intercept the request via the `handle_callback!`. If successful, it should prepare the connection so the `Ueberauth.Auth` struct can be created, or set errors to indicate a failure.
 
 See `Ueberauth.Strategy` for more information on constructing the Ueberauth.Auth struct.
 
