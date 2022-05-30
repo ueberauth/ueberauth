@@ -19,9 +19,4 @@ defmodule Support.SimpleProvider do
     conn
     |> redirect!("#{callback}?code=#{uid(conn)}")
   end
-
-  def handle_callback!(conn) do
-    conn
-    |> Plug.Conn.assign(:ueberauth_auth, auth(conn))
-  end
 end
