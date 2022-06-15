@@ -69,14 +69,14 @@ defmodule Ueberauth.Strategy do
 
   The Auth struct is constructed like:
 
-      def auth(conn) do
+      def auth(conn, strategy) do
         %Auth{
-          provider: strategy_name(conn),
-          strategy: strategy(conn),
-          uid: uid(conn),
-          info: info(conn),
-          extra: extra(conn),
-          credentials: credentials(conn)
+          provider: Ueberauth.Strategy.Helpers.strategy_name(conn),
+          strategy: strategy,
+          uid: strategy.uid(conn),
+          info: strategy.info(conn),
+          extra: strategy.extra(conn),
+          credentials: strategy.credentials(conn)
         }
       end
 
@@ -297,18 +297,6 @@ defmodule Ueberauth.Strategy do
       def handle_callback!(conn), do: conn
       def handle_cleanup!(conn), do: conn
 
-      def auth(conn) do
-        struct(
-          Auth,
-          provider: strategy_name(conn),
-          strategy: strategy(conn),
-          uid: uid(conn),
-          info: info(conn),
-          extra: extra(conn),
-          credentials: credentials(conn)
-        )
-      end
-
       defoverridable uid: 1,
                      info: 1,
                      extra: 1,
@@ -341,8 +329,18 @@ defmodule Ueberauth.Strategy do
   defp handle_callback_result(%{assigns: %{ueberauth_auth: %{}}} = conn, _), do: conn
 
   defp handle_callback_result(conn, strategy) do
-    auth = apply(strategy, :auth, [conn])
-    Plug.Conn.assign(conn, :ueberauth_auth, auth)
+    Plug.Conn.assign(conn, :ueberauth_auth, auth(conn, strategy))
+  end
+
+  defp auth(conn, strategy) do
+    %Auth{
+      provider: Helpers.strategy_name(conn),
+      strategy: strategy,
+      uid: strategy.uid(conn),
+      info: strategy.info(conn),
+      extra: strategy.extra(conn),
+      credentials: strategy.credentials(conn)
+    }
   end
 
   defp state_param_matches?(conn) do
