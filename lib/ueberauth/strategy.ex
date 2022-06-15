@@ -278,6 +278,15 @@ defmodule Ueberauth.Strategy do
 
   We strongly recommend never disabling this feature, unless you have some technical
   limitations that forces you to do so.
+
+  To change the SameSite attribute of the cookie holding the state parameter, you can use the `:state_param_cookie_same_site` option:
+
+      defmodule MyStrategy do
+        use Ueberauth.Strategy,
+          state_param_cookie_same_site: "None"
+        # …
+      end
+
   """
   defmacro __using__(opts \\ []) do
     quote location: :keep do
