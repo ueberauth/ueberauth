@@ -251,7 +251,7 @@ defmodule UeberauthTest do
          [callback_path: "/oauth/simple-provider/callback"]}
       )
 
-      assert conn.resp_cookies["ueberauth.state_param"][:same_site] == "None"
+    assert conn.resp_cookies["ueberauth.state_param"][:same_site] == "None"
   end
 
   test "run_request with state param disabled" do
