@@ -278,6 +278,15 @@ defmodule Ueberauth.Strategy do
 
   We strongly recommend never disabling this feature, unless you have some technical
   limitations that forces you to do so.
+
+  To change the SameSite attribute of the cookie holding the state parameter, you can use the `:state_param_cookie_same_site` option:
+
+      defmodule MyStrategy do
+        use Ueberauth.Strategy,
+          state_param_cookie_same_site: "None"
+        # …
+      end
+
   """
   defmacro __using__(opts \\ []) do
     quote location: :keep do
@@ -377,21 +386,31 @@ defmodule Ueberauth.Strategy do
     if get_ignores_csrf_attack_option(strategy) do
       conn
     else
-      add_state_param(conn)
+      add_state_param(conn, strategy)
     end
   end
 
-  defp get_ignores_csrf_attack_option(strategy) do
-    strategy
-    |> apply(:default_options, [])
-    |> Keyword.get(:ignores_csrf_attack, false)
+  defp get_state_param_cookie_same_site(strategy) do
+    strategy_option(strategy, :state_param_cookie_same_site, "Lax")
   end
 
-  defp add_state_param(conn) do
+  defp get_ignores_csrf_attack_option(strategy) do
+    strategy_option(strategy, :ignores_csrf_attack, false)
+  end
+
+  defp strategy_option(strategy, name, fallback) do
+    strategy
+    |> apply(:default_options, [])
+    |> Keyword.get(name, fallback)
+  end
+
+  defp add_state_param(conn, strategy) do
     state = create_state_param()
 
     conn
-    |> Conn.put_resp_cookie(@state_param_cookie_name, state, same_site: "Lax")
+    |> Conn.put_resp_cookie(@state_param_cookie_name, state,
+      same_site: get_state_param_cookie_same_site(strategy)
+    )
     |> Helpers.add_state_param(state)
   end
 

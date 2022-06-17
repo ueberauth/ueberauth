@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0 - 2022-06-16
+
+- Add `state_param_cookie_same_site` to strategy options to support different SameSite values [#148](https://github.com/ueberauth/ueberauth/pull/164#issuecomment-1155406862)
+
 ## v0.9.0 - 2022-04-27
 
 - Prefer `x-forwarded-host` to construct callback_url [#161](https://github.com/ueberauth/ueberauth/pull/161)

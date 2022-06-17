@@ -242,6 +242,18 @@ defmodule UeberauthTest do
     assert conn.private[:ueberauth_state_param] != nil
   end
 
+  test "run_request with a custom state param cookie samesite" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.ProviderWithCustomCookieSameSite,
+         [callback_path: "/oauth/simple-provider/callback"]}
+      )
+
+    assert conn.resp_cookies["ueberauth.state_param"][:same_site] == "None"
+  end
+
   test "run_request with state param disabled" do
     conn =
       conn(:get, "/oauth/simple-provider/", id: "foo")
