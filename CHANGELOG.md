@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.1 - 2022-07-05
+
+- Fix callback URL not mounted right when router has nested paths [#166](https://github.com/ueberauth/ueberauth/pull/166)
+
 ## 0.10.0 - 2022-06-16
 
 - Add `state_param_cookie_same_site` to strategy options to support different SameSite values [#148](https://github.com/ueberauth/ueberauth/pull/164#issuecomment-1155406862)

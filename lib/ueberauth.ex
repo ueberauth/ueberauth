@@ -344,8 +344,10 @@ defmodule Ueberauth do
   end
 
   defp run(conn, {module, :run_request, options}) do
-    to_request_path = Path.join(["/", conn.script_name, options.request_path])
-    to_callback_path = Path.join(["/", conn.script_name, options.callback_path])
+    route_base_path = Enum.map_join(conn.script_name, &"/#{&1}")
+
+    to_request_path = Path.join(["/", route_base_path, options.request_path])
+    to_callback_path = Path.join(["/", route_base_path, options.callback_path])
     to_options = %{options | request_path: to_request_path, callback_path: to_callback_path}
 
     conn
@@ -354,8 +356,10 @@ defmodule Ueberauth do
   end
 
   defp run(conn, {module, :run_callback, options}) do
-    to_request_path = Path.join(["/", conn.script_name, options.request_path])
-    to_callback_path = Path.join(["/", conn.script_name, options.callback_path])
+    route_base_path = Enum.map_join(conn.script_name, &"/#{&1}")
+
+    to_request_path = Path.join(["/", route_base_path, options.request_path])
+    to_callback_path = Path.join(["/", route_base_path, options.callback_path])
     to_options = %{options | request_path: to_request_path, callback_path: to_callback_path}
 
     conn

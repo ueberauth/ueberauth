@@ -78,6 +78,14 @@ defmodule UeberauthTest do
     assert auth.extra.raw_info.callback_path == "/auth/with_request_path/callback"
   end
 
+  test "setting request phase path with multiple conn script names" do
+    conn = conn(:get, "/auth/with_request_path/callback")
+    conn = %Plug.Conn{conn | script_name: ["v1", "auth"]} |> SpecRouter.call(@opts)
+    auth = conn.assigns.ueberauth_auth
+
+    assert auth.extra.raw_info.request_path == "/v1/auth/login"
+  end
+
   test "setting callback phase path" do
     conn = conn(:get, "/login_callback") |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
@@ -86,6 +94,14 @@ defmodule UeberauthTest do
     assert auth.strategy == Support.SimpleCallback
     assert auth.extra.raw_info.request_path == "/auth/with_callback_path"
     assert auth.extra.raw_info.callback_path == "/login_callback"
+  end
+
+  test "setting callback phase path with multiple conn script names" do
+    conn = conn(:get, "/login_callback")
+    conn = %Plug.Conn{conn | script_name: ["v1", "auth"]} |> SpecRouter.call(@opts)
+    auth = conn.assigns.ueberauth_auth
+
+    assert auth.extra.raw_info.callback_path == "/v1/auth/login_callback"
   end
 
   test "using default options" do
