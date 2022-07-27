@@ -1,6 +1,6 @@
 defmodule Ueberauth do
   @moduledoc """
-  Ueberauth is two-phase authentication framework that provides a clear API -
+  Ueberauth is a two-phase authentication framework that provides a clear API -
   allowing for many strategies to be created and shared within the community. It
   is heavily inspired by [Omniauth](https://github.com/intridea/omniauth). You
   could call it a port but it is significantly different in operation - but
@@ -89,7 +89,7 @@ defmodule Ueberauth do
   `Ueberauth.Auth` struct as the `provider` field.
 
   Once you've setup your providers, in your router you need to configure the plug
-  to run. The plug should run before you application routes.
+  to run. The plug should run before your application routes.
 
   In phoenix, plug this module in your controller:
 
