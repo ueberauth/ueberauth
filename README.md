@@ -12,7 +12,7 @@
 
 > An Elixir Authentication System for Plug-based Web Applications
 
-Ueberauth is two-phase authentication framework that provides a clear API -
+Ueberauth is a two-phase authentication framework that provides a clear API -
 allowing for many strategies to be created and shared within the community. It
 is heavily inspired by [Omniauth](https://github.com/intridea/omniauth). You
 could call it a port but it is significantly different in operation - but
