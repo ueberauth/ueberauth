@@ -244,6 +244,21 @@ defmodule UeberauthTest do
     assert location === "/oauth/simple-provider/callback?code=foo"
   end
 
+  test "run_request with custom state" do
+    conn =
+      conn(:get, "/oauth/simple-provider/", id: "foo")
+      |> put_private(:ueberauth_state_param, %{custom: "data"})
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.SimpleProviderWithState, [callback_path: "/oauth/simple-provider/callback"]}
+      )
+
+    location = conn |> Plug.Conn.get_resp_header("location") |> List.first()
+
+    assert location ===
+             "/oauth/simple-provider/callback?code=foo&state=%7B%22state%22%3A%7B%22custom%22%3A%22data%22%7D%7D"
+  end
+
   test "run_request with a state param by default" do
     conn =
       conn(:get, "/oauth/simple-provider/", id: "foo")
@@ -254,8 +269,8 @@ defmodule UeberauthTest do
       )
       |> Plug.Conn.fetch_cookies()
 
-    assert conn.cookies["ueberauth.state_param"] != nil
-    assert conn.private[:ueberauth_state_param] != nil
+    assert conn.cookies["ueberauth.anti_csrf_token"] != nil
+    assert conn.private[:ueberauth_anti_csrf_token_state_param] != nil
   end
 
   test "run_request with a custom state param cookie samesite" do
@@ -267,7 +282,7 @@ defmodule UeberauthTest do
          [callback_path: "/oauth/simple-provider/callback"]}
       )
 
-    assert conn.resp_cookies["ueberauth.state_param"][:same_site] == "None"
+    assert conn.resp_cookies["ueberauth.anti_csrf_token"][:same_site] == "None"
   end
 
   test "run_request with state param disabled" do
@@ -278,7 +293,7 @@ defmodule UeberauthTest do
         {Support.SimpleProvider, [callback_path: "/oauth/simple-provider/callback"]}
       )
 
-    assert conn.private[:ueberauth_state_param] == nil
+    assert conn.private[:ueberauth_anti_csrf_token_state_param] == nil
   end
 
   test "run_callback" do
@@ -317,7 +332,6 @@ defmodule UeberauthTest do
       )
       |> Plug.Conn.fetch_cookies()
 
-    state = conn.private[:ueberauth_state_param]
     code = "simple-code"
 
     conn =
@@ -326,7 +340,7 @@ defmodule UeberauthTest do
         next_url: "http://localhost/fetch_user",
         id: "foo",
         code: code,
-        state: state
+        state: %{csrf: conn.private[:ueberauth_anti_csrf_token_state_param]} |> Jason.encode!()
       )
       |> Map.put(:cookies, conn.cookies)
       |> Map.put(:req_cookies, conn.req_cookies)

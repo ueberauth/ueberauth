@@ -185,6 +185,14 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   @doc """
+  Add anti CSRF token to the `%Plug.Conn{}`.
+  """
+  @spec add_anti_csrf_token(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
+  def add_anti_csrf_token(conn, value) do
+    Plug.Conn.put_private(conn, :ueberauth_anti_csrf_token_state_param, value)
+  end
+
+  @doc """
   Add state parameter to the options.
   """
   @spec with_state_param(
@@ -192,13 +200,23 @@ defmodule Ueberauth.Strategy.Helpers do
           Plug.Conn.t()
         ) :: keyword()
   def with_state_param(opts, conn) do
-    state = conn.private[:ueberauth_state_param]
+    state = %{}
 
-    if is_nil(state) do
-      opts
-    else
-      Keyword.put(opts, :state, state)
-    end
+    state =
+      if conn.private[:ueberauth_anti_csrf_token_state_param] do
+        Map.put(state, "csrf", conn.private[:ueberauth_anti_csrf_token_state_param])
+      else
+        state
+      end
+
+    state =
+      if conn.private[:ueberauth_state_param] do
+        Map.put(state, "state", conn.private[:ueberauth_state_param])
+      else
+        state
+      end
+
+    Keyword.put(opts, :state, state |> Jason.encode!())
   end
 
   defp from_private(conn, key) do

@@ -165,7 +165,7 @@ defmodule Ueberauth.Strategy do
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Extra
 
-  @state_param_cookie_name "ueberauth.state_param"
+  @anti_csrf_token_cookie_name "ueberauth.anti_csrf_token"
 
   @doc """
   The request phase implementation for your strategy.
@@ -319,15 +319,15 @@ defmodule Ueberauth.Strategy do
   @doc false
   def run_request(conn, strategy) do
     conn
-    |> maybe_add_state_param(strategy)
+    |> maybe_add_anti_csrf_token_state_param(strategy)
     |> run_handle_request(strategy)
   end
 
   @doc false
   def run_callback(conn, strategy) do
     with false <- get_ignores_csrf_attack_option(strategy),
-         false <- state_param_matches?(conn) do
-      add_state_mismatch_error(conn, strategy)
+         false <- anti_csrf_token_matches?(conn) do
+      add_anti_csrf_token_mismatch_error(conn, strategy)
     else
       true -> run_handle_callback(conn, strategy)
     end
@@ -352,12 +352,21 @@ defmodule Ueberauth.Strategy do
     }
   end
 
-  defp state_param_matches?(conn) do
-    param_cookie = conn.params["state"]
-    not is_nil(param_cookie) and param_cookie == get_state_cookie(conn)
+  defp anti_csrf_token_matches?(conn) do
+    state = conn.params["state"]
+
+    param_cookie =
+      if state != nil do
+        case Jason.decode(state) do
+          {:ok, decoded} -> decoded["csrf"]
+          _else -> nil
+        end
+      end
+
+    not is_nil(param_cookie) and param_cookie == get_anti_csrf_toekn_cookie(conn)
   end
 
-  defp add_state_mismatch_error(conn, strategy) do
+  defp add_anti_csrf_token_mismatch_error(conn, strategy) do
     conn
     |> Helpers.set_errors!([
       %Error{message_key: :csrf_attack, message: "Cross-Site Request Forgery attack"}
@@ -370,7 +379,7 @@ defmodule Ueberauth.Strategy do
   end
 
   defp run_handle_callback(conn, strategy) do
-    conn = remove_state_cookie(conn)
+    conn = remove_anti_csrf_token_cookie(conn)
 
     strategy
     |> apply(:handle_callback!, [conn])
@@ -382,11 +391,11 @@ defmodule Ueberauth.Strategy do
     apply(strategy, :handle_cleanup!, [conn])
   end
 
-  defp maybe_add_state_param(conn, strategy) do
+  defp maybe_add_anti_csrf_token_state_param(conn, strategy) do
     if get_ignores_csrf_attack_option(strategy) do
       conn
     else
-      add_state_param(conn, strategy)
+      add_anti_csrf_token_state_param(conn, strategy)
     end
   end
 
@@ -404,28 +413,28 @@ defmodule Ueberauth.Strategy do
     |> Keyword.get(name, fallback)
   end
 
-  defp add_state_param(conn, strategy) do
-    state = create_state_param()
+  defp add_anti_csrf_token_state_param(conn, strategy) do
+    state = create_anti_csrf_token()
 
     conn
-    |> Conn.put_resp_cookie(@state_param_cookie_name, state,
+    |> Conn.put_resp_cookie(@anti_csrf_token_cookie_name, state,
       same_site: get_state_param_cookie_same_site(strategy)
     )
-    |> Helpers.add_state_param(state)
+    |> Helpers.add_anti_csrf_token(state)
   end
 
-  defp get_state_cookie(conn) do
+  defp get_anti_csrf_toekn_cookie(conn) do
     conn
     |> Conn.fetch_session()
     |> Map.get(:cookies)
-    |> Map.get(@state_param_cookie_name)
+    |> Map.get(@anti_csrf_token_cookie_name)
   end
 
-  defp remove_state_cookie(conn) do
-    Conn.delete_resp_cookie(conn, @state_param_cookie_name)
+  defp remove_anti_csrf_token_cookie(conn) do
+    Conn.delete_resp_cookie(conn, @anti_csrf_token_cookie_name)
   end
 
-  defp create_state_param do
+  defp create_anti_csrf_token do
     24 |> :crypto.strong_rand_bytes() |> Base.url_encode64() |> binary_part(0, 24)
   end
 end
