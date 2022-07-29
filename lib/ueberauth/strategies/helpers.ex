@@ -179,11 +179,22 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   @doc """
-  Add state parameter to the `%Plug.Conn{}`.
+  Add state parameter to the `%Plug.Conn{}` during `request phase`.
   """
   @spec add_state_param(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
   def add_state_param(conn, value) do
     Plug.Conn.put_private(conn, :ueberauth_state_param, value)
+  end
+
+  @doc """
+  Get state parameter from the `%Plug.Conn{}` during `callback phase`.
+  """
+  @spec get_state_param(Plug.Conn.t()) :: any() | nil
+  def get_state_param(conn) do
+    case @json_library.decode(conn.query_params["state"]) do
+      {:ok, %{"data" => data}} -> data
+      _else -> nil
+    end
   end
 
   @doc """

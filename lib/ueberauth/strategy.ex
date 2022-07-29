@@ -155,6 +155,14 @@ defmodule Ueberauth.Strategy do
   Once you've set errors, Ueberauth will not set the auth struct in the connections
   assigns at `:ueberauth_auth`, instead it will set a `Ueberauth.Failure` struct at
   `:ueberauth_failure` with the information provided detailing the failure.
+
+  ### Pass custom data through state
+
+  It is possible to pass custom data between authorization request and the authorization
+  server's response.
+  In that case you should use `Ueberauth.Strategy.Helpers.add_state_param/2`
+  function during the `request phase`. Then you could read state data in `callback phase`
+  by calling `Ueberauth.Strategy.Helpers.get_state_param/1`.
   """
 
   alias Plug.Conn
