@@ -11,6 +11,7 @@ defmodule UeberauthTest do
                      key: "_hello_key",
                      signing_salt: "CXlmrshG"
                    )
+  @json_library Ueberauth.json_library()
 
   test "simple request phase" do
     conn = conn(:get, "/auth/simple")
@@ -244,7 +245,7 @@ defmodule UeberauthTest do
     assert location === "/oauth/simple-provider/callback?code=foo"
   end
 
-  test "run_request with custom state" do
+  test "run_request with custom state data" do
     conn =
       conn(:get, "/oauth/simple-provider/", id: "foo")
       |> put_private(:ueberauth_state_param, %{custom: "data"})
@@ -255,8 +256,11 @@ defmodule UeberauthTest do
 
     location = conn |> Plug.Conn.get_resp_header("location") |> List.first()
 
-    assert location ===
-             "/oauth/simple-provider/callback?code=foo&state=%7B%22state%22%3A%7B%22custom%22%3A%22data%22%7D%7D"
+    assert "/oauth/simple-provider/callback?" <> query_string = location
+
+    assert URI.decode_query(query_string)["state"] |> @json_library.decode!() == %{
+             "data" => %{"custom" => "data"}
+           }
   end
 
   test "run_request with a state param by default" do
@@ -340,7 +344,8 @@ defmodule UeberauthTest do
         next_url: "http://localhost/fetch_user",
         id: "foo",
         code: code,
-        state: %{csrf: conn.private[:ueberauth_anti_csrf_token_state_param]} |> Jason.encode!()
+        state:
+          %{csrf: conn.private[:ueberauth_anti_csrf_token_state_param]} |> @json_library.encode!()
       )
       |> Map.put(:cookies, conn.cookies)
       |> Map.put(:req_cookies, conn.req_cookies)

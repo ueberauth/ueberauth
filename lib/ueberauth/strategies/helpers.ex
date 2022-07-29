@@ -10,6 +10,8 @@ defmodule Ueberauth.Strategy.Helpers do
   alias Ueberauth.Failure
   alias Ueberauth.Failure.Error
 
+  @json_library Ueberauth.json_library()
+
   @doc """
   Provides the name of the strategy or provider name.
 
@@ -211,12 +213,12 @@ defmodule Ueberauth.Strategy.Helpers do
 
     state =
       if conn.private[:ueberauth_state_param] do
-        Map.put(state, "state", conn.private[:ueberauth_state_param])
+        Map.put(state, "data", conn.private[:ueberauth_state_param])
       else
         state
       end
 
-    Keyword.put(opts, :state, state |> Jason.encode!())
+    Keyword.put(opts, :state, @json_library.encode!(state))
   end
 
   defp from_private(conn, key) do

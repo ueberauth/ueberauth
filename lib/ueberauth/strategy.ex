@@ -166,6 +166,7 @@ defmodule Ueberauth.Strategy do
   alias Ueberauth.Auth.Extra
 
   @anti_csrf_token_cookie_name "ueberauth.anti_csrf_token"
+  @json_library Ueberauth.json_library()
 
   @doc """
   The request phase implementation for your strategy.
@@ -357,7 +358,7 @@ defmodule Ueberauth.Strategy do
 
     param_cookie =
       if state != nil do
-        case Jason.decode(state) do
+        case @json_library.decode(state) do
           {:ok, decoded} -> decoded["csrf"]
           _else -> nil
         end
