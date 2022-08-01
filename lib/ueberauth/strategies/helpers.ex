@@ -10,8 +10,6 @@ defmodule Ueberauth.Strategy.Helpers do
   alias Ueberauth.Failure
   alias Ueberauth.Failure.Error
 
-  @json_library Ueberauth.json_library()
-
   @doc """
   Provides the name of the strategy or provider name.
 
@@ -191,7 +189,7 @@ defmodule Ueberauth.Strategy.Helpers do
   """
   @spec get_state_param(Plug.Conn.t()) :: any() | nil
   def get_state_param(conn) do
-    case @json_library.decode(conn.query_params["state"]) do
+    case Ueberauth.json_library().decode(conn.query_params["state"]) do
       {:ok, %{"data" => data}} -> data
       _else -> nil
     end
@@ -229,7 +227,7 @@ defmodule Ueberauth.Strategy.Helpers do
         state
       end
 
-    Keyword.put(opts, :state, @json_library.encode!(state))
+    Keyword.put(opts, :state, Ueberauth.json_library().encode!(state))
   end
 
   defp from_private(conn, key) do

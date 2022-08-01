@@ -11,7 +11,6 @@ defmodule UeberauthTest do
                      key: "_hello_key",
                      signing_salt: "CXlmrshG"
                    )
-  @json_library Ueberauth.json_library()
 
   test "simple request phase" do
     conn = conn(:get, "/auth/simple")
@@ -258,7 +257,7 @@ defmodule UeberauthTest do
 
     assert "/oauth/simple-provider/callback?" <> query_string = location
 
-    assert URI.decode_query(query_string)["state"] |> @json_library.decode!() == %{
+    assert URI.decode_query(query_string)["state"] |> Ueberauth.json_library().decode!() == %{
              "data" => %{"custom" => "data"}
            }
   end
@@ -345,7 +344,8 @@ defmodule UeberauthTest do
         id: "foo",
         code: code,
         state:
-          %{csrf: conn.private[:ueberauth_anti_csrf_token_state_param]} |> @json_library.encode!()
+          %{csrf: conn.private[:ueberauth_anti_csrf_token_state_param]}
+          |> Ueberauth.json_library().encode!()
       )
       |> Map.put(:cookies, conn.cookies)
       |> Map.put(:req_cookies, conn.req_cookies)
