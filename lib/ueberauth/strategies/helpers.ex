@@ -189,9 +189,11 @@ defmodule Ueberauth.Strategy.Helpers do
   """
   @spec get_state_param(Plug.Conn.t()) :: any() | nil
   def get_state_param(conn) do
-    case Ueberauth.json_library().decode(conn.query_params["state"]) do
-      {:ok, %{"data" => data}} -> data
-      _else -> nil
+    with state when not is_nil(state) <- conn.query_params["state"],
+         {:ok, %{"data" => data}} <- Ueberauth.json_library().decode(state) do
+      data
+    else
+      _ -> nil
     end
   end
 

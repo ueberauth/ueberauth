@@ -244,24 +244,6 @@ defmodule UeberauthTest do
     assert location === "/oauth/simple-provider/callback?code=foo"
   end
 
-  test "run_request with custom state data" do
-    conn =
-      conn(:get, "/oauth/simple-provider/", id: "foo")
-      |> put_private(:ueberauth_state_param, %{custom: "data"})
-      |> Ueberauth.run_request(
-        "simple-provider",
-        {Support.SimpleProviderWithState, [callback_path: "/oauth/simple-provider/callback"]}
-      )
-
-    location = conn |> Plug.Conn.get_resp_header("location") |> List.first()
-
-    assert "/oauth/simple-provider/callback?" <> query_string = location
-
-    assert URI.decode_query(query_string)["state"] |> Ueberauth.json_library().decode!() == %{
-             "data" => %{"custom" => "data"}
-           }
-  end
-
   test "run_request with a state param by default" do
     conn =
       conn(:get, "/oauth/simple-provider/", id: "foo")
@@ -297,6 +279,59 @@ defmodule UeberauthTest do
       )
 
     assert conn.private[:ueberauth_anti_csrf_token_state_param] == nil
+  end
+
+  describe "custom state data" do
+    test "run_request with custom state data" do
+      conn =
+        conn(:get, "/oauth/simple-provider/", id: "foo")
+        |> Ueberauth.Strategy.Helpers.add_state_param(%{custom: "data"})
+        |> Ueberauth.run_request(
+          "simple-provider",
+          {Support.SimpleProviderWithState, [callback_path: "/oauth/simple-provider/callback"]}
+        )
+
+      location = conn |> Plug.Conn.get_resp_header("location") |> List.first()
+
+      assert "/oauth/simple-provider/callback?" <> query_string = location
+
+      assert URI.decode_query(query_string)["state"] |> Ueberauth.json_library().decode!() == %{
+               "data" => %{"custom" => "data"}
+             }
+    end
+
+    test "run_callback with custom state data" do
+      state =
+        %{
+          "data" => %{"custom" => "data"}
+        }
+        |> Ueberauth.json_library().encode!()
+        |> URI.encode()
+
+      conn =
+        conn(:get, "/oauth/simple-provider/callback?state=#{state}", id: "foo")
+        |> Plug.Conn.fetch_query_params()
+        |> Plug.Session.call(@session_options)
+        |> Ueberauth.run_callback(
+          "simple-provider",
+          {Support.SimpleProviderWithState, []}
+        )
+
+      assert %{"custom" => "data"} = Ueberauth.Strategy.Helpers.get_state_param(conn)
+    end
+
+    test "run_callback without custom state data" do
+      conn =
+        conn(:get, "/oauth/simple-provider/callback", id: "foo")
+        |> Plug.Conn.fetch_query_params()
+        |> Plug.Session.call(@session_options)
+        |> Ueberauth.run_callback(
+          "simple-provider",
+          {Support.SimpleProviderWithState, []}
+        )
+
+      refute Ueberauth.Strategy.Helpers.get_state_param(conn)
+    end
   end
 
   test "run_callback" do
