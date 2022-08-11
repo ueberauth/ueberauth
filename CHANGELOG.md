@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.2 - 2022-08-11
+
+- Replace `:csrf_attack` with `"csrf_attack"` so it matches the type specs in `Ueberauth.Failure.Error` [#169](https://github.com/ueberauth/ueberauth/pull/169)
+
 ## 0.10.1 - 2022-07-05
 
 - Fix callback URL not mounted right when router has nested paths [#166](https://github.com/ueberauth/ueberauth/pull/166)

@@ -303,7 +303,7 @@ defmodule UeberauthTest do
       )
 
     assert conn.assigns.ueberauth_failure != nil
-    assert List.first(conn.assigns.ueberauth_failure.errors).message_key == :csrf_attack
+    assert List.first(conn.assigns.ueberauth_failure.errors).message_key == "csrf_attack"
   end
 
   test "make ensure run_callback properly clean the internal state param in cookie" do
