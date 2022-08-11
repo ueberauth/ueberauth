@@ -360,7 +360,7 @@ defmodule Ueberauth.Strategy do
   defp add_state_mismatch_error(conn, strategy) do
     conn
     |> Helpers.set_errors!([
-      %Error{message_key: :csrf_attack, message: "Cross-Site Request Forgery attack"}
+      %Error{message_key: "csrf_attack", message: "Cross-Site Request Forgery attack"}
     ])
     |> run_handle_cleanup(strategy)
   end
