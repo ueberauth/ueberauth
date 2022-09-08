@@ -18,15 +18,10 @@ defmodule Ueberauth.Strategy.Apple do
   @impl Ueberauth.Strategy
   @spec handle_request!(Plug.Conn.t()) :: Plug.Conn.t()
   def handle_request!(conn) do
-    scopes = conn.params["scope"] || option(conn, :default_scope)
-
     params =
-      [scope: scopes]
-      |> with_optional(:prompt, conn)
-      |> with_optional(:access_type, conn)
-      |> with_optional(:response_mode, conn)
-      |> with_param(:access_type, conn)
-      |> with_param(:prompt, conn)
+      [response_type: "code id_token"]
+      |> with_scopes_and_response_mode(conn)
+      |> with_param(:nonce, conn)
       |> with_state_param(conn)
 
     opts = oauth_client_options_from_conn(conn)
@@ -153,6 +148,23 @@ defmodule Ueberauth.Strategy.Apple do
   #
   # Configuration Helpers
   #
+
+  # From Apple documentation:
+  #
+  # response_mode
+  #   The type of response mode expected. Valid values are query, fragment, and form_post. If you
+  #   requested any scopes, the value must be form_post.
+  #
+  defp with_scopes_and_response_mode(opts, conn) do
+    scopes = conn.params["scope"] || option(conn, :default_scope)
+    opts = Keyword.put(opts, :scope, scopes)
+
+    if scopes != "" do
+      Keyword.put(opts, :response_mode, "form_post")
+    else
+      with_optional(opts, :response_mode, conn)
+    end
+  end
 
   defp with_param(opts, key, conn) do
     if value = conn.params[to_string(key)], do: Keyword.put(opts, key, value), else: opts
