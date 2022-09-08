@@ -27,7 +27,7 @@ defmodule Ueberauth.Strategy.Apple do
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
       |> with_param(:response_mode, conn)
-      |> with_param(:state, conn)
+      |> with_state_param(conn)
 
     opts = oauth_client_options_from_conn(conn)
     redirect!(conn, Ueberauth.Strategy.Apple.OAuth.authorize_url!(params, opts))
