@@ -37,8 +37,13 @@ defmodule Ueberauth.Strategy.Apple do
 
     case Ueberauth.Strategy.Apple.OAuth.get_access_token([code: code], opts) do
       {:ok, token} ->
+        %{"email" => user_email, "sub" => user_uid} =
+          UeberauthApple.id_token_payload(token.other_params["id_token"])
+
         apple_user =
-          Map.put(user, "uid", UeberauthApple.uid_from_id_token(token.other_params["id_token"]))
+          user
+          |> Map.put("uid", user_uid)
+          |> Map.put("email", user_email)
 
         conn
         |> put_private(:apple_token, token)
