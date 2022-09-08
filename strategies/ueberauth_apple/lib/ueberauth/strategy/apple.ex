@@ -1,17 +1,22 @@
 defmodule Ueberauth.Strategy.Apple do
   @moduledoc """
-  Google Strategy for Überauth.
+  Implementation of an Ueberauth Strategy for "Sign In with Apple".
   """
-
   use Ueberauth.Strategy, uid_field: :uid, default_scope: "name email"
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
 
+  #
+  # Request Phase
+  #
+
   @doc """
   Handles initial request for Apple authentication.
   """
+  @impl Ueberauth.Strategy
+  @spec handle_request!(Plug.Conn.t()) :: Plug.Conn.t()
   def handle_request!(conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
 
@@ -28,9 +33,15 @@ defmodule Ueberauth.Strategy.Apple do
     redirect!(conn, Ueberauth.Strategy.Apple.OAuth.authorize_url!(params, opts))
   end
 
+  #
+  # Callback Phase
+  #
+
   @doc """
   Handles the callback from Apple.
   """
+  @impl Ueberauth.Strategy
+  @spec handle_callback!(Plug.Conn.t()) :: Plug.Conn.t()
   def handle_callback!(%Plug.Conn{params: %{"code" => code} = params} = conn) do
     user = (params["user"] && Ueberauth.json_library().decode!(params["user"])) || %{}
     opts = oauth_client_options_from_conn(conn)
@@ -54,17 +65,21 @@ defmodule Ueberauth.Strategy.Apple do
     end
   end
 
-  @doc false
   def handle_callback!(%Plug.Conn{params: %{"error" => error}} = conn) do
     set_errors!(conn, [error("auth_failed", error)])
   end
 
-  @doc false
   def handle_callback!(conn) do
     set_errors!(conn, [error("missing_code", "No code received")])
   end
 
+  #
+  # Other Callbacks
+  #
+
   @doc false
+  @impl Ueberauth.Strategy
+  @spec handle_cleanup!(Plug.Conn.t()) :: Plug.Conn.t()
   def handle_cleanup!(conn) do
     conn
     |> put_private(:apple_user, nil)
@@ -74,6 +89,8 @@ defmodule Ueberauth.Strategy.Apple do
   @doc """
   Fetches the uid field from the response.
   """
+  @impl Ueberauth.Strategy
+  @spec uid(Plug.Conn.t()) :: binary | nil
   def uid(conn) do
     uid_field =
       conn
@@ -86,6 +103,8 @@ defmodule Ueberauth.Strategy.Apple do
   @doc """
   Includes the credentials from the Apple response.
   """
+  @impl Ueberauth.Strategy
+  @spec credentials(Plug.Conn.t()) :: Ueberauth.Auth.Credentials.t()
   def credentials(conn) do
     token = conn.private.apple_token
     scope_string = token.other_params["scope"] || ""
@@ -104,6 +123,8 @@ defmodule Ueberauth.Strategy.Apple do
   @doc """
   Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
   """
+  @impl Ueberauth.Strategy
+  @spec info(Plug.Conn.t()) :: Ueberauth.Auth.Info.t()
   def info(conn) do
     user = conn.private.apple_user
     name = user["name"]
@@ -118,6 +139,8 @@ defmodule Ueberauth.Strategy.Apple do
   @doc """
   Stores the raw information (including the token) obtained from the google callback.
   """
+  @impl Ueberauth.Strategy
+  @spec extra(Plug.Conn.t()) :: Ueberauth.Auth.Extra.t()
   def extra(conn) do
     %Extra{
       raw_info: %{
@@ -126,6 +149,10 @@ defmodule Ueberauth.Strategy.Apple do
       }
     }
   end
+
+  #
+  # Configuration Helpers
+  #
 
   defp with_param(opts, key, conn) do
     if value = conn.params[to_string(key)], do: Keyword.put(opts, key, value), else: opts
