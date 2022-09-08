@@ -53,23 +53,17 @@ defmodule Ueberauth.Strategy.Apple do
   """
   @impl Ueberauth.Strategy
   @spec handle_callback!(Plug.Conn.t()) :: Plug.Conn.t()
-  def handle_callback!(%Plug.Conn{params: %{"code" => code} = params} = conn) do
-    user = (params["user"] && Ueberauth.json_library().decode!(params["user"])) || %{}
+  def handle_callback!(%Plug.Conn{params: %{"code" => code, "id_token" => token} = params} = conn) do
+    %{"email" => email, "sub" => uid} = UeberauthApple.id_token_payload(token)
+
+    user = Map.merge(extract_user(params), %{"email" => email, "uid" => uid})
     opts = oauth_client_options_from_conn(conn)
 
-    case Ueberauth.Strategy.Apple.OAuth.get_access_token([code: code], opts) do
+    case Ueberauth.Strategy.Apple.OAuth.get_access_token([code: code], opts) |> IO.inspect() do
       {:ok, token} ->
-        %{"email" => user_email, "sub" => user_uid} =
-          UeberauthApple.id_token_payload(token.other_params["id_token"])
-
-        apple_user =
-          user
-          |> Map.put("uid", user_uid)
-          |> Map.put("email", user_email)
-
         conn
         |> put_private(:apple_token, token)
-        |> put_private(:apple_user, apple_user)
+        |> put_private(:apple_user, user)
 
       {:error, {error_code, error_description}} ->
         set_errors!(conn, [error(error_code, error_description)])
@@ -83,6 +77,11 @@ defmodule Ueberauth.Strategy.Apple do
   def handle_callback!(conn) do
     set_errors!(conn, [error("missing_code", "No code received")])
   end
+
+  # Only the first login callback has user information; subsequent callbacks do not.
+  @spec extract_user(map) :: map
+  defp extract_user(%{"user" => user}), do: Ueberauth.json_library().decode!(user)
+  defp extract_user(_params), do: %{}
 
   #
   # Other Callbacks
