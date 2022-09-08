@@ -25,7 +25,23 @@ defmodule Ueberauth.Strategy.Apple do
       |> with_state_param(conn)
 
     opts = oauth_client_options_from_conn(conn)
-    redirect!(conn, Ueberauth.Strategy.Apple.OAuth.authorize_url!(params, opts))
+
+    conn
+    |> modify_state_cookie(params)
+    |> redirect!(Ueberauth.Strategy.Apple.OAuth.authorize_url!(params, opts))
+  end
+
+  # If the response_mode is "form_post", then the state cookie must use SameSite=None and Secure;
+  @spec modify_state_cookie(Plug.Conn.t(), keyword) :: Plug.Conn.t()
+  defp modify_state_cookie(conn, params) do
+    if Keyword.get(params, :response_mode) == "form_post" do
+      state_cookie = conn.resp_cookies["ueberauth.state_param"]
+      modified_cookie = Map.merge(state_cookie, %{same_site: "None", secure: true})
+
+      %{conn | resp_cookies: Map.put(conn.resp_cookies, "ueberauth.state_param", modified_cookie)}
+    else
+      conn
+    end
   end
 
   #
