@@ -6,7 +6,7 @@ defmodule Ueberauth.Strategy.Apple.OAuth do
 
   config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
     client_id: System.get_env("APPLE_CLIENT_ID"),
-    client_secreat: System.get_env("APPLE_CLIENT_SECRET")
+    client_secret: System.get_env("APPLE_CLIENT_SECRET")
   """
   use OAuth2.Strategy
 
@@ -44,28 +44,24 @@ defmodule Ueberauth.Strategy.Apple.OAuth do
   """
   def authorize_url!(params \\ [], opts \\ []) do
     opts
-    |> client
+    |> client()
     |> OAuth2.Client.authorize_url!(params)
   end
 
   def get(token, url, headers \\ [], opts \\ []) do
     [token: token]
-    |> client
+    |> client()
     |> put_param("client_secret", client().client_secret)
     |> OAuth2.Client.get(url, headers, opts)
   end
 
   def get_access_token(params \\ [], opts \\ []) do
-    case opts |> client |> OAuth2.Client.get_token(params) do
-      {:error, %{body: %{"error" => error}}} ->
-        {:error, {error, "error requesting token"}}
-
-      {:ok, %{token: %{access_token: nil} = token}} ->
-        %{"error" => error} = token.other_params
-        {:error, {error, "no access token"}}
-
+    case opts |> client() |> OAuth2.Client.get_token(params) do
       {:ok, %{token: token}} ->
         {:ok, token}
+
+      {:error, %{body: %{"error" => error}}} ->
+        {:error, {error, "error requesting token"}}
     end
   end
 

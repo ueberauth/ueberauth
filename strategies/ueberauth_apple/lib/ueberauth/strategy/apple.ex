@@ -1,8 +1,27 @@
 defmodule Ueberauth.Strategy.Apple do
   @moduledoc """
   Implementation of an Ueberauth Strategy for "Sign In with Apple".
+
+  ## Configuration
+
+  This provider supports the following configuration:
+
+    * **Callback URL**: (Required) The URI to which the authorization redirects. It must include a
+      domain name and can’t be an IP address or localhost. Apple will check the provided URL against
+      the domains and redirect URIs configured in your Service ID. Defaults to
+      `[...]/auth/:provider/callback` according to the configured provider name.
+
+    * **Response mode**: How response information will be sent back to the server during the
+      callback phase.. Valid values are `"query"`, `"fragment"`, and `"form_post"`. If you requested
+      any scopes, the value must be `form_post`. Defaults to `"query"` if no scopes are requested,
+      `"form_post"` otherwise.
+
+    * **Scopes**: The amount of user information requested from Apple. Valid values are `name` and
+      `email`, with multiple values separated by spaces. You can request one, both, or none.
+      Defaults to no scopes (`""`).
+
   """
-  use Ueberauth.Strategy, uid_field: :uid, default_scope: "name email"
+  use Ueberauth.Strategy, uid_field: :uid, default_scope: ""
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
