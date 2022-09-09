@@ -38,7 +38,15 @@ defmodule UeberauthApple.Mixfile do
   end
 
   defp docs do
-    [extras: ["README.md", "CONTRIBUTING.md"]]
+    [
+      main: "readme",
+      extras: [
+        "README.md": [title: "Overview"],
+        "guides/getting-started.md": [title: "Getting Started"],
+        "CONTRIBUTING.md": [title: "Contributing"],
+        LICENSE: [title: "License"]
+      ]
+    ]
   end
 
   defp description do

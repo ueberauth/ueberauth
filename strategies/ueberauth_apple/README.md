@@ -1,148 +1,94 @@
 # Überauth Apple
 
-> Apple OAuth2 strategy for Überauth.
+Überauth plugin for Apple OAuth / _Sign In with Apple_
 
-## Installation
+## What is this?
 
-1. Setup your application at [Apple Developer Console](https://developer.apple.com).
+[Ueberauth](https://github.com/ueberauth/ueberauth) is an authentication framework for Elixir applications that specializes in [OAuth](https://oauth.net/).
+This library is one of many [plugins](https://github.com/ueberauth/ueberauth/wiki/List-of-Strategies) (called Strategies) that allow Ueberauth to integrate with different identity providers.
+Specifically, this one implements an OAuth integration with Apple, for their _Sign In with Apple_ service.
 
-2. Add `:ueberauth_apple` to your list of dependencies in `mix.exs`:
+## Important Notes
 
-    ```elixir
-    def deps do
-      [{:ueberauth_apple, "~> 0.4"}]
-    end
-    ```
+Apple's OAuth implementation is different than you may expect.
+Please keep the following in mind:
 
-3. Add the strategy to your applications:
+* There are only two scopes available, `name` and `email`, for retrieving personal information about the user signing in.
+  Neither scope provides access to any API endpoints; instead they change the data returned during the sign-in process.
 
-    ```elixir
-    def application do
-      [applications: [:ueberauth_apple]]
-    end
-    ```
+* If any scopes are requested during sign-in, the response from Apple **must** be in the form of a form POST request to your application.
+  Otherwise, a GET request with query parameters will occur.
+  Accepting POST callbacks require additional setup with Ueberauth that may not be necessary for other providers.
 
-4. Add Apple to your Überauth configuration:
+* Because scoped requests must use a form POST request, any cookies that will be read during the callback phase **must** have `SameSite=None` (and, therefore, `Secure`).
+  Otherwise the browser will block them from being sent along with the POST because it is not a top-level navigation.
 
-    ```elixir
-    config :ueberauth, Ueberauth,
-      providers: [
-        apple: {Ueberauth.Strategy.Apple, []}
-      ]
-    ```
+* Apple requires a **Primary App ID** (with the _Sign In with Apple_ capability enabled), **Services ID**, and **Private Key** to be set up in their [Apple Developer Console](https://developer.apple.com/account) before integration can occur.
 
-5.  Update your provider configuration:
+* Apple OAuth Client Secrets are generated from a Private Key and have a maximum lifetime of six months.
 
-    Option 1 - Generate secret manually:
+* Users may choose not to share their information with your application, in which case an anonymized private relay email address will be supplied during the callback phase.
 
-    If you don't have the client secret, generate the client secret:
+* Apple does not supply the user's name in callback responses after the first time.
 
-    ```elixir
-    UeberauthApple.generate_client_secret(%{
-      client_id: "com.example.service",
-      key_id: "10digitkey",
-      team_id: "teamid",
-      private_key: "-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-      })
-    ```
+## Quick Start
 
-    Use that if you want to read client ID/secret from the environment
-    variables in the compile time:
+For detailed instructions, see [Getting Started](guides/getting-started.md).
 
-    ```elixir
-    config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
-      client_id: System.get_env("APPLE_CLIENT_ID"),
-      client_secret: System.get_env("APPLE_CLIENT_SECRET")
-    ```
+1. Set up a Services ID and download a Private Key in the [Apple Developer Console](https://developer.apple.com/account).
+  See [Getting Started](guides/getting-started.md) or the [official documentation](https://developer.apple.com/sign-in-with-apple/get-started/) for more information
 
-    Option 2 - Generate secret programmatically:
+2. Add `:ueberauth_apple` to your list of dependencies in `mix.exs` and run `mix deps.get`:
 
-    ```elixir
-    config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
-      client_id: System.get_env("APPLE_CLIENT_ID"),
-      client_secret: {YourApp.SomeModule, :secret_function}
-    ```
+  ```elixir
+  def deps do
+    [
+      # ...
+      {:ueberauth, "~> 0.10"},
+      {:ueberauth_apple, github: "codesandbox/ueberauth_apple"}
+    ]
+  end
+  ```
 
-    And implement the function to generate the secret, once you generate the secret, store it in Redis so the secret does not generate every time.
+3. Add this library as a new provider for Ueberauth (see [Getting Started](guides/getting-started.md#provider-configuration) for more information on the available options):
 
-    ```elixir
-    function secret_function(ueberauth_config) do
-      secret = get_secret_from_redis()
-      if secret do
-        secret
-      else
-        secret = UeberauthApple.generate_client_secret(%{
-          client_id: opts[:client_id],
-          key_id: Application.get_env(:naboo, Naboo.Auth.Apple)[:key_id],
-          team_id: Application.get_env(:naboo, Naboo.Auth.Apple)[:team_id],
-          private_key: Application.get_env(:naboo, Naboo.Auth.Apple)[:private_key]
-        })
-        set_secret_to_redis(secret)
-        secret
-      end
-    end
-    ```
+  ```elixir
+  config :ueberauth, Ueberauth,
+    providers: [
+      # Default configuration: does not retrieve name or email address during sign-in.
+      apple: {Ueberauth.Strategy.Apple, []}
 
-6.  Include the Überauth plug in your controller:
+      # Alternative configuration: retrieve name and email during sign-in.
+      apple: {Ueberauth.Strategy.Apple, callback_methods: ["POST"], default_scope: "name email"}
+    ]
+  ```
 
-    ```elixir
-    defmodule MyApp.AuthController do
-      use MyApp.Web, :controller
-      plug Ueberauth
-      ...
-    end
-    ```
+4. Configure the provider (see [Getting Started](guides/getting-started.md#oauth-configuration) for more information on generating client secrets):
 
-7.  Create the request and callback routes if you haven't already:
+  ```elixir
+  config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
+    client_id: System.get_env("APPLE_CLIENT_ID"),
+    client_secret: {MyApp.Apple, :client_secret}
+  ```
 
-    ```elixir
-    scope "/auth", MyApp do
-      pipe_through :browser
+5. Create a Client Secret generator function.
+  (Apple's Client Secrets are generated from a Private Key and have a maximum life of six months.)
 
-      get "/:provider", AuthController, :request
-      get "/:provider/callback", AuthController, :callback
-    end
-    ```
+6. Integrate Ueberauth with the rest of your application (usually: router and controller).
+  See [Getting Started](guides/getting-started.md#plug-integration) or the [Ueberauth Example](https://github.com/ueberauth/ueberauth_example) application.
 
-8. Your controller needs to implement callbacks to deal with `Ueberauth.Auth` and `Ueberauth.Failure` responses.
+## Usage
 
-For an example implementation see the [Überauth Example](https://github.com/ueberauth/ueberauth_example) application.
-
-## Calling
-
-Since Apple only supports form post, you need to create a Sign-in button:
-
-```html
-<html>
-    <head>
-    </head>
-    <body>
-        <script type="text/javascript" src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>
-        <div id="appleid-signin" data-color="black" data-border="true" data-type="sign in"></div>
-        <script type="text/javascript">
-            AppleID.auth.init({
-                clientId : '<%= Application.get_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth)[:client_id] %>',
-                scope : 'email name',
-                redirectURI : '<%= Routes.auth_url(@conn, :callback, "apple") %>',
-                state : '[STATE]',
-                usePopup : true //or false defaults to false
-            });
-        </script>
-    </body>
-</html>
-```
-
-Scope can be configured either explicitly as a `scope` query value on the request path or in your configuration:
-
-```elixir
-config :ueberauth, Ueberauth,
-  providers: [
-    apple: {Ueberauth.Strategy.Apple, [default_scope: "name email", callback_methods: ["POST"]]}
-  ]
-```
+Making a request to `/auth/apple` will redirect to the Apple sign-in page with the relevant query parameters.
+You can include a `scope` query param to configure the scopes at runtime: `/auth/apple?scope=name%20email`.
+The default scopes can also be configured in the provider definition.
 
 To guard against client-side request modification, it's important to still check the domain in `info.urls[:website]` within the `Ueberauth.Auth` struct if you want to limit sign-in to a specific domain.
 
+## Acknowledgments
+
+Thank you to [Loop Social](https://github.com/loopsocial/) for the original implementation of this library.
+
 ## License
 
-Please see [LICENSE](https://github.com/loopsocial/ueberauth_apple/blob/master/LICENSE) for licensing details.
+Please see [LICENSE](LICENSE) for licensing details.
