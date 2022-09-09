@@ -191,10 +191,9 @@ defmodule Ueberauth.Strategy.Apple do
   #
   defp with_scopes_and_response_mode(opts, conn) do
     scopes = conn.params["scope"] || option(conn, :default_scope)
-    opts = Keyword.put(opts, :scope, scopes)
 
     if scopes != "" do
-      Keyword.put(opts, :response_mode, "form_post")
+      Keyword.merge(opts, response_mode: "form_post", scope: scopes)
     else
       with_optional(opts, :response_mode, conn)
     end
