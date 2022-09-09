@@ -26,6 +26,8 @@ defmodule Ueberauth.Strategy.Apple do
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
   alias Ueberauth.Auth.Extra
+  alias Ueberauth.Strategy.Apple.OAuth
+  alias Ueberauth.Strategy.Apple.Token
 
   #
   # Request Phase
@@ -47,7 +49,7 @@ defmodule Ueberauth.Strategy.Apple do
 
     conn
     |> modify_state_cookie(params)
-    |> redirect!(Ueberauth.Strategy.Apple.OAuth.authorize_url!(params, opts))
+    |> redirect!(OAuth.authorize_url!(params, opts))
   end
 
   # If the response_mode is "form_post", then the state cookie must use SameSite=None and Secure;
@@ -73,19 +75,21 @@ defmodule Ueberauth.Strategy.Apple do
   @impl Ueberauth.Strategy
   @spec handle_callback!(Plug.Conn.t()) :: Plug.Conn.t()
   def handle_callback!(%Plug.Conn{params: %{"code" => code, "id_token" => token} = params} = conn) do
-    %{"email" => email, "sub" => uid} = UeberauthApple.id_token_payload(token)
-
-    user = Map.merge(extract_user(params), %{"email" => email, "uid" => uid})
     opts = oauth_client_options_from_conn(conn)
+    token_opts = with_optional([], :private_key, conn)
 
-    case Ueberauth.Strategy.Apple.OAuth.get_access_token([code: code], opts) do
-      {:ok, token} ->
-        conn
-        |> put_private(:apple_token, token)
-        |> put_private(:apple_user, user)
-
+    with {:ok, %{"email" => email, "sub" => uid}} <- Token.payload(token, token_opts),
+         user <- Map.merge(extract_user(params), %{"email" => email, "uid" => uid}),
+         {:ok, token} <- OAuth.get_access_token([code: code], opts) do
+      conn
+      |> put_private(:apple_token, token)
+      |> put_private(:apple_user, user)
+    else
       {:error, {error_code, error_description}} ->
         set_errors!(conn, [error(error_code, error_description)])
+
+      {:error, reason} ->
+        set_errors!(conn, [error(to_string(reason), "Error while reading authentication token")])
     end
   end
 
