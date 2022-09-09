@@ -76,7 +76,7 @@ defmodule Ueberauth.Strategy.Apple do
   @spec handle_callback!(Plug.Conn.t()) :: Plug.Conn.t()
   def handle_callback!(%Plug.Conn{params: %{"code" => code, "id_token" => token} = params} = conn) do
     opts = oauth_client_options_from_conn(conn)
-    token_opts = with_optional([], :private_key, conn)
+    token_opts = with_optional([], :public_keys, conn)
 
     with {:ok, %{"email" => email, "sub" => uid}} <- Token.payload(token, token_opts),
          user <- Map.merge(extract_user(params), %{"email" => email, "uid" => uid}),

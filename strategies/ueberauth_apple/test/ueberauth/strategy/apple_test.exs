@@ -133,7 +133,8 @@ defmodule Ueberauth.Strategy.AppleTest do
           options: [
             callback_url: "https://my-app.example.com/auth/apple/callback",
             default_scope: "name email",
-            callback_methods: ["POST"]
+            callback_methods: ["POST"],
+            public_keys: {UeberauthApple.Keys, :public_keys, []}
           ],
           request_path: "/auth/apple",
           request_port: nil,
@@ -142,13 +143,36 @@ defmodule Ueberauth.Strategy.AppleTest do
           strategy_name: :apple
         })
 
-      %{conn: conn}
+      jwk = UeberauthApple.Keys.private_key()
+
+      token =
+        JOSE.JWT.sign(jwk, %{"alg" => "RS256", "kid" => "key-abc123"}, %{
+          "aud" => "com.example.my-app",
+          "email" => "email-abc123@privaterelay.appleid.com",
+          "email_verified" => "true",
+          "exp" => 1_662_834_127,
+          "iat" => 1_662_747_727,
+          "is_private_email" => "true",
+          "iss" => "https://appleid.apple.com",
+          "nonce_supported" => true,
+          "sub" => "uid-abc123"
+        })
+        |> JOSE.JWS.compact()
+        |> elem(1)
+
+      %{conn: conn, token: token}
     end
 
     test "handles an error response", %{conn: conn} do
       conn = %{conn | params: %{"error" => "some error"}}
       conn = Apple.handle_callback!(conn)
       assert conn.assigns[:ueberauth_failure]
+    end
+
+    test "does stuff", %{conn: conn, token: token} do
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+      # ...
     end
   end
 end

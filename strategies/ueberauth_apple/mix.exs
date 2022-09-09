@@ -11,6 +11,7 @@ defmodule UeberauthApple.Mixfile do
       name: "Ueberauth Apple Strategy",
       package: package(),
       elixir: "~> 1.6",
+      elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       source_url: @url,
@@ -52,6 +53,9 @@ defmodule UeberauthApple.Mixfile do
   defp description do
     "An Uberauth strategy for Apple authentication."
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp package do
     [
