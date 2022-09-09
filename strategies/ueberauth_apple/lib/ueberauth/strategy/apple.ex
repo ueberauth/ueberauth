@@ -78,7 +78,7 @@ defmodule Ueberauth.Strategy.Apple do
     user = Map.merge(extract_user(params), %{"email" => email, "uid" => uid})
     opts = oauth_client_options_from_conn(conn)
 
-    case Ueberauth.Strategy.Apple.OAuth.get_access_token([code: code], opts) |> IO.inspect() do
+    case Ueberauth.Strategy.Apple.OAuth.get_access_token([code: code], opts) do
       {:ok, token} ->
         conn
         |> put_private(:apple_token, token)
