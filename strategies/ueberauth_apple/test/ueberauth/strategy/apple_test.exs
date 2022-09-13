@@ -1,8 +1,31 @@
 defmodule Ueberauth.Strategy.AppleTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   use Plug.Test
+  import Mock
 
   alias Ueberauth.Strategy.Apple
+
+  setup_with_mocks([
+    {OAuth2.Client, [:passthrough],
+     [
+       get_token: fn _client, _params ->
+         {:ok,
+          %OAuth2.Client{
+            token: %OAuth2.AccessToken{
+              access_token: "access-abc123",
+              expires_at: 1_662_751_328,
+              other_params: %{
+                "id_token" => "token-abc123"
+              },
+              refresh_token: "refresh-abc123",
+              token_type: "Bearer"
+            }
+          }}
+       end
+     ]}
+  ]) do
+    %{}
+  end
 
   describe "handle_request!/1" do
     setup do
@@ -169,10 +192,74 @@ defmodule Ueberauth.Strategy.AppleTest do
       assert conn.assigns[:ueberauth_failure]
     end
 
-    test "does stuff", %{conn: conn, token: token} do
+    test "retrieves Apple user and token", %{conn: conn, token: token} do
       conn = %{conn | params: %{conn.params | "id_token" => token}}
       conn = Apple.handle_callback!(conn)
-      # ...
+      assert %OAuth2.AccessToken{access_token: "access-abc123"} = conn.private[:apple_token]
+
+      assert conn.private[:apple_user] == %{
+               "email" => "email-abc123@privaterelay.appleid.com",
+               "uid" => "uid-abc123"
+             }
+    end
+  end
+
+  describe "cleanup" do
+    setup do
+      conn =
+        conn(:post, "/auth/apple/callback", %{
+          "code" => "code-abc123",
+          "id_token" => "token-abc123",
+          "state" => "state-abc123"
+        })
+        |> put_private(:ueberauth_request_options, %{
+          callback_methods: ["POST"],
+          callback_params: nil,
+          callback_path: "/auth/apple/callback",
+          callback_port: nil,
+          callback_scheme: nil,
+          callback_url: "https://my-app.example.com/auth/apple/callback",
+          options: [
+            callback_url: "https://my-app.example.com/auth/apple/callback",
+            default_scope: "name email",
+            callback_methods: ["POST"],
+            public_keys: {UeberauthApple.Keys, :public_keys, []}
+          ],
+          request_path: "/auth/apple",
+          request_port: nil,
+          request_scheme: nil,
+          strategy: Ueberauth.Strategy.Apple,
+          strategy_name: :apple
+        })
+        |> put_private(:apple_token, %OAuth2.AccessToken{
+          access_token: "access-abc123",
+          expires_at: 1_662_751_328,
+          other_params: %{"id_token" => "token-abc123"},
+          refresh_token: "refresh-abc123",
+          token_type: "Bearer"
+        })
+        |> put_private(:apple_user, %{
+          "email" => "email-abc123@privaterelay.appleid.com",
+          "uid" => "uid-abc123"
+        })
+
+      %{conn: conn}
+    end
+
+    test "collects UID, credentials, and info", %{conn: conn} do
+      assert Apple.uid(conn) == "uid-abc123"
+
+      assert %Ueberauth.Auth.Credentials{
+               expires: true,
+               expires_at: 1_662_751_328,
+               scopes: ["name", "email"],
+               token_type: "Bearer",
+               refresh_token: "refresh-abc123",
+               token: "access-abc123"
+             } = Apple.credentials(conn)
+
+      assert %Ueberauth.Auth.Info{email: "email-abc123@privaterelay.appleid.com"} =
+               Apple.info(conn)
     end
   end
 end
