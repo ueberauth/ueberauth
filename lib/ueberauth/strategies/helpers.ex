@@ -149,7 +149,7 @@ defmodule Ueberauth.Strategy.Helpers do
   Note this changes the conn object and should be part of your returned
   connection of the `callback_phase!`.
   """
-  @spec error(Plug.Conn.t(), list(Error.t())) :: Plug.Conn.t()
+  @spec set_errors!(Plug.Conn.t(), list(Error.t())) :: Plug.Conn.t()
   def set_errors!(conn, errors) do
     failure =
       struct(
