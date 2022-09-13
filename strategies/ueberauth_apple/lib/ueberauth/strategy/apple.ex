@@ -140,8 +140,8 @@ defmodule Ueberauth.Strategy.Apple do
   @spec credentials(Plug.Conn.t()) :: Ueberauth.Auth.Credentials.t()
   def credentials(conn) do
     token = conn.private.apple_token
-    scope_string = token.other_params["scope"] || ""
-    scopes = String.split(scope_string, ",")
+    scope_string = conn.params["scope"] || option(conn, :default_scope)
+    scopes = String.split(scope_string, " ")
 
     %Credentials{
       expires: !!token.expires_at,
