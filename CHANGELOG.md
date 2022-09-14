@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.3 - 2022-09-13
+
+- Fix `@spec` for `Ueberauth.Strategy.Helpers.set_errors!/2`
+
 ## 0.10.2 - 2022-08-11
 
 - Replace `:csrf_attack` with `"csrf_attack"` so it matches the type specs in `Ueberauth.Failure.Error` [#169](https://github.com/ueberauth/ueberauth/pull/169)
