@@ -2,6 +2,10 @@
 
 ## (Unreleased)
 
+## v0.10.2
+
+* Prefer Local Over Global Configuration [95](https://github.com/ueberauth/ueberauth_google/pull/95)
+
 ## v0.10.1
 
 * Misc doc changes [81](https://github.com/ueberauth/ueberauth_google/pull/81)
