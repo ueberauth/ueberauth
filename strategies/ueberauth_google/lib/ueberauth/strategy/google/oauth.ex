@@ -27,7 +27,7 @@ defmodule Ueberauth.Strategy.Google.OAuth do
   """
   def client(opts \\ []) do
     config = Application.get_env(:ueberauth, __MODULE__, [])
-    opts = @defaults |> Keyword.merge(opts) |> Keyword.merge(config) |> resolve_values()
+    opts = @defaults |> Keyword.merge(config) |> Keyword.merge(opts) |> resolve_values()
     json_library = Ueberauth.json_library()
 
     OAuth2.Client.new(opts)
