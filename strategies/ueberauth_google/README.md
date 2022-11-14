@@ -1,5 +1,6 @@
 # Überauth Google
 
+[![Continuous Integration](https://github.com/ueberauth/ueberauth_google/actions/workflows/ci.yml/badge.svg)](https://github.com/ueberauth/ueberauth_google/actions/workflows/ci.yml)
 [![Build Status](https://travis-ci.org/ueberauth/ueberauth_google.svg?branch=master)](https://travis-ci.org/ueberauth/ueberauth_google)
 [![Module Version](https://img.shields.io/hexpm/v/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_google/)
