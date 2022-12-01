@@ -265,7 +265,7 @@ defmodule Ueberauth.Strategy.Github do
         set_errors!(conn, [error("OAuth2", reason)])
 
       {:error, _} ->
-        set_errors!(conn, [error("OAuth2", "uknown error")])
+        set_errors!(conn, [error("OAuth2", "unknown error")])
     end
   end
 
