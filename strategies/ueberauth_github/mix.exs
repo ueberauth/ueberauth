@@ -2,7 +2,7 @@ defmodule Ueberauth.Github.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ueberauth/ueberauth_github"
-  @version "0.8.1"
+  @version "0.8.2"
 
   def project do
     [
@@ -27,7 +27,7 @@ defmodule Ueberauth.Github.Mixfile do
   defp deps do
     [
       {:oauth2, "~> 1.0 or ~> 2.0"},
-      {:ueberauth, "~> 0.7.0"},
+      {:ueberauth, "~> 0.7"},
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
     ]
