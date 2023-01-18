@@ -191,6 +191,20 @@ defmodule UeberauthTest do
              "http://changelog.com/auth/provider/callback"
   end
 
+  test "callback_url uses forwarded host with custom port" do
+    conn = %{
+      (conn(:get, "/")
+       |> put_req_header("x-forwarded-host", "changelog.com:8088"))
+      | scheme: :http,
+        port: 80
+    }
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://changelog.com:8088/auth/provider/callback"
+  end
+
   test "callback_url has custom scheme" do
     conn = %{
       conn(:get, "/")
@@ -213,6 +227,24 @@ defmodule UeberauthTest do
       conn(:get, "/")
       | scheme: :http,
         port: 80
+    }
+
+    conn =
+      put_private(conn, :ueberauth_request_options,
+        callback_path: "/auth/provider/callback",
+        callback_port: 4000
+      )
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://www.example.com:4000/auth/provider/callback"
+  end
+
+  test "callback_url uses custom port even when forwarded hosts conflicts" do
+    conn = %{
+      (conn(:get, "/")
+       |> put_req_header("x-forwarded-host", "www.example.com:8088"))
+      | scheme: :http,
+        port: 8088
     }
 
     conn =
