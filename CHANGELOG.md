@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.4 - 2023-01-19
+
+- Fix `port` being duplicate when behind reverse proxy and non-standard port [#103](https://github.com/ueberauth/ueberauth/pull/175)
+
 ## 0.10.3 - 2022-09-13
 
 - Fix `@spec` for `Ueberauth.Strategy.Helpers.set_errors!/2`

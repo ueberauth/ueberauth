@@ -214,11 +214,12 @@ defmodule Ueberauth.Strategy.Helpers do
         true -> to_string(conn.scheme)
       end
 
-    port = Keyword.get(opts, :port) || normalize_port(scheme, conn.port)
+    host = get_forwarded_host_header(conn) || conn.host
+    [host, port] = if String.contains?(host, ":"), do: String.split(host, ":"), else: [host, nil]
+
+    port = Keyword.get(opts, :port) || normalize_port(scheme, port || conn.port)
 
     path = Keyword.fetch!(opts, :path)
-
-    host = get_forwarded_host_header(conn) || conn.host
 
     query =
       opts
@@ -248,7 +249,8 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   defp normalize_port("https", 80), do: 443
-  defp normalize_port(_, port), do: port
+  defp normalize_port(_, port) when is_integer(port), do: port
+  defp normalize_port(_, port), do: String.to_integer(port)
 
   defp encode_query([]), do: nil
   defp encode_query(query_params), do: URI.encode_query(query_params)
