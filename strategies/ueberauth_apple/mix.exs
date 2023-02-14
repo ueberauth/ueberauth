@@ -1,7 +1,7 @@
 defmodule UeberauthApple.Mixfile do
   use Mix.Project
 
-  @version "0.5.0"
+  @version "0.6.0"
   @url "https://github.com/codesandbox/ueberauth_apple"
 
   def project do
@@ -31,7 +31,7 @@ defmodule UeberauthApple.Mixfile do
       {:credo, "~> 1.6", only: [:dev, :test]},
       {:earmark, ">= 0.0.0", only: :dev},
       {:ex_doc, "~> 0.3", only: :dev},
-      {:httpoison, "~> 1.0"},
+      {:httpoison, "~> 1.0 or ~> 2.0"},
       {:jose, "~> 1.0"},
       {:mock, "~> 0.3.0", only: :test},
       {:oauth2, "~> 2.0"},
@@ -61,7 +61,7 @@ defmodule UeberauthApple.Mixfile do
   defp package do
     [
       files: ["lib", "mix.exs", "README.md", "LICENSE"],
-      maintainers: ["Jerry Luk"],
+      maintainers: ["AJ Foster"],
       licenses: ["MIT"],
       links: %{GitHub: @url}
     ]
