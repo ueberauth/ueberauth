@@ -52,7 +52,7 @@ defmodule UeberauthApple.Mixfile do
   end
 
   defp description do
-    "An Uberauth strategy for Apple authentication."
+    "An Ueberauth strategy for Apple authentication."
   end
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
