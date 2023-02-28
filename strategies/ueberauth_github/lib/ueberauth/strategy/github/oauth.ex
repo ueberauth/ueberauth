@@ -16,7 +16,8 @@ defmodule Ueberauth.Strategy.Github.OAuth do
     strategy: __MODULE__,
     site: "https://api.github.com",
     authorize_url: "https://github.com/login/oauth/authorize",
-    token_url: "https://github.com/login/oauth/access_token"
+    token_url: "https://github.com/login/oauth/access_token",
+    headers: [{"user-agent", "ueberauth-github"}]
   ]
 
   @doc """
