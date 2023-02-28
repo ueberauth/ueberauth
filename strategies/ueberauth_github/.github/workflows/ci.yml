@@ -14,5 +14,6 @@ jobs:
     with:
       elixir-version: '1.14'
       otp-version: '24.3'
+      version-type: 'strict'
       credo-enabled: false
       dialyzer-enabled: false

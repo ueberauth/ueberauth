@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v8.8.2
+
+* add user agent header [#76](https://github.com/ueberauth/ueberauth_github/pull/76)
+* Update version in README [#70](https://github.com/ueberauth/ueberauth_github/pull/70)
+* Fix typos [#72](https://github.com/ueberauth/ueberauth_github/pull/72)
+* Relax version constraint on ueberauth [#71](https://github.com/ueberauth/ueberauth_github/pull/71)
+
 ## v0.8.1
 
 * Adds the ability to read GitHub client credentials at runtime, rather than only at compile time.
