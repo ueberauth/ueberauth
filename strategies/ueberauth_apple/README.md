@@ -1,6 +1,10 @@
-# Überauth Apple
+# Ueberauth Apple
 
-Überauth plugin for Apple OAuth / _Sign In with Apple_
+[![Hex.pm](https://img.shields.io/hexpm/v/ueberauth_apple)](https://hex.pm/packages/ueberauth_apple)
+[![Documentation](https://img.shields.io/badge/hex-docs-blue)](https://hexdocs.pm/ueberauth_apple)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
+Ueberauth plugin for Apple OAuth / _Sign In with Apple_
 
 ## What is this?
 
@@ -45,7 +49,7 @@ For detailed instructions, see [Getting Started](guides/getting-started.md).
     [
       # ...
       {:ueberauth, "~> 0.10"},
-      {:ueberauth_apple, github: "codesandbox/ueberauth_apple"}
+      {:ueberauth_apple, "~> 0.6.0"}
     ]
   end
   ```

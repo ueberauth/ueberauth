@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## v0.6.0
+## v0.6.0 (2023-02-28)
 
 **Note**: This project has new maintainers.
 `v0.6.0` is a significant release.
@@ -31,7 +31,14 @@ The following releases were created by the project's [previous maintainers](http
 
 ## v0.5.0
 
+Note: this version was not released to Hex.pm.
+
+* **Add**: JSON serializer for compatibility with OAuth 2.0.
+* **Add**: `response_mode` param, which is required to be `form_post` when requesting scopes.
+
 ## v0.4.0
+
+* **Add**: Get user object from callback response.
 
 ## v0.3.0
 

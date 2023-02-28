@@ -90,7 +90,7 @@ def deps do
   [
     # ...
     {:ueberauth, "~> 0.10"},
-    {:ueberauth_apple, github: "codesandbox/ueberauth_apple"},
+    {:ueberauth_apple, "~> 0.6.0"},
   ]
 end
 ```
