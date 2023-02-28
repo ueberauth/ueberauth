@@ -12,8 +12,8 @@ jobs:
   qa:
     uses: straw-hat-team/github-actions-workflows/.github/workflows/elixir-quality-assurance.yml@v1.6.3
     with:
-      elixir-version: '1.14'
-      otp-version: '24.3'
+      elixir-version: '1.14.2'
+      otp-version: '25.2'
       version-type: 'strict'
       credo-enabled: false
       dialyzer-enabled: false
