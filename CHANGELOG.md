@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.5 - 2023-03-09
+
+- Fix default port selection when none is specified on the host header [#181](https://github.com/ueberauth/ueberauth/pull/181)
+
 ## 0.10.4 - 2023-01-19
 
 - Fix `port` being duplicate when behind reverse proxy and non-standard port [#103](https://github.com/ueberauth/ueberauth/pull/175)

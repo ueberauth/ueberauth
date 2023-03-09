@@ -191,6 +191,48 @@ defmodule UeberauthTest do
              "http://changelog.com/auth/provider/callback"
   end
 
+  test "callback_url defaults to port 443 for https scheme" do
+    conn = %{
+      conn(:get, "/")
+      | scheme: :https,
+        host: "changelog.com",
+        port: 80
+    }
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "https://changelog.com/auth/provider/callback"
+  end
+
+  test "callback_url defaults to port 80 for http scheme" do
+    conn = %{
+      conn(:get, "/")
+      | scheme: :http,
+        host: "changelog.com",
+        port: 200
+    }
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://changelog.com/auth/provider/callback"
+  end
+
+  test "callback_url uses host port when specified" do
+    conn = %{
+      conn(:get, "/")
+      | scheme: :http,
+        host: "changelog.com:3333",
+        port: 200
+    }
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://changelog.com:3333/auth/provider/callback"
+  end
+
   test "callback_url uses forwarded host with custom port" do
     conn = %{
       (conn(:get, "/")

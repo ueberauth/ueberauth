@@ -213,10 +213,11 @@ defmodule Ueberauth.Strategy.Helpers do
         true -> to_string(conn.scheme)
       end
 
-    host = get_forwarded_host_header(conn) || conn.host
+    host = get_host_header(conn) || conn.host
+
     [host, port] = if String.contains?(host, ":"), do: String.split(host, ":"), else: [host, nil]
 
-    port = Keyword.get(opts, :port) || normalize_port(scheme, port || conn.port)
+    port = Keyword.get(opts, :port) || normalize_port(scheme, port)
 
     path = Keyword.fetch!(opts, :path)
 
@@ -241,14 +242,18 @@ defmodule Ueberauth.Strategy.Helpers do
     |> List.first()
   end
 
-  defp get_forwarded_host_header(conn) do
-    conn
-    |> get_req_header("x-forwarded-host")
-    |> List.first()
+  defp get_host_header(conn) do
+    case get_req_header(conn, "x-forwarded-host") do
+      [] ->
+        get_req_header(conn, "host")
+        |> List.first()
+
+      [host | _] ->
+        host
+    end
   end
 
-  defp normalize_port("https", 80), do: 443
-  defp normalize_port(_, port) when is_integer(port), do: port
+  defp normalize_port(scheme, nil), do: URI.default_port(scheme)
   defp normalize_port(_, port), do: String.to_integer(port)
 
   defp encode_query([]), do: nil
