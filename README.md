@@ -84,7 +84,7 @@ Looking for an example? Take a look [ueberauth/ueberauth_example](https://github
 
 defp deps do
   # Add the dependency
-  [{:ueberauth, "~> 0.7"}]
+  [{:ueberauth, "~> 0.10"}]
 end
 ```
 
