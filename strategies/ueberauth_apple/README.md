@@ -93,6 +93,8 @@ To guard against client-side request modification, it's important to still check
 
 Thank you to [Loop Social](https://github.com/loopsocial/) for the original implementation of this library.
 
+Thank you to [CodeSandbox](https://github.com/codesandbox/) for updates and maintenance of this library.
+
 ## License
 
 Please see [LICENSE](LICENSE) for licensing details.

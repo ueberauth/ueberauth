@@ -32,16 +32,15 @@ If you're interested in doing something specific, here are some guidelines:
 
 ### Security Issues
 
-If you find a security-related issue with this project, please refrain from opening a public issue and instead [email the maintainer](mailto:support@codesandbox.io).
-Please include the name of the package in the subject line.
+If you find a security-related issue with this project, please refrain from opening a public issue and instead [create a private security report](https://github.com/ueberauth/ueberauth_apple/security).
 
 ### Bugs and Blockers
 
-Please use [GitHub Issues](https://github.com/codesandbox/ueberauth_apple/issues) to report reproducible bugs.
+Please use [GitHub Issues](https://github.com/ueberauth/ueberauth_apple/issues) to report reproducible bugs.
 
 ### Feature Requests and Ideas
 
-Please use [GitHub Discussions](https://github.com/codesandbox/ueberauth_apple/discussions) to share requests and ideas for improvements to the library.
+Please use [GitHub Discussions](https://github.com/ueberauth/ueberauth_apple/discussions) to share requests and ideas for improvements to the library.
 
 ### Implementing Changes
 

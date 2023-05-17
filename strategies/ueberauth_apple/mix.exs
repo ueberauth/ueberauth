@@ -2,7 +2,7 @@ defmodule UeberauthApple.Mixfile do
   use Mix.Project
 
   @version "0.6.0"
-  @url "https://github.com/codesandbox/ueberauth_apple"
+  @url "https://github.com/ueberauth/ueberauth_apple"
 
   def project do
     [
