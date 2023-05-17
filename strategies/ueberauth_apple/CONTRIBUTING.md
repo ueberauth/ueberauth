@@ -45,3 +45,20 @@ Please use [GitHub Discussions](https://github.com/ueberauth/ueberauth_apple/dis
 ### Implementing Changes
 
 If you've decided to take on the implementation of a new feature or fix, please open an issue or create a discussion post first to get feedback.
+
+## Releases
+
+For maintainers, the process of releasing this package to [Hex.pm](https://hex.pm/packages/ueberauth_apple) centers around git tags.
+To make a new release:
+
+1. Update the Changelog with a new header that has today's date and the new version.
+  Include any missing notes from changes since the last release, and any additional upgrade instructions users may need.
+2. Update the `@version` number in `mix.exs`.
+  The form should be `X.Y.Z`, with optional suffixes, but no leading `v`.
+3. Update the **Quick Start** installation instructions in `README.md` to have the newest non-suffixed version number.
+4. Update the **Installation** instructions in `guides/getting-started.md` to have the newest non-suffixed version number.
+5. Commit the above changes with a generic commit message, such as `Release X.Y.Z`.
+6. Tag the commit as `X.Y.Z`, with optional suffixes, but no leading `v`.
+7. Push the commits and tag (for example, `git push origin main --tags`).
+8. Observe the GitHub Action titled **Release**.
+  This action automatically publishes the package to Hex.pm.
