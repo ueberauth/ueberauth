@@ -175,7 +175,7 @@ defmodule Ueberauth.Strategy.Github do
       name: user["name"],
       description: user["bio"],
       nickname: user["login"],
-      email: fetch_email!(user, allow_private_emails),
+      email: maybe_fetch_email(user, allow_private_emails),
       location: user["location"],
       image: user["avatar_url"],
       urls: %{
@@ -220,19 +220,23 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   defp fetch_email!(user, allow_private_emails) do
-    user["email"] ||
-      get_primary_email!(user) ||
-      get_private_email!(user, allow_private_emails) ||
+    maybe_fetch_email(user, allow_private_emails) ||
       raise "Unable to access the user's email address"
   end
 
-  defp get_primary_email!(user) do
+  defp maybe_fetch_email(user, allow_private_emails) do
+    user["email"] ||
+      maybe_get_primary_email(user) ||
+      maybe_get_private_email(user, allow_private_emails)
+  end
+
+  defp maybe_get_primary_email(user) do
     if user["emails"] && Enum.count(user["emails"]) > 0 do
       Enum.find(user["emails"], & &1["primary"])["email"]
     end
   end
 
-  defp get_private_email!(user, allow_private_emails) do
+  defp maybe_get_private_email(user, allow_private_emails) do
     if allow_private_emails do
       "#{user["id"]}+#{user["login"]}@users.noreply.github.com"
     end

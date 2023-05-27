@@ -87,10 +87,12 @@ Or with options:
 
     /auth/github?scope=user,public_repo
 
-By default the requested scope is "user,public\_repo". This provides both read
+By default the requested scope is `"user,public\_repo"`. This provides both read
 and write access to the GitHub user profile details and public repos. For a
-read-only scope, either use "user:email" or an empty scope "". See more at
-[GitHub's OAuth Documentation](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/about-scopes-for-oauth-apps/).
+read-only scope, either use `"user:email"` or an empty scope `""`. Empty scope
+will only request minimum public information which even excludes user's email address
+which results in a `nil` for `email` inside returned `%Ueberauth.Auth.Info{}`.
+See more at [GitHub's OAuth Documentation](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/about-scopes-for-oauth-apps/).
 
 Scope can be configured either explicitly as a `scope` query value on the
 request path or in your configuration:
