@@ -78,8 +78,8 @@ defmodule Ueberauth.Strategy.Apple do
     opts = oauth_client_options_from_conn(conn)
     token_opts = with_optional([], :public_keys, conn)
 
-    with {:ok, %{"email" => email, "sub" => uid}} <- Token.payload(token, token_opts),
-         user <- Map.merge(extract_user(params), %{"email" => email, "uid" => uid}),
+    with {:ok, token_payload} <- Token.payload(token, token_opts),
+         user <- Map.merge(extract_user(params), extract_email_and_uid(token_payload)),
          {:ok, token} <- OAuth.get_access_token([code: code], opts) do
       conn
       |> put_private(:apple_token, token)
@@ -105,6 +105,11 @@ defmodule Ueberauth.Strategy.Apple do
   @spec extract_user(map) :: map
   defp extract_user(%{"user" => user}), do: Ueberauth.json_library().decode!(user)
   defp extract_user(_params), do: %{}
+
+  # Apple does not always send the email address
+  @spec extract_email_and_uid(map) :: map
+  defp extract_email_and_uid(%{"email" => e, "sub" => uid}), do: %{"email" => e, "uid" => uid}
+  defp extract_email_and_uid(%{"sub" => uid}), do: %{"uid" => uid}
 
   #
   # Other Callbacks
