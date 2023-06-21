@@ -46,6 +46,7 @@ defmodule UeberauthApple.Mixfile do
         "README.md": [title: "Overview"],
         "guides/getting-started.md": [title: "Getting Started"],
         "CONTRIBUTING.md": [title: "Contributing"],
+        "CODE_OF_CONDUCT.md": [title: "Code of Conduct"],
         LICENSE: [title: "License"]
       ]
     ]
