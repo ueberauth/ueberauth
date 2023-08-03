@@ -42,6 +42,9 @@ defmodule Ueberauth.Strategy.GoogleTest do
   def oauth2_get_token(_client, code: "error_response"),
     do: {:error, %OAuth2.Response{body: %{"error" => "some error", "error_description" => "something went wrong"}}}
 
+  def oauth2_get_token(_client, code: "error_response_no_description"),
+    do: {:error, %OAuth2.Response{body: %{"error" => "internal_failure"}}}
+
   def oauth2_get(%{token: %{access_token: "success_token"}}, _url, _, _),
     do: response(%{"sub" => "1234_fred", "name" => "Fred Jones", "email" => "fred_jones@example.com"})
 
@@ -177,6 +180,22 @@ defmodule Ueberauth.Strategy.GoogleTest do
 
       assert %Ueberauth.Failure{
                errors: [%Ueberauth.Failure.Error{message: "something went wrong", message_key: "some error"}]
+             } = failure
+    end
+
+    test "handle_callback! handles error response without error_description", %{
+      csrf_state: csrf_state,
+      csrf_conn: csrf_conn
+    } do
+      conn =
+        conn(:get, "/auth/google/callback", %{code: "error_response_no_description", state: csrf_state})
+        |> set_csrf_cookies(csrf_conn)
+
+      routes = Ueberauth.init([])
+      assert %Plug.Conn{assigns: %{ueberauth_failure: failure}} = Ueberauth.call(conn, routes)
+
+      assert %Ueberauth.Failure{
+               errors: [%Ueberauth.Failure.Error{message: "", message_key: "internal_failure"}]
              } = failure
     end
   end

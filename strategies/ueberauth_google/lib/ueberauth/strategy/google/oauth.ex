@@ -52,7 +52,8 @@ defmodule Ueberauth.Strategy.Google.OAuth do
 
   def get_access_token(params \\ [], opts \\ []) do
     case opts |> client |> OAuth2.Client.get_token(params) do
-      {:error, %OAuth2.Response{body: %{"error" => error, "error_description" => description}}} ->
+      {:error, %OAuth2.Response{body: %{"error" => error}} = response} ->
+        description = Map.get(response.body, "error_description", "")
         {:error, {error, description}}
 
       {:error, %OAuth2.Error{reason: reason}} ->
