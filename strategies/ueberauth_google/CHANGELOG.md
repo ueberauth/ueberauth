@@ -2,6 +2,8 @@
 
 ## (Unreleased)
 
+## v0.10.3
+
 - Handle `%OAuth2.Response{status_code: 503}` with no `error_description` in `get_access_token` [99](https://github.com/ueberauth/ueberauth_google/pull/99)
 
 ## v0.10.2
