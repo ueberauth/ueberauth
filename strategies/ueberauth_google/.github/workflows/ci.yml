@@ -8,7 +8,7 @@ on:
       - 'master'
 jobs:
   Test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -28,13 +28,13 @@ jobs:
         run: mix test
 
   Linting:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Set up Elixir
-        uses: erlef/setup-elixir@v1
+        uses: erlef/setup-beam@v1
         with:
           elixir-version: '1.11'
           otp-version: '22.3'
