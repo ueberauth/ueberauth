@@ -169,6 +169,15 @@ defmodule UeberauthTest do
              "https://www.example.com/auth/provider/callback"
   end
 
+  test "callback_url non-standard port" do
+    conn = %{conn(:get, "/") | scheme: :https, port: 5555}
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+    conn = %{conn | params: %{}}
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "https://www.example.com:5555/auth/provider/callback"
+  end
+
   test "callback_url forwarded protocol" do
     conn = %{
       (conn(:get, "/")

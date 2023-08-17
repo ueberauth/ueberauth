@@ -215,7 +215,10 @@ defmodule Ueberauth.Strategy.Helpers do
 
     host = get_host_header(conn) || conn.host
 
-    [host, port] = if String.contains?(host, ":"), do: String.split(host, ":"), else: [host, nil]
+    [host, port] =
+      if String.contains?(host, ":"),
+        do: String.split(host, ":"),
+        else: [host, to_string(conn.port)]
 
     port = Keyword.get(opts, :port) || normalize_port(scheme, port)
 
