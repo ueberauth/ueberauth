@@ -2,9 +2,13 @@
 
 ## (Unreleased)
 
+## v0.11.0
+
+* Allow using a function to generate the client secret [101](https://github.com/ueberauth/ueberauth_google/pull/101)
+
 ## v0.10.3
 
-- Handle `%OAuth2.Response{status_code: 503}` with no `error_description` in `get_access_token` [99](https://github.com/ueberauth/ueberauth_google/pull/99)
+* Handle `%OAuth2.Response{status_code: 503}` with no `error_description` in `get_access_token` [99](https://github.com/ueberauth/ueberauth_google/pull/99)
 
 ## v0.10.2
 
