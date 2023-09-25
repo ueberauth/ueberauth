@@ -68,7 +68,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
   end
 
   test "handle_request! redirects to appropriate auth uri" do
-    conn = conn(:get, "/auth/google", %{})
+    conn = conn(:get, "/auth/google", %{hl: "es"})
     # Make sure the hd and scope params are included for good measure
     routes = Ueberauth.init() |> set_options(conn, hd: "example.com", default_scope: "email openid")
 
@@ -86,7 +86,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
              "redirect_uri" => "http://www.example.com/auth/google/callback",
              "response_type" => "code",
              "scope" => "email openid",
-             "hd" => "example.com"
+             "hd" => "example.com",
+             "hl" => "es"
            } = Plug.Conn.Query.decode(redirect_uri.query)
   end
 

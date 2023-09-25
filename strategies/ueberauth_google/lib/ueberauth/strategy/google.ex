@@ -29,6 +29,7 @@ defmodule Ueberauth.Strategy.Google do
       |> with_param(:access_type, conn)
       |> with_param(:prompt, conn)
       |> with_param(:login_hint, conn)
+      |> with_param(:hl, conn)
       |> with_state_param(conn)
 
     opts = oauth_client_options_from_conn(conn)

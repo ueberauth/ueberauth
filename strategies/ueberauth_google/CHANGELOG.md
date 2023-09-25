@@ -2,6 +2,10 @@
 
 ## (Unreleased)
 
+## v0.12.0
+
+* Add support to hl param in handle_request! [102](https://github.com/ueberauth/ueberauth_google/pull/102)
+
 ## v0.11.0
 
 * Allow using a function to generate the client secret [101](https://github.com/ueberauth/ueberauth_google/pull/101)
