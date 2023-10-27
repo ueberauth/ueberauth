@@ -21,7 +21,7 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   The strategy module that is being used for the request.
   """
-  @spec strategy(Plug.Conn.t()) :: module | nil
+  @spec strategy(Plug.Conn.t()) :: module
   def strategy(conn), do: from_private(conn, :strategy)
 
   @doc """
