@@ -82,7 +82,7 @@ defmodule Ueberauth.Strategy.Google do
   def credentials(conn) do
     token = conn.private.google_token
     scope_string = token.other_params["scope"] || ""
-    scopes = String.split(scope_string, ",")
+    scopes = String.split(scope_string, " ")
 
     %Credentials{
       expires: !!token.expires_at,
