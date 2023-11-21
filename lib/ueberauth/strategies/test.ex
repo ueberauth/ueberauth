@@ -12,9 +12,12 @@ defmodule Ueberauth.Strategy.Test do
     alias Ueberauth.Auth.Extra
     alias Ueberauth.Auth.Info
 
-    @enforce_keys [ :uid]
-    defstruct @enforce_keys ++ [extra: %Extra{}, info: %Info{}, credentials: %Credentials{}]
+    @enforce_keys [:uid]
+    defstruct @enforce_keys ++
+                [extra: %Extra{}, info: %Info{}, credentials: %Credentials{}, errors: []]
   end
+
+  alias Ueberauth.Strategy.Helpers
 
   @testing_user :ueberauth_testing_user
   @testing_redirect :ueberauth_testing_redirect
@@ -36,7 +39,11 @@ defmodule Ueberauth.Strategy.Test do
 
   @impl Ueberauth.Strategy
   def handle_callback!(conn) do
-    conn
+    errors = fetch_suplement(conn, :errors)
+    case errors do
+      [] -> conn
+      errors -> Helpers.set_errors!(conn, errors)
+    end
   end
 
   @impl Ueberauth.Strategy
