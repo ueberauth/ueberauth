@@ -1,4 +1,27 @@
 defmodule Ueberauth.Strategy.Test do
+  @moduledoc """
+  This strategy allows testing your callback controller code.
+
+  The of this strategy is to be placed in configuration in test.exs file:
+  ```
+  config :ueberauth, Ueberauth,
+    providers: [{:test, {Ueberauth.Strategy.Test, []}}]
+  ```
+
+  Then in your test you need to set what user data should be set.
+  Please refer to `Ueberauth.Auth.Info`, `Ueberauth.Auth.Credentials` and `Ueberauth.Auth.Extra`.
+  ```
+  test "GET /auth/google/callback", %{conn: conn} do
+    user = %Strategy.Test.UserData{
+      uid: UUID.generate()
+    }
+    conn = Strategy.Test.put_testing_user(conn, user)
+    conn = get(conn, "/auth/google/callback")
+    assert conn.status == 302
+    assert get_flash(conn) == %{"info" => "Successfully authenticated."}
+  end
+  ```
+  """
   use Ueberauth.Strategy,
     uid_field: :sub,
     default_scope: "email",
