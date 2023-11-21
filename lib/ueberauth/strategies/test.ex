@@ -2,12 +2,18 @@ defmodule Ueberauth.Strategy.Test do
   use Ueberauth.Strategy,
     uid_field: :sub,
     default_scope: "email",
-    hd: nil
+    hd: nil,
+    ignores_csrf_attack: true
 
   defmodule UserData do
     @moduledoc false
-    @enforce_keys [:info, :credentials, :uid]
-    defstruct @enforce_keys ++ [extra: %Ueberauth.Auth.Extra{}]
+
+    alias Ueberauth.Auth.Credentials
+    alias Ueberauth.Auth.Extra
+    alias Ueberauth.Auth.Info
+
+    @enforce_keys [ :uid]
+    defstruct @enforce_keys ++ [extra: %Extra{}, info: %Info{}, credentials: %Credentials{}]
   end
 
   @testing_user :ueberauth_testing_user
