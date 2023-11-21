@@ -63,6 +63,7 @@ defmodule Ueberauth.Strategy.Test do
   @impl Ueberauth.Strategy
   def handle_callback!(conn) do
     errors = fetch_suplement(conn, :errors)
+
     case errors do
       [] -> conn
       errors -> Helpers.set_errors!(conn, errors)
@@ -91,6 +92,10 @@ defmodule Ueberauth.Strategy.Test do
 
   def put_testing_user(conn, user) do
     put_private(conn, @testing_user, user)
+  end
+
+  def put_testing_url(conn, url) do
+    put_private(conn, @testing_redirect, url)
   end
 
   defp fetch_suplement(conn, suplement) do
