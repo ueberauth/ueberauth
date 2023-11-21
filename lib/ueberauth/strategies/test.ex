@@ -34,10 +34,19 @@ defmodule Ueberauth.Strategy.Test do
     alias Ueberauth.Auth.Credentials
     alias Ueberauth.Auth.Extra
     alias Ueberauth.Auth.Info
+    alias Ueberauth.Failure.Error
 
     @enforce_keys [:uid]
     defstruct @enforce_keys ++
                 [extra: %Extra{}, info: %Info{}, credentials: %Credentials{}, errors: []]
+
+    @type t :: %__MODULE__{
+      uid: binary(),
+      extra: Extra.t(),
+      info: Info.t(),
+      credentials: Credentials.t(),
+      errors: [Error.t()]
+    }
   end
 
   alias Ueberauth.Strategy.Helpers
@@ -90,10 +99,12 @@ defmodule Ueberauth.Strategy.Test do
     fetch_suplement(conn, :info)
   end
 
+  @spec put_testing_user(Plug.Conn.t(), UserData.t()) :: Plug.Conn.t()
   def put_testing_user(conn, user) do
     put_private(conn, @testing_user, user)
   end
 
+  @spec put_testing_url(Plug.Conn.t(), String.t()) :: Plug.Conn.t()
   def put_testing_url(conn, url) do
     put_private(conn, @testing_redirect, url)
   end
