@@ -41,12 +41,12 @@ defmodule Ueberauth.Strategy.Test do
                 [extra: %Extra{}, info: %Info{}, credentials: %Credentials{}, errors: []]
 
     @type t :: %__MODULE__{
-      uid: binary(),
-      extra: Extra.t(),
-      info: Info.t(),
-      credentials: Credentials.t(),
-      errors: [Error.t()]
-    }
+            uid: binary(),
+            extra: Extra.t(),
+            info: Info.t(),
+            credentials: Credentials.t(),
+            errors: [Error.t()]
+          }
   end
 
   alias Ueberauth.Strategy.Helpers
