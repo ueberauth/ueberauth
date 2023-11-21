@@ -186,6 +186,33 @@ providers: [
 ]
 ```
 
+## Authentication controller testing
+If you wish to test the request phase, you can set
+the URL returned by using `Ueberauth.Strategy.Test.put_testing_url/2`.
+Then the provided value be used for redirects.
+
+If you wish to test the callback, first and foremost,
+configure the testing strategy for desired providers
+in the configuration in test.exs file:
+```
+config :ueberauth, Ueberauth,
+  providers: [{:test, {Ueberauth.Strategy.Test, []}}]
+```
+
+Then in your test you need to set what user data should be set.
+Please refer to `Ueberauth.Auth.Info`, `Ueberauth.Auth.Credentials` and `Ueberauth.Auth.Extra`.
+```
+test "GET /auth/google/callback", %{conn: conn} do
+  user = %Strategy.Test.UserData{
+    uid: UUID.generate()
+  }
+  conn = Strategy.Test.put_testing_user(conn, user)
+  conn = get(conn, "/auth/google/callback")
+  assert conn.status == 302
+  assert get_flash(conn) == %{"info" => "Successfully authenticated."}
+end
+```
+
 ## Strategy Options
 
 All options that are passed into your strategy are available at runtime to
