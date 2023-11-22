@@ -286,8 +286,15 @@ defmodule Ueberauth do
     route_key = {normalize_route_path(route_path), conn.method}
 
     case List.keyfind(routes, route_key, 0) do
-      {_, route_mfa} -> run(conn, route_mfa)
-      _ -> conn
+      {_, route_mfa} ->
+        run(conn, route_mfa)
+
+      _ ->
+        conn
+        |> Ueberauth.Strategy.Helpers.set_errors!([
+          Ueberauth.Strategy.Helpers.error("unknown_provider", "Provider #{route_key} not found")
+        ])
+        |> Plug.Conn.put_status(404)
     end
   end
 
@@ -336,10 +343,14 @@ defmodule Ueberauth do
       end
   """
   def run_callback(conn, provider_name, {provider, provider_options}, options \\ []) do
+    IO.inspect(provider_name, label: "Provider name")
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
     base_path = get_base_path(environment, options)
 
-    to_options = build_strategy_options(base_path, {provider_name, {provider, provider_options}})
+    to_options =
+      build_strategy_options(base_path, {provider_name, {provider, provider_options}})
+      |> IO.inspect(label: "Strategy options")
+
     run(conn, {provider, :run_callback, to_options})
   end
 
