@@ -214,6 +214,16 @@ defmodule Ueberauth do
 
   alias Ueberauth.Strategy
 
+  defmodule NoProviderError do
+    defexception [:message]
+
+    @impl true
+    def exception(provider) do
+      msg = "Provider #{provider} was not found"
+      %NoProviderError{message: msg}
+    end
+  end
+
   @doc """
   Fetch a successful auth from the `Plug.Conn`.
 
@@ -290,11 +300,7 @@ defmodule Ueberauth do
         run(conn, route_mfa)
 
       _ ->
-        conn
-        |> Ueberauth.Strategy.Helpers.set_errors!([
-          Ueberauth.Strategy.Helpers.error("unknown_provider", "Provider #{route_key} not found")
-        ])
-        |> Plug.Conn.put_status(404)
+        raise NoProviderError, route_path
     end
   end
 
@@ -490,4 +496,9 @@ defmodule Ueberauth do
     |> Keyword.get(:callback_methods, ["GET"])
     |> Enum.map(&String.upcase(to_string(&1)))
   end
+end
+
+defimpl Plug.Exception, for: Ueberauth.NoProviderError do
+  def status(_exception), do: 404
+  def actions(_exception), do: []
 end
