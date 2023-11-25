@@ -349,13 +349,10 @@ defmodule Ueberauth do
       end
   """
   def run_callback(conn, provider_name, {provider, provider_options}, options \\ []) do
-    IO.inspect(provider_name, label: "Provider name")
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
     base_path = get_base_path(environment, options)
 
-    to_options =
-      build_strategy_options(base_path, {provider_name, {provider, provider_options}})
-      |> IO.inspect(label: "Strategy options")
+    to_options = build_strategy_options(base_path, {provider_name, {provider, provider_options}})
 
     run(conn, {provider, :run_callback, to_options})
   end
@@ -496,9 +493,4 @@ defmodule Ueberauth do
     |> Keyword.get(:callback_methods, ["GET"])
     |> Enum.map(&String.upcase(to_string(&1)))
   end
-end
-
-defimpl Plug.Exception, for: Ueberauth.NoProviderError do
-  def status(_exception), do: 404
-  def actions(_exception), do: []
 end
