@@ -214,6 +214,16 @@ defmodule Ueberauth do
 
   alias Ueberauth.Strategy
 
+  defmodule NoProviderError do
+    defexception [:message]
+
+    @impl true
+    def exception(provider) do
+      msg = "Provider #{provider} was not found"
+      %NoProviderError{message: msg}
+    end
+  end
+
   @doc """
   Fetch a successful auth from the `Plug.Conn`.
 
@@ -286,8 +296,11 @@ defmodule Ueberauth do
     route_key = {normalize_route_path(route_path), conn.method}
 
     case List.keyfind(routes, route_key, 0) do
-      {_, route_mfa} -> run(conn, route_mfa)
-      _ -> conn
+      {_, route_mfa} ->
+        run(conn, route_mfa)
+
+      _ ->
+        raise NoProviderError, route_path
     end
   end
 
@@ -340,6 +353,7 @@ defmodule Ueberauth do
     base_path = get_base_path(environment, options)
 
     to_options = build_strategy_options(base_path, {provider_name, {provider, provider_options}})
+
     run(conn, {provider, :run_callback, to_options})
   end
 

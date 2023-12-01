@@ -150,6 +150,18 @@ our Facebook & GitHub example)
 /auth/github/callback
 ```
 
+If none of the providers is matched an `Ueberauth.NoProviderError` exception
+is raised. It can be handled in appropriate error handler definition in Plug
+or in Error view in Phoenix. You can add following `Plug.Exception`
+implementation to set the status code.
+
+```elixir 
+defimpl Plug.Exception, for: Ueberauth.NoProviderError do
+  def status(_exception), do: 404
+  def actions(_exception), do: []
+end
+```
+
 ## Customizing Paths
 
 These paths can be configured on a per strategy basis by setting options on
