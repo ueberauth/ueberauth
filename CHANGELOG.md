@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.6 - 2023-11-30
+
+- Fix `500` being returned when no provider route is found. Now raises an error that can be acted upon. [#193](https://github.com/ueberauth/ueberauth/pull/193)
+
 ## 0.10.5 - 2023-03-09
 
 - Fix default port selection when none is specified on the host header [#181](https://github.com/ueberauth/ueberauth/pull/181)
