@@ -137,21 +137,11 @@ defmodule UeberauthTest do
     assert second.message == "error two"
   end
 
-  test "raises an Ueberauth.NoProviderError exception when no provider is found" do
-    assert_raise Ueberauth.NoProviderError, fn ->
-      conn = conn(:get, "/auth/none_provider/callback") |> SpecRouter.call(@opts)
-      assert conn.status == 500
-    end
-  end
-
   test "setting the callback http method" do
-    assert_raise Ueberauth.NoProviderError, fn ->
-      conn = conn(:get, "/auth/post_callback/callback") |> SpecRouter.call(@opts)
-      # The default behaviour on exceptions is 500
-      assert conn.status == 500
-      assert conn.assigns[:ueberauth_failure] == nil
-      assert conn.assigns[:ueberauth_auth] != nil
-    end
+    conn = conn(:get, "/auth/post_callback/callback") |> SpecRouter.call(@opts)
+    assert conn.status == 404
+    assert conn.assigns[:ueberauth_auth] == nil
+    assert conn.assigns[:ueberauth_failure] == nil
 
     conn = conn(:post, "/auth/post_callback/callback") |> SpecRouter.call(@opts)
     assert conn.status == 200
