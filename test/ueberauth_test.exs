@@ -18,6 +18,12 @@ defmodule UeberauthTest do
     assert resp.resp_body == "simple_request_phase"
   end
 
+  test "return 404 in request phase when no provider is found" do
+    conn = conn(:get, "/auth/unknown_provider")
+    resp = SpecRouter.call(conn, @opts)
+    assert resp.status == 404
+  end
+
   test "simple callback phase" do
     conn =
       :get
