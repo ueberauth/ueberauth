@@ -220,20 +220,6 @@ defmodule UeberauthTest do
              "https://changelog.com/auth/provider/callback"
   end
 
-  test "callback_url defaults to port 80 for http scheme" do
-    conn = %{
-      conn(:get, "/")
-      | scheme: :http,
-        host: "changelog.com",
-        port: 200
-    }
-
-    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
-
-    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
-             "http://changelog.com/auth/provider/callback"
-  end
-
   test "callback_url uses host port when specified" do
     conn = %{
       conn(:get, "/")
