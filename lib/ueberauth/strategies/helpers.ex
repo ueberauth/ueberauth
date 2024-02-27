@@ -215,7 +215,10 @@ defmodule Ueberauth.Strategy.Helpers do
 
     host = get_host_header(conn) || conn.host
 
-    [host, port] = if String.contains?(host, ":"), do: String.split(host, ":"), else: [host, nil]
+    [host, port] =
+      if String.contains?(host, ":"),
+        do: String.split(host, ":"),
+        else: [host, to_string(conn.port)]
 
     port = Keyword.get(opts, :port) || normalize_port(scheme, port)
 
@@ -253,6 +256,7 @@ defmodule Ueberauth.Strategy.Helpers do
     end
   end
 
+  defp normalize_port(scheme, "80"), do: URI.default_port(scheme)
   defp normalize_port(scheme, nil), do: URI.default_port(scheme)
   defp normalize_port(_, port), do: String.to_integer(port)
 
