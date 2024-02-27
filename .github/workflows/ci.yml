@@ -9,6 +9,10 @@ on:
 jobs:
   Test:
     runs-on: ubuntu-latest
+    strategy:
+       matrix:
+         elixir: ['1.14', '1.15', '1.16']
+         otp: [24, 25, 26]
     steps:
       - name: Checkout Code
         uses: actions/checkout@v1
@@ -16,8 +20,8 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.11'
-          otp-version: '24.2'
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
 
       - name: Install Dependencies
         run: |
@@ -36,8 +40,8 @@ jobs:
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: '1.11'
-          otp-version: '24.2'
+          version-file: .tool-versions
+          version-type: strict
 
       - name: Install Dependencies
         run: |
