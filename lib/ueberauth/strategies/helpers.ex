@@ -123,7 +123,7 @@ defmodule Ueberauth.Strategy.Helpers do
   @doc """
   The full list of options passed to the strategy in the configuration.
   """
-  @spec options(Plug.Conn.t()) :: Keyword.t()
+  @spec options(Plug.Conn.t()) :: Keyword.t() | nil
   def options(conn), do: from_private(conn, :options)
 
   @doc """
