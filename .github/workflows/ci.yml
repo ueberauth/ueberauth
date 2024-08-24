@@ -11,11 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
        matrix:
-         elixir: ['1.14', '1.15', '1.16']
-         otp: [24, 25, 26]
+         elixir: ["1.14", "1.15", "1.16", "1.17"]
+         otp: [24, 25, 26, 27]
+         exclude:
+          - elixir: "1.14"
+            otp: "27"
+          - elixir: "1.15"
+            otp: "27"
+          - elixir: "1.16"
+            otp: "27"
+          - elixir: "1.17"
+            otp: "24"
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
@@ -28,6 +37,7 @@ jobs:
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
+
       - name: Run Tests
         run: mix test
 
@@ -35,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v4
 
       - name: Set up Elixir
         uses: erlef/setup-beam@v1
@@ -48,6 +58,7 @@ jobs:
           mix local.rebar --force
           mix local.hex --force
           mix deps.get
+
       - name: Run Formatter
         run: mix format --check-formatted
 
