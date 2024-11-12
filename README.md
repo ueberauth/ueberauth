@@ -1,6 +1,6 @@
 # Überauth
 
-[![Build Status](https://travis-ci.org/ueberauth/ueberauth.svg?branch=master)](https://travis-ci.org/ueberauth/ueberauth)
+[![Continuous Integration](https://github.com/ueberauth/ueberauth/actions/workflows/ci.yml/badge.svg)](https://github.com/ueberauth/ueberauth/actions/workflows/ci.yml)
 [![Codecov](https://codecov.io/gh/ueberauth/ueberauth/branch/master/graph/badge.svg)](https://codecov.io/gh/ueberauth/ueberauth)
 [![Inline docs](http://inch-ci.org/github/ueberauth/ueberauth.svg)](http://inch-ci.org/github/ueberauth/ueberauth)
 [![Hex Version](http://img.shields.io/hexpm/v/ueberauth.svg)](https://hex.pm/packages/ueberauth)
