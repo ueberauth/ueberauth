@@ -9,24 +9,108 @@
 [![License](https://img.shields.io/hexpm/l/ueberauth.svg)](https://github.com/ueberauth/ueberauth/blob/master/LICENSE)
 [![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg)](https://github.com/ueberauth/ueberauth/commits/master)
 
-
 > An Elixir Authentication System for Plug-based Web Applications
 
 Ueberauth is a two-phase authentication framework that provides a clear API -
 allowing for many strategies to be created and shared within the community. It
-is heavily inspired by [Omniauth](https://github.com/intridea/omniauth). You
-could call it a port but it is significantly different in operation - but
-almost the same concept. Huge hat tip to [Intridea](https://github.com/intridea).
+is most often used with third-party providers. It is heavily inspired by
+[Omniauth](https://github.com/intridea/omniauth). You could call it a port but
+it is significantly different in operation - but almost the same concept.
+Huge hat tip to [Intridea](https://github.com/intridea).
 
 Ueberauth provides only the initial authentication challenge, (initial OAuth
 flow, collecting the information from a login form, etc). It does not
-authenticate each request, that's up to your application. You could issue a
-token or put the result into a session for your applications needs. Libraries
-like [Guardian](https://github.com/hassox/guardian) can help you with that
-aspect of authentication.
+authenticate each request, that's up to your application, but it integrates
+nicely with `mix phx.gen.auth` generators. You may also use libraries
+like [Guardian](https://github.com/ueberauth/guardian) for authentication.
 
-The two phases are `request` and `callback`. These phases are implemented by
-Strategies.
+## Integration with Phoenix
+
+To integrate `Ueberauth` with your Phoenix application, the first step
+is to choose your strategy. There are several under [our organization on
+GitHub](https://github.com/ueberauth) and more on [Hex.pm](https://hex.pm).
+See the [Wiki](https://github.com/ueberauth/ueberauth/wiki/List-of-Strategies)
+for a complete list.
+
+For this example, we will use [the GitHub strategy](https://github.com/ueberauth/ueberauth_github).
+You just need to follow a series of steps:
+
+1.  Setup your application at [GitHub Developer](https://developer.github.com).
+
+2.  Add `:ueberauth_github` to your list of dependencies in `mix.exs`:
+
+    ```elixir
+    def deps do
+      [
+        {:ueberauth_github, "~> 0.8"}
+      ]
+    end
+    ```
+
+3.  Add GitHub to your Überauth configuration:
+
+    ```elixir
+    config :ueberauth, Ueberauth,
+      providers: [
+        github: {Ueberauth.Strategy.Github, []}
+      ]
+    ```
+
+4.  Set your provider configuration in `config/runtime.exs`:
+
+    ```elixir
+    config :ueberauth, Ueberauth.Strategy.Github.OAuth,
+      client_id: System.get_env("GITHUB_CLIENT_ID"),
+      client_secret: System.get_env("GITHUB_CLIENT_SECRET")
+    ```
+
+5.  Create the request and callback routes in your `Phoenix.Router`:
+
+    ```elixir
+    scope "/auth", MyAppWeb do
+      pipe_through :browser
+
+      get "/:provider", AuthController, :request
+      get "/:provider/callback", AuthController, :callback
+    end
+    ```
+
+6.  Implement the routes in a controller to deal with `Ueberauth.Auth`
+    and `Ueberauth.Failure` responses.
+
+    ```elixir
+    defmodule MyAppWeb.AuthController do
+      use MyAppWeb, :controller
+      plug Ueberauth
+    
+      def callback(%{assigns: %{ueberauth_failure: %Ueberauth.Failure{}}} = conn, _params) do
+        conn
+        |> put_flash(:error, "Failed to authenticate")
+        |> redirect(to: ~p"/")
+      end
+    
+      def callback(%{assigns: %{ueberauth_auth: %UeberAuth{} = auth}} = conn, _params) do
+        # You will have to implement this function that inserts into the database
+        user = MyApp.Accounts.create_user_from_ueberauth!(auth)
+
+        # If you are using mix phx.gen.auth, you can use it to login
+        MyAppWeb.UserAuth.log_in_user(conn, user)
+
+        # If you are not using mix phx.gen.auth, store the user in the session
+        conn
+        |> renew_session()
+        |> put_session(:user_id, user.id)
+        |> redirect(to: ~p"/")
+      end
+    end
+    ```
+
+You will have to implement the function that receives the authentication info
+and creates a new user in the database, such as `create_user_from_ueberauth!`
+above, and you are good to go!
+
+If you want to look at an example, check out
+[ueberauth/ueberauth_example](https://github.com/ueberauth/ueberauth_example).
 
 ## Strategies
 
@@ -38,9 +122,7 @@ is optional depending on the strategies requirements. If a strategy does not
 redirect, the request will be decorated with Ueberauth information and
 allowed to carry on through the pipeline.
 
-See the full list of the strategies on the [Wiki](https://github.com/ueberauth/ueberauth/wiki/List-of-Strategies).
-
-## Request Phase
+### Request Phase
 
 The request phase is where you request information about the user. This could
 be a redirect to an OAuth2 authorization url or a form for collecting username
@@ -66,43 +148,28 @@ request and simply pass through to the application. Once the form is completed,
 the POST should go to the callback url where it is handled (passwords checked,
 users created / authenticated).
 
-## Callback Phase
+### Callback Phase
 
-The callback phase is where the fun happens. Once a successful request phase has been completed, the request phase provider (OAuth provider or host site, etc)
-should call the callback URL. The strategy will intercept the request via the `handle_callback!`. If successful, it should prepare the connection so the `Ueberauth.Auth` struct can be created, or set errors to indicate a failure.
+The callback phase is where the fun happens. Once a successful request phase
+has been completed, the request phase provider (OAuth provider or host site,
+etc) should call the callback URL. The strategy will intercept the request via
+the `handle_callback!`. If successful, it should prepare the connection so the
+`Ueberauth.Auth` struct can be created, or set errors to indicate a failure.
 
-See `Ueberauth.Strategy` for more information on constructing the Ueberauth.Auth struct.
+See `Ueberauth.Strategy` for more information on constructing the `Ueberauth.Auth`
+struct.
 
-Looking for an example? Take a look [ueberauth/ueberauth_example](https://github.com/ueberauth/ueberauth_example).
+## Customization
 
-## Setup
+### Configuring providers
 
-### Add the dependency
-
-```elixir
-# mix.exs
-
-defp deps do
-  # Add the dependency
-  [{:ueberauth, "~> 0.10"}]
-end
-```
-
-### Fetch the dependencies
-
-```shell
-mix deps.get
-```
-
-## Configuring providers
-
-In your configuration file (`config/config.exs`) provide a list of the providers you intend to use. For example:
+Your configuration file (`config/config.exs`) lists the providers you intend to use. For example:
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    facebook: { Ueberauth.Strategy.Facebook, [ opt1: "value", opts2: "value" ] },
-    github: { Ueberauth.Strategy.Github, [ opt1: "value", opts2: "value" ] }
+    facebook: {Ueberauth.Strategy.Facebook, [opt1: "value", opts2: "value"]},
+    github: {Ueberauth.Strategy.Github, [opt1: "value", opts2: "value"]}
   ]
 ```
 
@@ -111,7 +178,7 @@ This will define two providers for you. The general structure of the providers v
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    <provider name>: { <Strategy Module>, [ <strategy options> ] }
+    <provider name>: {<Strategy Module>, [<strategy options>]}
   ]
 ```
 
@@ -120,21 +187,17 @@ injection in different environments. The provider name will be used to construct
 request and response paths (by default) but will also be returned in the
 `Ueberauth.Auth` struct as the `provider` field.
 
-Once you've setup your providers, in your router you need to configure the plug
-to run. The plug should run before your application routes.
-
-In phoenix, plug this module in your controller:
+Once you've setup your providers, you need to configure the `Ueberauth` plug to
+run. It generally runs before your application routes but in Phoenix applications
+it can also be done in a controller:
 
 ```elixir
-defmodule MyApp.AuthController do
-  use MyApp.Web, :controller
+defmodule MyAppWeb.AuthController do
+  use MyAppWeb, :controller
   plug Ueberauth
   ...
 end
 ```
-
-Its URL matching is done via pattern matching rather than explicit runtime
-checks so your strategies will only fire for relevant requests.
 
 Now that you have this, your strategies will intercept relevant requests for
 each strategy for both request and callback phases. The default urls are (for
@@ -150,12 +213,10 @@ our Facebook & GitHub example)
 /auth/github/callback
 ```
 
-## Customizing Paths
+### Customizing Paths
 
 These paths can be configured on a per strategy basis by setting options on
 the provider.
-
-Note: These paths are absolute
 
 ```elixir
 config :ueberauth, Ueberauth,
@@ -166,16 +227,17 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
-## Customizing JSON Serializer
+### Customizing JSON Serializer
 
-Your JSON serializer can be configured depending on what you have installed in your application.  Defaults to [Jason](https://github.com/michalmuskala/jason).
+Your JSON serializer can be configured depending on what you have installed in
+your application. Defaults to [Jason](https://github.com/michalmuskala/jason).
 
 ```elixir
 config :ueberauth, Ueberauth,
   json_library: Poison # default is Jason
 ```
 
-## HTTP Methods
+### Customizing HTTP Methods
 
 By default, all callback URLs are only available via the `"GET"` method. You
 can override this via options to your strategy.
@@ -186,7 +248,7 @@ providers: [
 ]
 ```
 
-## Strategy Options
+### Strategy Options
 
 All options that are passed into your strategy are available at runtime to
 modify the behaviour of the strategy.
