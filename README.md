@@ -56,7 +56,7 @@ You just need to follow a series of steps:
       ]
     ```
 
-4.  Update your provider configuration:
+4.  Set your provider configuration in `config/runtime.exs`:
 
     ```elixir
     config :ueberauth, Ueberauth.Strategy.Github.OAuth,
