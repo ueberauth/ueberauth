@@ -11,17 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
        matrix:
-         elixir: ["1.14", "1.15", "1.16", "1.17"]
-         otp: [24, 25, 26, 27]
+         elixir: ["1.14", "1.15", "1.16", "1.17", "1.18"]
+         otp: ["24", "25", "26", "27"]
          exclude:
-          - elixir: "1.14"
-            otp: "27"
-          - elixir: "1.15"
-            otp: "27"
-          - elixir: "1.16"
-            otp: "27"
-          - elixir: "1.17"
-            otp: "24"
+           - elixir: "1.14"
+             otp: "27"
+           - elixir: "1.15"
+             otp: "27"
+           - elixir: "1.16"
+             otp: "27"
+           - elixir: "1.17"
+             otp: "24"
+           - elixir: "1.18"
+             otp: "24"
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
