@@ -89,7 +89,7 @@ You just need to follow a series of steps:
         |> redirect(to: ~p"/")
       end
     
-      def callback(%{assigns: %{ueberauth_auth: %UeberAuth{} = auth}} = conn, _params) do
+      def callback(%{assigns: %{ueberauth_auth: %Ueberauth.Auth{} = auth}} = conn, _params) do
         # You will have to implement this function that inserts into the database
         user = MyApp.Accounts.create_user_from_ueberauth!(auth)
 
