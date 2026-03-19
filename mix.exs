@@ -9,7 +9,7 @@ defmodule Ueberauth.Mixfile do
       app: :ueberauth,
       name: "Überauth",
       version: @version,
-      elixir: "~> 1.11",
+      elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       package: package(),
       build_embedded: Mix.env() == :prod,

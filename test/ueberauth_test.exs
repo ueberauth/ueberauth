@@ -85,7 +85,7 @@ defmodule UeberauthTest do
   end
 
   test "setting request phase path with multiple conn script names" do
-    conn = conn(:get, "/auth/with_request_path/callback")
+    %Plug.Conn{} = conn = conn(:get, "/auth/with_request_path/callback")
     conn = %Plug.Conn{conn | script_name: ["v1", "auth"]} |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
 
@@ -103,7 +103,7 @@ defmodule UeberauthTest do
   end
 
   test "setting callback phase path with multiple conn script names" do
-    conn = conn(:get, "/login_callback")
+    %Plug.Conn{} = conn = conn(:get, "/login_callback")
     conn = %Plug.Conn{conn | script_name: ["v1", "auth"]} |> SpecRouter.call(@opts)
     auth = conn.assigns.ueberauth_auth
 
