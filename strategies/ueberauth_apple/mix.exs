@@ -10,7 +10,7 @@ defmodule UeberauthApple.Mixfile do
       version: @version,
       name: "Ueberauth Apple Strategy",
       package: package(),
-      elixir: "~> 1.10",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
@@ -29,10 +29,10 @@ defmodule UeberauthApple.Mixfile do
   defp deps do
     [
       {:credo, "~> 1.6", only: [:dev, :test]},
-      {:earmark, ">= 0.0.0", only: :dev},
-      {:ex_doc, "~> 0.3", only: :dev},
-      {:httpoison, "~> 1.0 or ~> 2.0"},
+      {:ex_doc, "~> 0.40", only: :dev},
+      {:httpoison, "~> 3.0"},
       {:jose, "~> 1.0"},
+      {:makeup_html, ">= 0.0.0", only: :dev, runtime: false},
       {:mock, "~> 0.3.0", only: :test},
       {:oauth2, "~> 2.0"},
       {:ueberauth, "~> 0.10"}
