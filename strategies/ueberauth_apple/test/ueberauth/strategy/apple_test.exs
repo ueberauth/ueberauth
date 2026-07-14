@@ -1,6 +1,7 @@
 defmodule Ueberauth.Strategy.AppleTest do
   use ExUnit.Case, async: false
-  use Plug.Test
+  import Plug.Conn
+  import Plug.Test
   import Mock
 
   alias Ueberauth.Strategy.Apple
@@ -87,25 +88,20 @@ defmodule Ueberauth.Strategy.AppleTest do
       assert sign_in_page =~ "response_mode=form_post"
     end
 
-    # Nonce
+    # Nonce (Ueberauth State)
 
-    test "allows a custom nonce parameter", %{conn: conn} do
-      conn = %{conn | params: %{"nonce" => "nonce-abc123"}}
-      conn = Apple.handle_request!(conn)
-      assert {302, headers, _body} = sent_resp(conn)
-      assert %{"location" => sign_in_page} = Enum.into(headers, %{})
-      assert sign_in_page =~ "nonce=nonce-abc123"
-    end
-
-    # State
-
-    test "sets state cookie", %{conn: conn} do
+    test "sets state cookie and uses it as nonce", %{conn: conn} do
       conn = Apple.handle_request!(conn)
       assert {_status, headers, _body} = sent_resp(conn)
       assert %{"location" => sign_in_page, "set-cookie" => cookie} = Enum.into(headers, %{})
       assert cookie =~ "ueberauth.state_param=state-abc123"
       assert cookie =~ "secure"
       assert cookie =~ "SameSite=None"
+
+      # We use "nonce" as an anti-replay mechanism.
+      assert sign_in_page =~ "nonce=state-abc123"
+
+      # Ueberauth requires uses "state" as a CSRF protection mechanism.
       assert sign_in_page =~ "state=state-abc123"
     end
 
@@ -165,23 +161,9 @@ defmodule Ueberauth.Strategy.AppleTest do
           strategy: Ueberauth.Strategy.Apple,
           strategy_name: :apple
         })
+        |> put_req_cookie("ueberauth.state_param", "nonce-abc123")
 
-      jwk = UeberauthApple.Keys.private_key()
-
-      token =
-        JOSE.JWT.sign(jwk, %{"alg" => "RS256", "kid" => "key-abc123"}, %{
-          "aud" => "com.example.my-app",
-          "email" => "email-abc123@privaterelay.appleid.com",
-          "email_verified" => "true",
-          "exp" => 1_662_834_127,
-          "iat" => 1_662_747_727,
-          "is_private_email" => "true",
-          "iss" => "https://appleid.apple.com",
-          "nonce_supported" => true,
-          "sub" => "uid-abc123"
-        })
-        |> JOSE.JWS.compact()
-        |> elem(1)
+      token = sign_id_token()
 
       %{conn: conn, token: token}
     end
@@ -201,6 +183,178 @@ defmodule Ueberauth.Strategy.AppleTest do
                "email" => "email-abc123@privaterelay.appleid.com",
                "uid" => "uid-abc123"
              }
+    end
+
+    test "rejects callback with invalid issuer", %{conn: conn} do
+      token = sign_id_token(%{"iss" => "https://evil.example"})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert conn.assigns[:ueberauth_failure]
+
+      assert [
+               %{
+                 message: "Error while reading authentication token",
+                 message_key: "invalid_issuer"
+               }
+             ] =
+               conn.assigns.ueberauth_failure.errors
+    end
+
+    test "rejects callback with invalid audience", %{conn: conn} do
+      token = sign_id_token(%{"aud" => "com.example.other-app"})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert conn.assigns[:ueberauth_failure]
+
+      assert [
+               %{
+                 message: "Error while reading authentication token",
+                 message_key: "invalid_audience"
+               }
+             ] = conn.assigns.ueberauth_failure.errors
+    end
+
+    test "allows callback with expired token within clock skew", %{conn: conn} do
+      now = DateTime.utc_now() |> DateTime.to_unix()
+      token = sign_id_token(%{"exp" => now - 55})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      refute conn.assigns[:ueberauth_failure]
+    end
+
+    test "rejects callback with expired token", %{conn: conn} do
+      now = DateTime.utc_now() |> DateTime.to_unix()
+      token = sign_id_token(%{"exp" => now - 65})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert conn.assigns[:ueberauth_failure]
+
+      assert [
+               %{
+                 message: "Error while reading authentication token",
+                 message_key: "expired_token"
+               }
+             ] =
+               conn.assigns.ueberauth_failure.errors
+    end
+
+    test "rejects callback with null-signed token", %{conn: conn} do
+      JOSE.unsecured_signing(true)
+
+      now = DateTime.utc_now() |> DateTime.to_unix()
+
+      claims = %{
+        "aud" => "com.example.my-app",
+        "email" => "email-abc123@privaterelay.appleid.com",
+        "email_verified" => "true",
+        "exp" => now + 600,
+        "iat" => now - 60,
+        "is_private_email" => "true",
+        "iss" => "https://appleid.apple.com",
+        "nonce" => "nonce-abc123",
+        "nonce_supported" => true,
+        "sub" => "uid-abc123"
+      }
+
+      kid = UeberauthApple.Keys.private_key().fields["kid"]
+
+      token =
+        JOSE.JWT.sign(%JOSE.JWK{}, %{"alg" => "none", "typ" => "JWT", "kid" => kid}, claims)
+        |> JOSE.JWS.compact()
+        |> elem(1)
+
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert conn.assigns[:ueberauth_failure]
+
+      assert [
+               %{
+                 message: "Error while reading authentication token",
+                 message_key: "invalid_signature"
+               }
+             ] =
+               conn.assigns.ueberauth_failure.errors
+    end
+
+    test "accepts callback when iat is within skew", %{conn: conn} do
+      now = DateTime.utc_now() |> DateTime.to_unix()
+      token = sign_id_token(%{"iat" => now + 30})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert %OAuth2.AccessToken{access_token: "access-abc123"} = conn.private[:apple_token]
+    end
+
+    test "rejects callback when iat is beyond skew", %{conn: conn} do
+      now = DateTime.utc_now() |> DateTime.to_unix()
+      token = sign_id_token(%{"iat" => now + 120})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert conn.assigns[:ueberauth_failure]
+
+      assert [
+               %{
+                 message: "Error while reading authentication token",
+                 message_key: "not_yet_valid_token"
+               }
+             ] = conn.assigns.ueberauth_failure.errors
+    end
+
+    test "rejects callback when expected audience is unavailable", %{conn: conn, token: token} do
+      original_oauth_config = Application.get_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth, [])
+
+      on_exit(fn ->
+        Application.put_env(:ueberauth, Ueberauth.Strategy.Apple.OAuth, original_oauth_config)
+      end)
+
+      oauth_config_without_client_id = Keyword.delete(original_oauth_config, :client_id)
+
+      Application.put_env(
+        :ueberauth,
+        Ueberauth.Strategy.Apple.OAuth,
+        oauth_config_without_client_id
+      )
+
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert conn.assigns[:ueberauth_failure]
+
+      assert [
+               %{
+                 message: "Error while reading authentication token",
+                 message_key: "missing_expected_audience"
+               }
+             ] = conn.assigns.ueberauth_failure.errors
+    end
+
+    test "rejects callback when nonce is supported but does not match", %{conn: conn} do
+      token = sign_id_token(%{"nonce" => "nonce-xyz789"})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert conn.assigns[:ueberauth_failure]
+
+      assert [
+               %{
+                 message: "Error while reading authentication token",
+                 message_key: "invalid_nonce"
+               }
+             ] = conn.assigns.ueberauth_failure.errors
+    end
+
+    test "accepts empty nonce when nonce is not supported", %{conn: conn} do
+      token = sign_id_token(%{"nonce_supported" => false, "nonce" => nil})
+      conn = %{conn | params: %{conn.params | "id_token" => token}}
+      conn = Apple.handle_callback!(conn)
+
+      assert %OAuth2.AccessToken{access_token: "access-abc123"} = conn.private[:apple_token]
     end
   end
 
@@ -261,5 +415,31 @@ defmodule Ueberauth.Strategy.AppleTest do
       assert %Ueberauth.Auth.Info{email: "email-abc123@privaterelay.appleid.com"} =
                Apple.info(conn)
     end
+  end
+
+  defp sign_id_token(overrides \\ %{}) do
+    now = DateTime.utc_now() |> DateTime.to_unix()
+
+    claims =
+      Map.merge(
+        %{
+          "aud" => "com.example.my-app",
+          "email" => "email-abc123@privaterelay.appleid.com",
+          "email_verified" => "true",
+          "exp" => now + 600,
+          "iat" => now - 60,
+          "is_private_email" => "true",
+          "iss" => "https://appleid.apple.com",
+          "nonce" => "nonce-abc123",
+          "nonce_supported" => true,
+          "sub" => "uid-abc123"
+        },
+        overrides
+      )
+
+    UeberauthApple.Keys.private_key()
+    |> JOSE.JWT.sign(%{"alg" => "RS256", "kid" => "key-abc123"}, claims)
+    |> JOSE.JWS.compact()
+    |> elem(1)
   end
 end

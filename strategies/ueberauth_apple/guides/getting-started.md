@@ -20,9 +20,9 @@ Abbreviated instructions are included below.
 
 **Prerequisites**
 
-* You must have an Apple Developer account with **Account Holder** or **Admin** permissions.
-* You must have an eligible domain to associate with your service (not `localhost`, `.test`, etc.).
-* You must have a Primary App ID with _Sign In with Apple_ enabled.
+- You must have an Apple Developer account with **Account Holder** or **Admin** permissions.
+- You must have an eligible domain to associate with your service (not `localhost`, `.test`, etc.).
+- You must have a Primary App ID with _Sign In with Apple_ enabled.
   (For this, go to **Certificates, Identifiers & Profiles** and select the **Identifiers** tab ([direct link](https://developer.apple.com/account/resources/identifiers/list)).
   Then create or select your App ID, and enable the _Sign In with Apple_ capability.)
 
@@ -42,13 +42,13 @@ To set up a Services ID, perform the following:
 5. Provide a description (example `MyApp Staging`) and identifier (example `com.example.my-app-staging`).
 6. Continue, and click **Register**.
 7. You should now see the new Services ID in the list of all identifiers.
-  Click it again to configure it.
+   Click it again to configure it.
 8. Enable **Sign In with Apple** and click **Configure**.
 9. If you have a published application (such as an iOS version of your app) already, you likely want to use that app's identifier as the Primary App ID.
-  Learn more about grouping App IDs [here](https://help.apple.com/developer-account/#/dev04f3e1cfc).
+   Learn more about grouping App IDs [here](https://help.apple.com/developer-account/#/dev04f3e1cfc).
 10. Input all Domains and Subdomains that will act as origins for _Sign In with Apple_ requests.
 11. Input the exact Return URL(s) your app will use during the OAuth flow.
-  Usually these look like `https://my-app.example.com/auth/apple/callback`.
+    Usually these look like `https://my-app.example.com/auth/apple/callback`.
 12. Confirm your choices. Once back at the Services ID configuration page, **Continue** and **Save**.
 
 You now have a Services ID that is eligible to make requests to _Sign In with Apple_.
@@ -62,12 +62,12 @@ After creating a Services ID, we also need to create a private key for use with 
 1. In the Apple Developer console, return to **Certificates, Identifiers & Profiles** and select the **Keys** tab ([direct link](https://developer.apple.com/account/resources/authkeys/list)).
 2. Click **+** to create a new key.
 3. Provide a name for the key (example `Sign In with Apple Staging`) and select **Sign In with Apple**.
-  Click **Configure** for this service.
+   Click **Configure** for this service.
 4. Select the same Primary App ID that was used for your Services ID.
-  Be aware that this private key will be eligible to make requests against any of the grouped IDs (so even a staging key should be considered a production-level secret).
+   Be aware that this private key will be eligible to make requests against any of the grouped IDs (so even a staging key should be considered a production-level secret).
 5. **Save** the Primary ID choice, **Continue**, and **Register**.
 6. **Download** the new Key file and record the Key ID.
-  Both of these pieces of information are necessary to generate a client secret later.
+   Both of these pieces of information are necessary to generate a client secret later.
 
 > #### Important {:.warning}
 >
@@ -90,7 +90,7 @@ def deps do
   [
     # ...
     {:ueberauth, "~> 0.10"},
-    {:ueberauth_apple, "~> 0.6.1"},
+    {:ueberauth_apple, "~> 0.6.2"},
   ]
 end
 ```
@@ -108,21 +108,21 @@ config :ueberauth, Ueberauth,
 
 The following options are available here, in the provider definition:
 
-* `callback_methods`: List of HTTP methods to accept during the callback phase.
+- `callback_methods`: List of HTTP methods to accept during the callback phase.
   Should be `["POST"]` if requesting any scopes (`name` or `email`), or `["GET"]` otherwise.
   Defaults to `["GET"]`. See also [Ueberauth's documentation](https://hexdocs.pm/ueberauth/readme.html#http-methods).
 
-* `callback_path`: See [Ueberauth's documentation](https://hexdocs.pm/ueberauth/readme.html#customizing-paths).
+- `callback_path`: See [Ueberauth's documentation](https://hexdocs.pm/ueberauth/readme.html#customizing-paths).
 
-* `callback_url`: URL to use as the Redirect URI parameter in the request phase.
+- `callback_url`: URL to use as the Redirect URI parameter in the request phase.
   Defaults to a value based on the Phoenix Endpoint's host and the Ueberauth configuration.
 
-* `default_scope`: Space-separated string of personal information to retrieve from Apple during sign-in.
+- `default_scope`: Space-separated string of personal information to retrieve from Apple during sign-in.
   Available options are `name` and `email`.
   If any scopes are included, the `callback_methods` option must include `"POST"`.
   Defaults to no scopes, or `""`.
 
-* `request_path`: See [Ueberauth's documentation](https://hexdocs.pm/ueberauth/readme.html#customizing-paths).
+- `request_path`: See [Ueberauth's documentation](https://hexdocs.pm/ueberauth/readme.html#customizing-paths).
 
 ### Plug Integration
 
@@ -203,10 +203,12 @@ config :ueberauth, Ueberauth.Strategy.Apple.OAuth,
 
 The following options are available:
 
-* `client_id`: (**Required**) OAuth client ID used during both the request and callback phases.
+- `client_id`: (**Required**) OAuth client ID used during both the request and callback phases.
   This matches the reverse-domain Services ID registered with Apple.
+  It is also used to validate callback ID token `aud` claims.
+  If `client_id` is missing, callback authentication fails.
 
-* `client_secret`: (**Required**) OAuth client secret **OR** a function used to generate this secret.
+- `client_secret`: (**Required**) OAuth client secret **OR** a function used to generate this secret.
   Apple restricts client secrets to a maximum lifetime of six months, so most applications will generate and cache this secret at runtime.
   Use a string as the value to define the secret directly, or `{Module, :function}` as the value to define the generator function (see below).
 
