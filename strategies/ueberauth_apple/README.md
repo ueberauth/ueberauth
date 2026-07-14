@@ -53,7 +53,7 @@ def deps do
   [
     # ...
     {:ueberauth, "~> 0.10"},
-    {:ueberauth_apple, "~> 0.6.2"}
+    {:ueberauth_apple, "~> 0.7.0"}
   ]
 end
 ```

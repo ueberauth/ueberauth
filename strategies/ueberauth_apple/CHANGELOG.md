@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Unreleased
+### v0.7.0 (2026-07-14)
 
 - **Breaking**: Require Elixir 1.17 and OTP 27.
   This change occurs due to requiring non-vulnerable versions of HTTPoison and its sub-dependency, Hackney.
@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Chore**: Exchange `mock` for `mimic` in tests.
 
 ### v0.6.2 (2026-07-13)
+
+This release provides a minimal update path to address [an advisory](https://github.com/ueberauth/ueberauth_apple/security/advisories/GHSA-pxx8-68pc-p9mr).
+Please see `v0.7.0` for additional updates related to vulnerable dependencies.
 
 - **Security**: Validate `iss`, `aud`, `iat`, and `exp` claims on callback `id_token` after signature verification.
   Callback authentication now fails closed if the expected `client_id` audience cannot be determined.
