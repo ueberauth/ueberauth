@@ -15,20 +15,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-24.04
             pair:
-              elixir: '1.10.x'
-              otp: '21.x'
-          - os: ubuntu-22.04
+              elixir: '1.17.x'
+              otp: '27.x'
+          - os: ubuntu-26.04
             pair:
-              elixir: '1.14.x'
-              otp: '25.x'
+              elixir: '1.20.x'
+              otp: '29.x'
             lint: lint
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Setup Erlang and Elixir
         uses: erlef/setup-beam@v1
@@ -37,7 +37,7 @@ jobs:
           elixir-version: ${{matrix.pair.elixir}}
 
       - name: Fetch Hex Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         id: hex-cache
         with:
           path: |
