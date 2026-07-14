@@ -16,8 +16,8 @@ jobs:
       - name: Setup BEAM
         uses: erlef/setup-beam@v1
         with:
-          elixir-version: "1.14.x"
-          otp-version: "25.x"
+          elixir-version: "1.20.x"
+          otp-version: "29.x"
 
       - name: Publish Package
         run: |
