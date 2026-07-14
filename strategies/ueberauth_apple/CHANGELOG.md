@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Breaking**: Require Elixir 1.17.
   This change occurs due to requiring non-vulnerable versions of HTTPoison and its sub-dependency, Hackney.
+- **Fix**: Require `httpoison ~> 3.0`
+- **Chore**: Exchange `mock` for `mimic` in tests.
 
 ### v0.6.2 (2026-07-13)
 

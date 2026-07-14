@@ -33,7 +33,7 @@ defmodule UeberauthApple.Mixfile do
       {:httpoison, "~> 3.0"},
       {:jose, "~> 1.0"},
       {:makeup_html, ">= 0.0.0", only: :dev, runtime: false},
-      {:mock, "~> 0.3.0", only: :test},
+      {:mimic, "~> 2.3.0", only: :test},
       {:oauth2, "~> 2.0"},
       {:ueberauth, "~> 0.10"}
     ]

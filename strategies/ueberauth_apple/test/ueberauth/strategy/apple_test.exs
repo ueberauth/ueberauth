@@ -1,31 +1,29 @@
 defmodule Ueberauth.Strategy.AppleTest do
   use ExUnit.Case, async: false
+  use Mimic
   import Plug.Conn
   import Plug.Test
-  import Mock
 
   alias Ueberauth.Strategy.Apple
 
-  setup_with_mocks([
-    {OAuth2.Client, [:passthrough],
-     [
-       get_token: fn _client, _params ->
-         {:ok,
-          %OAuth2.Client{
-            token: %OAuth2.AccessToken{
-              access_token: "access-abc123",
-              expires_at: 1_662_751_328,
-              other_params: %{
-                "id_token" => "token-abc123"
-              },
-              refresh_token: "refresh-abc123",
-              token_type: "Bearer"
-            }
-          }}
-       end
-     ]}
-  ]) do
-    %{}
+  setup do
+    OAuth2.Client
+    |> stub(:get_token, fn _client, _params ->
+      {:ok,
+       %OAuth2.Client{
+         token: %OAuth2.AccessToken{
+           access_token: "access-abc123",
+           expires_at: 1_662_751_328,
+           other_params: %{
+             "id_token" => "token-abc123"
+           },
+           refresh_token: "refresh-abc123",
+           token_type: "Bearer"
+         }
+       }}
+    end)
+
+    :ok
   end
 
   describe "handle_request!/1" do
