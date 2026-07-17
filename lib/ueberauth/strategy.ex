@@ -84,6 +84,12 @@ defmodule Ueberauth.Strategy do
   object. From this Ueberauth will construct and assign the struct for processing
   in your own controller.
 
+  > #### `Ueberauth.Strategy` {: .info}
+  >
+  > When you `use Ueberauth.Strategy`, the Strategy module will
+  > import `Plug.Conn` and `Ueberauth.Strategy.Helpers`, and define overridable
+  > default implementations for all behaviour callbacks.
+
   ### Redirecting during the request phase
 
   Many strategies may require a redirect (looking at you OAuth). To do this,
