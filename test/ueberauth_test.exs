@@ -1,9 +1,12 @@
 defmodule UeberauthTest do
   use ExUnit.Case, async: true
-  use Plug.Test
-  doctest Ueberauth
+
+  import Plug.Conn
+  import Plug.Test
 
   alias Support.SpecRouter
+
+  doctest Ueberauth
 
   @opts Support.SpecRouter.init([])
   @session_options Plug.Session.init(
