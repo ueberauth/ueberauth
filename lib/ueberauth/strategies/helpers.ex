@@ -257,7 +257,6 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   defp normalize_port(scheme, "80"), do: URI.default_port(scheme)
-  defp normalize_port(scheme, nil), do: URI.default_port(scheme)
   defp normalize_port(_, port), do: String.to_integer(port)
 
   defp encode_query([]), do: nil

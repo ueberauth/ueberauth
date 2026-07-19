@@ -3,6 +3,19 @@ defmodule Ueberauth.Auth.Credentials do
   Provides information about the credentials of a request.
   """
 
+  @typedoc """
+  Information about the credentials of a request.
+
+  - `token` - The access token supplied by OAuth and OAuth 2.0 providers.
+  - `refresh_token` - The refresh token supplied by OAuth 2.0 providers.
+  - `token_type` - The type of token provided.
+  - `secret` - The access token secret supplied by OAuth providers.
+  - `expires` - Boolean indicating whether the access token has an expiry date.
+  - `expires_at` - Timestamp of the expiry time. Facebook and Google return
+    this. Twitter, LinkedIn don't.
+  - `scopes` - A list of scopes/permissions that were granted.
+  - `other` - Other credentials that may not fit in the other fields.
+  """
   @type t :: %__MODULE__{
           token: binary | nil,
           refresh_token: binary | nil,
@@ -14,20 +27,12 @@ defmodule Ueberauth.Auth.Credentials do
           other: map
         }
 
-  # Supplied by OAuth and OAuth 2.0 providers, the access token.
   defstruct token: nil,
-            # Supplied by OAuth 2.0 providers as the refresh token.
             refresh_token: nil,
-            # The type of token provided
             token_type: nil,
-            # Supplied by OAuth providers, the access token secret.
             secret: nil,
-            # Boolean indicating whether the access token has an expiry date
             expires: nil,
-            # Timestamp of the expiry time. Facebook and Google Plus return this. Twitter, LinkedIn don't.
             expires_at: nil,
-            # A list of scopes/permissions that were granted
             scopes: [],
-            # Other credentials that may not fit in the other fields.
             other: %{}
 end
