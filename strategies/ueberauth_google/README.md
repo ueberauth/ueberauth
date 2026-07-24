@@ -130,6 +130,21 @@ config :ueberauth, Ueberauth,
 
 To guard against client-side request modification, it's important to still check the domain in `info.urls[:website]` within the `Ueberauth.Auth` struct if you want to limit sign-in to a specific domain.
 
+### Callback URL
+
+By default, the callback URL is automatically generated from the current request. For most local development setups, no configuration is needed.
+
+If you need to override the callback URL (e.g., behind a reverse proxy, custom domain, or SSL termination), you can configure it explicitly:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    google: {Ueberauth.Strategy.Google, [
+      callback_url: "https://example.com/auth/google/callback"
+    ]}
+  ]
+```
+
 ## Copyright and License
 
 Copyright (c) 2015 Sean Callan
