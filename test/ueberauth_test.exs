@@ -310,6 +310,17 @@ defmodule UeberauthTest do
     assert Ueberauth.Strategy.Helpers.callback_url(conn) == "http://www.example.com?type=user"
   end
 
+  test "callback_url leaves out the provider param" do
+    conn = conn(:get, "/")
+
+    conn =
+      put_private(conn, :ueberauth_request_options, callback_params: ["provider", "type"])
+
+    conn = %{conn | params: %{"provider" => "github", "type" => "user"}}
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) == "http://www.example.com?type=user"
+  end
+
   test "run_request" do
     conn =
       conn(:get, "/oauth/simple-provider/", id: "foo")
