@@ -215,10 +215,7 @@ defmodule Ueberauth.Strategy.Helpers do
 
     host = get_host_header(conn) || conn.host
 
-    [host, port] =
-      if String.contains?(host, ":"),
-        do: String.split(host, ":"),
-        else: [host, to_string(conn.port)]
+    {host, port} = split_host_port(host, conn.port)
 
     port = Keyword.get(opts, :port) || normalize_port(scheme, port)
 
@@ -237,6 +234,18 @@ defmodule Ueberauth.Strategy.Helpers do
       scheme: scheme
     }
     |> to_string()
+  end
+
+  # The host may carry a port, and an IPv6 host is colon-separated inside
+  # brackets, so splitting on ":" alone does not yield a host and a port.
+  defp split_host_port(host, default_port) do
+    case URI.parse("//" <> host) do
+      %URI{host: parsed_host, port: parsed_port} when is_binary(parsed_host) ->
+        {parsed_host, to_string(parsed_port || default_port)}
+
+      _ ->
+        {host, to_string(default_port)}
+    end
   end
 
   defp get_forwarded_proto_header(conn) do
