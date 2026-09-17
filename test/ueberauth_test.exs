@@ -251,6 +251,38 @@ defmodule UeberauthTest do
              "http://changelog.com:8088/auth/provider/callback"
   end
 
+  test "callback_url with an ipv6 host" do
+    conn = %{conn(:get, "/") | scheme: :http, host: "[::1]:4000", port: 4000}
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://[::1]:4000/auth/provider/callback"
+  end
+
+  test "callback_url with an ipv6 host without a port" do
+    conn = %{conn(:get, "/") | scheme: :http, host: "[2001:db8::1]", port: 80}
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://[2001:db8::1]/auth/provider/callback"
+  end
+
+  test "callback_url with an ipv6 host in the forwarded host header" do
+    conn = %{
+      (conn(:get, "/")
+       |> put_req_header("x-forwarded-host", "[2001:db8::1]:8080"))
+      | scheme: :http,
+        port: 80
+    }
+
+    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+
+    assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
+             "http://[2001:db8::1]:8080/auth/provider/callback"
+  end
+
   test "callback_url has custom scheme" do
     conn = %{
       conn(:get, "/")
