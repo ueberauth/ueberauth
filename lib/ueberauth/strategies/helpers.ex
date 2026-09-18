@@ -91,7 +91,7 @@ defmodule Ueberauth.Strategy.Helpers do
     callback_params =
       callback_params
       |> Enum.map(fn k -> {String.to_atom(k), conn.params[k]} end)
-      |> Enum.reject(fn {k, v} -> k == "provider" or v == nil end)
+      |> Enum.reject(fn {k, v} -> k == :provider or v == nil end)
 
     Keyword.merge(query_params, callback_params)
   end
