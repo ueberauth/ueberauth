@@ -50,7 +50,7 @@ defmodule Ueberauth.Mixfile do
       extras: ["CHANGELOG.md", "README.md", "CONTRIBUTING.md"],
       main: "readme",
       source_url: @source_url,
-      source_ref: "master",
+      source_ref: "v#{@version}",
       homepage_url: @source_url,
       formatters: ["html"]
     ]
