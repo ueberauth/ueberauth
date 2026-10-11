@@ -285,6 +285,13 @@ defmodule Ueberauth.Strategy do
   We strongly recommend never disabling this feature, unless you have some technical
   limitations that forces you to do so.
 
+  Protected strategies sign the state cookie. The host application must set
+  `conn.secret_key_base` to a stable, strong binary secret before running
+  either phase, using the same secret across requests and application instances.
+  Plug raises a configuration error when a protected request has no valid secret.
+  After upgrading from unsigned state cookies, users must restart any in-flight
+  OAuth flows; unsigned cookies are rejected.
+
   To change the SameSite attribute of the cookie holding the state parameter, you can use the `:state_param_cookie_same_site` option:
 
       defmodule MyStrategy do
@@ -415,6 +422,7 @@ defmodule Ueberauth.Strategy do
 
     conn
     |> Conn.put_resp_cookie(@state_param_cookie_name, state,
+      sign: true,
       same_site: get_state_param_cookie_same_site(strategy)
     )
     |> Helpers.add_state_param(state)
@@ -422,7 +430,7 @@ defmodule Ueberauth.Strategy do
 
   defp get_state_cookie(conn) do
     conn
-    |> Conn.fetch_session()
+    |> Conn.fetch_cookies(signed: [@state_param_cookie_name])
     |> Map.get(:cookies)
     |> Map.get(@state_param_cookie_name)
   end
