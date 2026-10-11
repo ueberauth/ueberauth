@@ -2,7 +2,7 @@ defmodule Ueberauth.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/ueberauth/ueberauth"
-  @version "0.10.8"
+  @version "0.11.0"
 
   def project do
     [
@@ -34,7 +34,7 @@ defmodule Ueberauth.Mixfile do
 
   defp deps do
     [
-      {:plug, "~> 1.5"},
+      {:plug, "~> 1.10"},
 
       # Tools
       {:dialyxir, ">= 0.0.0", only: [:dev], runtime: false},
