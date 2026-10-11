@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.11.0 - Unreleased
+## 0.11.0 - 2026-10-11
 
 - Sign and verify the OAuth state cookie, rejecting unsigned or tampered cookies before the provider callback. Protected strategies now require a stable host-provided `conn.secret_key_base` (a strong binary secret) across both phases and all application instances. Restart in-flight OAuth flows after upgrading. [#217](https://github.com/ueberauth/ueberauth/pull/217)
 - Require Plug 1.10 or later for signed-cookie support. [#217](https://github.com/ueberauth/ueberauth/pull/217)
