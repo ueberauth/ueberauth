@@ -2,8 +2,22 @@
 
 ## 0.11.0 - Unreleased
 
-- Sign and verify the OAuth state cookie, rejecting unsigned or tampered cookies before the provider callback. Protected strategies now require a stable host-provided `conn.secret_key_base` (a strong binary secret) across both phases and all application instances. Restart in-flight OAuth flows after upgrading.
-- Require Plug 1.10 or later for signed-cookie support.
+- Sign and verify the OAuth state cookie, rejecting unsigned or tampered cookies before the provider callback. Protected strategies now require a stable host-provided `conn.secret_key_base` (a strong binary secret) across both phases and all application instances. Restart in-flight OAuth flows after upgrading. [#217](https://github.com/ueberauth/ueberauth/pull/217)
+- Require Plug 1.10 or later for signed-cookie support. [#217](https://github.com/ueberauth/ueberauth/pull/217)
+- Exclude the `provider` param from `callback_url` params [#216](https://github.com/ueberauth/ueberauth/pull/216)
+- Fix `@spec` for `Ueberauth.Strategy.Helpers.options/1` to include `nil` [#199](https://github.com/ueberauth/ueberauth/pull/199)
+
+## 0.10.8 - 2024-02-27
+
+- Use `conn.port` by default in `callback_url/1` [#187](https://github.com/ueberauth/ueberauth/pull/187)
+
+## 0.10.7 - 2024-01-04
+
+- Revert the change from 0.10.6 [#195](https://github.com/ueberauth/ueberauth/pull/195)
+
+## 0.10.6 - 2023-12-01
+
+- Attempt to fix [#173](https://github.com/ueberauth/ueberauth/issues/173) [#193](https://github.com/ueberauth/ueberauth/pull/193)
 
 ## 0.10.5 - 2023-03-09
 
