@@ -6,7 +6,7 @@
 - Expire the OAuth state cookie after 10 minutes by default. Configure with the `state_param_cookie_max_age` strategy option (seconds).
 - Delete the state cookie when the CSRF check fails, and compare the state param in constant time.
 - Stop raising on malformed or IPv6 `Host` / `X-Forwarded-Host` values when building request and callback URLs. Invalid values fall back to the connection's host and port.
-- Add the `trust_forwarded_headers` option (global or per provider). When it is not set, Ueberauth still reads `X-Forwarded-Host` and `X-Forwarded-Proto`, and logs a warning once if they change a URL. **Ueberauth 0.12.0 will ignore these headers unless `trust_forwarded_headers: true` is set.** Set it to `false` and use `Plug.RewriteOn`, or set it to `true` only if a proxy you control sets these headers.
+- Add the `trust_forwarded_headers` option (global or per provider). When it is not set, Ueberauth still reads `X-Forwarded-Host` and `X-Forwarded-Proto`, and logs a warning once if they change a URL. **Ueberauth 0.13.0 will ignore these headers unless `trust_forwarded_headers: true` is set.** Set it to `false` and use `Plug.RewriteOn`, or set it to `true` only if a proxy you control sets these headers.
 - Raise a descriptive `ArgumentError` when no providers are configured.
 - Fix the `set_errors!` example in the `Ueberauth.Strategy` docs, typos, and the Guardian link.
 - Update the locked `plug_crypto` to 2.2.1, which fixes EEF-CVE-2026-105963 / GHSA-ffw9-w85g-f2vh. Ueberauth signs the state cookie with `secret_key_base`, so applications should update `plug_crypto` as well (`mix deps.update plug_crypto`). [#220](https://github.com/ueberauth/ueberauth/pull/220)
