@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0](https://github.com/ueberauth/ueberauth/compare/ueberauth_apple-v0.7.0...ueberauth_apple-v0.8.0) (2026-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* forwarded headers are ignored unless `trust_forwarded_headers: true` is set; use Plug.RewriteOn behind a proxy. The state cookie is renamed, so in-flight logins must restart. `init/1` no longer returns the route list; tests that edit it should use `Ueberauth.routes/1`.
+
+### Features
+
+* ignore forwarded headers, per-provider state cookies, runtime config ([#248](https://github.com/ueberauth/ueberauth/issues/248)) ([89e9017](https://github.com/ueberauth/ueberauth/commit/89e9017a0d56721cac34b5c868acf9f4eb583ea4))
+
 ## v0.7.0 (2026-07-14)
 
 - **Breaking**: Require Elixir 1.17 and OTP 27.
