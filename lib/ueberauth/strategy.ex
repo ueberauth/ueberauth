@@ -10,7 +10,7 @@ defmodule Ueberauth.Strategy do
   1. `request phase`
   2. `callback phase`
 
-  These phases can be understood with the following psuedocode.
+  These phases can be understood with the following pseudocode.
 
   ### Request Phase
 
@@ -123,7 +123,7 @@ defmodule Ueberauth.Strategy do
         remove_my_private_area(conn)
       end
 
-  This provides a simplistic psuedocode look at what a callback + cleanup phase
+  This provides a simplistic pseudocode look at what a callback + cleanup phase
   might look like. By setting the result of your call to the external service in
   the connections private assigns, you can use that to construct the auth struct
   in the auth component functions. Of course, as a good citizen you also cleanup
@@ -148,11 +148,8 @@ defmodule Ueberauth.Strategy do
   You should add errors before you leave your `c:handle_callback!/1` function.
 
       def handle_callback!(conn) do
-        errors = []
-        if (something_bad), do: errors = [error("error_key", "Some message") | errors]
-
-        if (length(errors) > 0) do
-          set_errors!(errors)
+        if something_bad?(conn) do
+          set_errors!(conn, [error("error_key", "Some message")])
         else
           conn
         end
@@ -172,6 +169,7 @@ defmodule Ueberauth.Strategy do
   alias Ueberauth.Auth.Extra
 
   @state_param_cookie_name "ueberauth.state_param"
+  @state_param_cookie_max_age 10 * 60
 
   @doc """
   The request phase implementation for your strategy.
@@ -188,7 +186,7 @@ defmodule Ueberauth.Strategy do
   In this function you should make any external calls you need, check for
   errors etc. The result of this phase is that either a failure
   (`Ueberauth.Failure`) will be assigned to the connections assigns at
-  `ueberauth_failure` or an `Ueberauth.Auth` struct will be constrcted and
+  `ueberauth_failure` or an `Ueberauth.Auth` struct will be constructed and
   added to the assigns at `:ueberauth_auth`.
   """
   @callback handle_callback!(Plug.Conn.t()) :: Plug.Conn.t()
@@ -252,7 +250,7 @@ defmodule Ueberauth.Strategy do
 
   ### Imports
 
-  * Ueberauth.Stratgey.Helpers
+  * Ueberauth.Strategy.Helpers
   * Plug.Conn
 
   ## Default Options
@@ -297,6 +295,20 @@ defmodule Ueberauth.Strategy do
       defmodule MyStrategy do
         use Ueberauth.Strategy,
           state_param_cookie_same_site: "None"
+        # …
+      end
+
+  The state cookie is marked `Secure` when the request is served over HTTPS
+  or when `:state_param_cookie_same_site` is `"None"`, since browsers reject
+  `SameSite=None` cookies without it.
+
+  The state cookie expires after 10 minutes by default, which limits how long
+  a user has to complete the provider's login. To change this, use the
+  `:state_param_cookie_max_age` option (in seconds):
+
+      defmodule MyStrategy do
+        use Ueberauth.Strategy,
+          state_param_cookie_max_age: 30 * 60
         # …
       end
 
@@ -366,12 +378,15 @@ defmodule Ueberauth.Strategy do
   end
 
   defp state_param_matches?(conn) do
-    param_cookie = conn.params["state"]
-    not is_nil(param_cookie) and param_cookie == get_state_cookie(conn)
+    param = conn.params["state"]
+    cookie = get_state_cookie(conn)
+
+    is_binary(param) and is_binary(cookie) and Plug.Crypto.secure_compare(param, cookie)
   end
 
   defp add_state_mismatch_error(conn, strategy) do
     conn
+    |> remove_state_cookie()
     |> Helpers.set_errors!([
       %Error{message_key: "csrf_attack", message: "Cross-Site Request Forgery attack"}
     ])
@@ -407,6 +422,10 @@ defmodule Ueberauth.Strategy do
     strategy_option(strategy, :state_param_cookie_same_site, "Lax")
   end
 
+  defp get_state_param_cookie_max_age(strategy) do
+    strategy_option(strategy, :state_param_cookie_max_age, @state_param_cookie_max_age)
+  end
+
   defp get_ignores_csrf_attack_option(strategy) do
     strategy_option(strategy, :ignores_csrf_attack, false)
   end
@@ -419,13 +438,21 @@ defmodule Ueberauth.Strategy do
 
   defp add_state_param(conn, strategy) do
     state = create_state_param()
+    same_site = get_state_param_cookie_same_site(strategy)
 
     conn
     |> Conn.put_resp_cookie(@state_param_cookie_name, state,
       sign: true,
-      same_site: get_state_param_cookie_same_site(strategy)
+      same_site: same_site,
+      secure: secure_state_cookie?(conn, same_site),
+      max_age: get_state_param_cookie_max_age(strategy)
     )
     |> Helpers.add_state_param(state)
+  end
+
+  # Browsers drop `SameSite=None` cookies that are not also `Secure`.
+  defp secure_state_cookie?(conn, same_site) do
+    conn.scheme == :https or String.downcase(to_string(same_site)) == "none"
   end
 
   defp get_state_cookie(conn) do

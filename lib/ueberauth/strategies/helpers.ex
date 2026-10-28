@@ -7,6 +7,7 @@ defmodule Ueberauth.Strategy.Helpers do
   falling back to defaults.
   """
   import Plug.Conn, except: [request_url: 1]
+  require Logger
   alias Ueberauth.Failure
   alias Ueberauth.Failure.Error
 
@@ -206,19 +207,24 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   defp full_url(conn, opts) do
+    case from_private(conn, :trust_forwarded_headers) do
+      nil ->
+        url = build_url(conn, opts, true)
+        unless url == build_url(conn, opts, false), do: warn_untrusted_forwarded_headers()
+        url
+
+      trust_forwarded_headers ->
+        build_url(conn, opts, trust_forwarded_headers)
+    end
+  end
+
+  defp build_url(conn, opts, trust_forwarded_headers) do
     scheme =
-      cond do
-        scheme = Keyword.get(opts, :scheme) -> scheme
-        scheme = get_forwarded_proto_header(conn) -> scheme
-        true -> to_string(conn.scheme)
-      end
+      Keyword.get(opts, :scheme) ||
+        (trust_forwarded_headers && get_forwarded_proto_header(conn)) ||
+        to_string(conn.scheme)
 
-    host = get_host_header(conn) || conn.host
-
-    [host, port] =
-      if String.contains?(host, ":"),
-        do: String.split(host, ":"),
-        else: [host, to_string(conn.port)]
+    {host, port} = get_host_and_port(conn, trust_forwarded_headers)
 
     port = Keyword.get(opts, :port) || normalize_port(scheme, port)
 
@@ -245,19 +251,65 @@ defmodule Ueberauth.Strategy.Helpers do
     |> List.first()
   end
 
-  defp get_host_header(conn) do
-    case get_req_header(conn, "x-forwarded-host") do
-      [] ->
-        get_req_header(conn, "host")
-        |> List.first()
+  defp get_forwarded_host_header(conn) do
+    conn
+    |> get_req_header("x-forwarded-host")
+    |> List.first()
+  end
 
-      [host | _] ->
-        host
+  defp get_host_header(conn) do
+    conn
+    |> get_req_header("host")
+    |> List.first()
+  end
+
+  # Header values are client-controlled, so anything that is not a plain
+  # `host[:port]` authority falls through to the next candidate instead of
+  # raising.
+  defp get_host_and_port(conn, trust_forwarded_headers) do
+    [
+      trust_forwarded_headers && get_forwarded_host_header(conn),
+      get_host_header(conn),
+      conn.host
+    ]
+    |> Enum.find_value({conn.host, conn.port}, &parse_authority(&1, conn.port))
+  end
+
+  defp parse_authority(authority, default_port) when is_binary(authority) do
+    case URI.new("//" <> authority) do
+      {:ok, %URI{host: host, port: port, userinfo: nil, path: nil, query: nil, fragment: nil}}
+      when host != "" and (is_nil(port) or port in 0..65_535) ->
+        {host, port || default_port}
+
+      _ ->
+        nil
     end
   end
 
-  defp normalize_port(scheme, "80"), do: URI.default_port(scheme)
-  defp normalize_port(_, port), do: String.to_integer(port)
+  defp parse_authority(_authority, _default_port), do: nil
+
+  defp warn_untrusted_forwarded_headers do
+    key = {__MODULE__, :warned_untrusted_forwarded_headers}
+
+    unless :persistent_term.get(key, false) do
+      :persistent_term.put(key, true)
+
+      Logger.warning("""
+      Ueberauth built a request or callback URL from the X-Forwarded-Host or \
+      X-Forwarded-Proto header. Any client can send these headers, so they can \
+      change the redirect_uri sent to your OAuth provider.
+
+      If a proxy you control sets these headers, set `trust_forwarded_headers: true` \
+      in your provider options or in `config :ueberauth, Ueberauth`. Otherwise set \
+      it to `false`, or use Plug.RewriteOn to apply proxy headers before Ueberauth runs.
+
+      Ueberauth 0.12.0 will ignore these headers unless `trust_forwarded_headers: true` is set.
+      """)
+    end
+  end
+
+  defp normalize_port(scheme, 80), do: URI.default_port(scheme)
+  defp normalize_port(_, port), do: port
 
   defp encode_query([]), do: nil
   defp encode_query(query_params), do: URI.encode_query(query_params)

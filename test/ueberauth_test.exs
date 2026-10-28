@@ -1,6 +1,9 @@
 defmodule UeberauthTest do
   use ExUnit.Case, async: true
 
+  # Legacy forwarded-header tests trigger the trust_forwarded_headers warning.
+  @moduletag :capture_log
+
   import Plug.Conn
   import Plug.Test
 
@@ -365,6 +368,54 @@ defmodule UeberauthTest do
     assert conn.resp_cookies["ueberauth.state_param"][:same_site] == "None"
   end
 
+  defp state_cookie_header(conn) do
+    conn
+    |> send_resp(200, "")
+    |> get_resp_header("set-cookie")
+    |> Enum.find(&String.starts_with?(&1, "ueberauth.state_param="))
+  end
+
+  test "run_request marks a SameSite=None state cookie as Secure" do
+    conn =
+      conn(:get, "/oauth/simple-provider/")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCustomCookieSameSite, []})
+
+    assert conn.resp_cookies["ueberauth.state_param"].secure == true
+    assert state_cookie_header(conn) =~ "; secure"
+    assert state_cookie_header(conn) =~ "; SameSite=None"
+  end
+
+  test "run_request marks the state cookie as Secure only over HTTPS" do
+    run = fn scheme ->
+      %{conn(:get, "/oauth/simple-provider/") | scheme: scheme}
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
+    end
+
+    assert run.(:https).resp_cookies["ueberauth.state_param"].secure == true
+    assert run.(:http).resp_cookies["ueberauth.state_param"].secure == false
+  end
+
+  test "run_request expires the state cookie after 10 minutes by default" do
+    conn =
+      conn(:get, "/oauth/simple-provider/")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
+
+    assert conn.resp_cookies["ueberauth.state_param"].max_age == 600
+    assert state_cookie_header(conn) =~ "; max-age=600"
+  end
+
+  test "run_request with a custom state param cookie max age" do
+    conn =
+      conn(:get, "/oauth/simple-provider/")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCustomCookieMaxAge, []})
+
+    assert conn.resp_cookies["ueberauth.state_param"].max_age == 1800
+  end
+
   test "run_request with state param disabled" do
     conn =
       conn(:get, "/oauth/simple-provider/", id: "foo")
@@ -399,6 +450,39 @@ defmodule UeberauthTest do
       )
 
     assert conn.assigns.ueberauth_failure != nil
+    assert List.first(conn.assigns.ueberauth_failure.errors).message_key == "csrf_attack"
+  end
+
+  test "run_callback deletes the state cookie when the state does not match" do
+    request_conn =
+      conn(:get, "/oauth/simple-provider/")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
+
+    conn =
+      conn(:get, "/oauth/simple-provider/callback", code: "simple-code", state: "wrong-state")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> recycle_cookies(request_conn)
+      |> Ueberauth.run_callback("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
+
+    assert List.first(conn.assigns.ueberauth_failure.errors).message_key == "csrf_attack"
+    assert conn.resp_cookies["ueberauth.state_param"].max_age == 0
+  end
+
+  test "run_callback rejects a non-string state param" do
+    request_conn =
+      conn(:get, "/oauth/simple-provider/")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
+
+    state = request_conn.private[:ueberauth_state_param]
+
+    conn =
+      conn(:get, "/oauth/simple-provider/callback", code: "simple-code", state: [state])
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> recycle_cookies(request_conn)
+      |> Ueberauth.run_callback("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
+
     assert List.first(conn.assigns.ueberauth_failure.errors).message_key == "csrf_attack"
   end
 
