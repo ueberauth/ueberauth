@@ -263,6 +263,43 @@ providers: [
 All options that are passed into your strategy are available at runtime to
 modify the behaviour of the strategy.
 
+## Testing
+
+`Ueberauth.Strategy.Test` lets you test your authentication controllers without
+calling a real provider. Configure it in place of your strategies in
+`config/test.exs`, keeping the provider names:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    github: {Ueberauth.Strategy.Test, []}
+  ]
+```
+
+Then set the user (or a failure) on the conn before calling the callback route:
+
+```elixir
+test "signs in with GitHub", %{conn: conn} do
+  conn =
+    conn
+    |> Ueberauth.Strategy.Test.put_auth(uid: "12345", info: %{email: "jane@example.com"})
+    |> get(~p"/auth/github/callback")
+
+  assert redirected_to(conn) == ~p"/"
+end
+
+test "handles a denied login", %{conn: conn} do
+  conn =
+    conn
+    |> Ueberauth.Strategy.Test.put_failure("access_denied", "The user denied access")
+    |> get(~p"/auth/github/callback")
+
+  assert redirected_to(conn) == ~p"/login"
+end
+```
+
+See `Ueberauth.Strategy.Test` for provider-level defaults and other details.
+
 ## Copyright and License
 
 Copyright (c) 2015 Sonny Scroggin
