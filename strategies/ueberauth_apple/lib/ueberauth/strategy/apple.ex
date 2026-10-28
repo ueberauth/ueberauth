@@ -65,7 +65,7 @@ defmodule Ueberauth.Strategy.Apple do
     end
   end
 
-  # Ueberauth 0.13 names the state cookie per provider; older versions share one name.
+  # Ueberauth 0.12 names the state cookie per provider; older versions share one name.
   @spec ueberauth_state_cookie_name(Plug.Conn.t()) :: String.t()
   defp ueberauth_state_cookie_name(conn) do
     helpers = Ueberauth.Strategy.Helpers

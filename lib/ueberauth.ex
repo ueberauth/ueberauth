@@ -207,7 +207,7 @@ defmodule Ueberauth do
   provider options.
 
   The `trust_forwarded_headers: true` option makes Ueberauth read the
-  forwarded headers itself, as versions before 0.13.0 did. It is deprecated
+  forwarded headers itself, as versions before 0.12.0 did. It is deprecated
   and will be removed in a future release. It can be set globally or per
   provider:
 
