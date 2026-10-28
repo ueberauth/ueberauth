@@ -10,36 +10,24 @@ jobs:
   Test:
     runs-on: ubuntu-latest
     strategy:
-       matrix:
-         elixir: ["1.15", "1.16", "1.17", "1.18", "1.19", "1.20"]
-         otp: ["24", "25", "26", "27", "28"]
-         exclude:
-           - elixir: "1.15"
-             otp: "27"
-           - elixir: "1.15"
-             otp: "28"
-           - elixir: "1.16"
-             otp: "27"
-           - elixir: "1.16"
-             otp: "28"
-           - elixir: "1.17"
-             otp: "24"
-           - elixir: "1.17"
-             otp: "28"
-           - elixir: "1.18"
-             otp: "24"
-           - elixir: "1.18"
-             otp: "28"
-           - elixir: "1.19"
-             otp: "24"
-           - elixir: "1.19"
-             otp: "25"
-           - elixir: "1.20"
-             otp: "24"
-           - elixir: "1.20"
-             otp: "25"
-           - elixir: "1.20"
-             otp: "26"
+      fail-fast: false
+      # Supported Elixir/OTP pairs that hex.pm publishes builds for on
+      # ubuntu-latest (26.04), which has no OTP 24 or 25 builds.
+      matrix:
+        include:
+          - { elixir: "1.15", otp: "26" }
+          - { elixir: "1.16", otp: "26" }
+          - { elixir: "1.17", otp: "26" }
+          - { elixir: "1.17", otp: "27" }
+          - { elixir: "1.18", otp: "26" }
+          - { elixir: "1.18", otp: "27" }
+          - { elixir: "1.18", otp: "28" }
+          - { elixir: "1.19", otp: "26" }
+          - { elixir: "1.19", otp: "27" }
+          - { elixir: "1.19", otp: "28" }
+          - { elixir: "1.20", otp: "27" }
+          - { elixir: "1.20", otp: "28" }
+          - { elixir: "1.20", otp: "29" }
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6

@@ -441,7 +441,7 @@ defmodule UeberauthTest do
 
   test "protected requests require a valid secret" do
     for secret <- [nil, :invalid] do
-      assert_raise FunctionClauseError, fn ->
+      assert_raise ArgumentError, fn ->
         conn(:get, "/oauth/simple-provider/")
         |> Map.put(:secret_key_base, secret)
         |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
