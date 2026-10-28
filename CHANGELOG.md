@@ -14,7 +14,8 @@ These changes ship in the release after the one that adds the `trust_forwarded_h
 
 1. **Behind a proxy:** add `plug Plug.RewriteOn, [:x_forwarded_host, :x_forwarded_port, :x_forwarded_proto]` before Ueberauth runs (for Phoenix, in the endpoint), or set `:callback_scheme`, `:callback_port` or `:callback_url` on each provider. Setting `trust_forwarded_headers: true` keeps the old behavior for now.
 2. **In-flight logins:** users who started a login before the deploy must start it again, because the state cookie name changed.
-3. **Tests:** replace `Ueberauth.init()` with `Ueberauth.routes()` where a test edits the route list before calling `Ueberauth.call/2`, and replace the `"ueberauth.state_param"` cookie name with `"ueberauth.state_param.<provider>"`.
+3. **Sign in with Apple:** upgrade `ueberauth_apple` at the same time. Older versions look for the old cookie name and raise in `form_post` mode.
+4. **Tests:** replace `Ueberauth.init()` with `Ueberauth.routes()` where a test edits the route list before calling `Ueberauth.call/2`, and replace the `"ueberauth.state_param"` cookie name with `"ueberauth.state_param.<provider>"`.
 
 ### Fixes and warnings
 
