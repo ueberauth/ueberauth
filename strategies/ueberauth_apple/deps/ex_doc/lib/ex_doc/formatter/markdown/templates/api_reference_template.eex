@@ -1,0 +1,3 @@
+# <%= config.project %> v<%= config.version %> - API Reference
+<%= nav_group_template "Modules", modules %>
+<%= nav_group_template "Mix Tasks", mix_tasks %>

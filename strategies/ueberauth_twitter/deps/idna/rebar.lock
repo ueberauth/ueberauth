@@ -1,0 +1,8 @@
+{"1.2.0",
+[{<<"unicode_util_compat">>,{pkg,<<"unicode_util_compat">>,<<"0.7.0">>},0}]}.
+[
+{pkg_hash,[
+ {<<"unicode_util_compat">>, <<"BC84380C9AB48177092F43AC89E4DFA2C6D62B40B8BD132B1059ECC7232F9A78">>}]},
+{pkg_hash_ext,[
+ {<<"unicode_util_compat">>, <<"25EEE6D67DF61960CF6A794239566599B09E17E668D3700247BC498638152521">>}]}
+].

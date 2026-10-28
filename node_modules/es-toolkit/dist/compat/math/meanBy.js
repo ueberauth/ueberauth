@@ -1,0 +1,36 @@
+const require_identity = require("../../function/identity.js");
+const require_iteratee = require("../util/iteratee.js");
+const require_sumBy = require("./sumBy.js");
+// src/compat/math/meanBy.ts
+/**
+* Calculates the average of an array of numbers when applying
+* the `iteratee` function to each element.
+*
+* If the array is empty, this function returns `NaN`.
+*
+* If the key is missing or the value is `undefined`, it is treated as `0`.
+* However, if every value is `undefined`, the result is `NaN`.
+*
+* @template T - The type of elements in the array.
+* @param items An array to calculate the average.
+* @param iteratee
+* The criteria used to determine the maximum value.
+*  - If a **function** is provided, it extracts a numeric value from each element.
+*  - If a **string** is provided, it is treated as a key to extract values from the objects.
+*  - If a **[key, value]** pair is provided, it matches elements with the specified key-value pair.
+*  - If an **object** is provided, it matches elements that contain the specified properties.
+* @returns The average of all the numbers as determined by the `iteratee` function.
+*
+* @example
+* meanBy([{ a: 1 }, { a: 2 }, { a: 3 }], x => x.a); // Returns: 2
+* meanBy([], x => x.a); // Returns: NaN
+* meanBy([[2], [3], [1]], 0); // Returns: 2
+* meanBy([{ a: 2 }, { a: 3 }, { a: 1 }], 'a'); // Returns: 2
+* meanBy([{ a: 1 }, {}], 'a'); // Returns: 0.5
+*/
+function meanBy(items, iteratee$1) {
+	const length = items == null ? 0 : items.length;
+	if (!length) return NaN;
+	return require_sumBy.sumBy(items, require_iteratee.iteratee(iteratee$1 !== null && iteratee$1 !== void 0 ? iteratee$1 : require_identity.identity)) / length;
+}
+exports.meanBy = meanBy;

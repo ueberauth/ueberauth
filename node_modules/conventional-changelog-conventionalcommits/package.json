@@ -1,0 +1,35 @@
+{
+  "name": "conventional-changelog-conventionalcommits",
+  "type": "module",
+  "version": "10.4.1",
+  "description": "Conventionalcommits.org preset for conventional-changelog.",
+  "author": "Ben Coe",
+  "license": "ISC",
+  "homepage": "https://conventional-changelog.js.org/presets/conventional-commits/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conventional-changelog/conventional-changelog.git",
+    "directory": "packages/conventional-changelog-conventionalcommits"
+  },
+  "bugs": {
+    "url": "https://github.com/conventional-changelog/conventional-changelog/issues"
+  },
+  "keywords": [
+    "conventional-changelog",
+    "conventionalcommits.org",
+    "preset"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    "types": "./src/index.d.ts",
+    "import": "./src/index.js"
+  },
+  "files": [
+    "src"
+  ],
+  "dependencies": {
+    "@conventional-changelog/template": "^1.4.0"
+  }
+}

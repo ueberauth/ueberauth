@@ -1,0 +1,49 @@
+{
+  "name": "@commitlint/is-ignored",
+  "version": "21.2.3",
+  "gitHead": "95d40569d2592bf9719bc27da2d51fc6b801e4ef",
+  "description": "Lint your commit messages",
+  "keywords": [
+    "commitlint",
+    "conventional-changelog",
+    "core",
+    "library"
+  ],
+  "homepage": "https://commitlint.js.org/",
+  "bugs": {
+    "url": "https://github.com/conventional-changelog/commitlint/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Mario Nebl",
+    "email": "hello@herebecode.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conventional-changelog/commitlint.git",
+    "directory": "@commitlint/is-ignored"
+  },
+  "files": [
+    "lib/"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "deps": "dep-check",
+    "pkg": "pkg-check"
+  },
+  "dependencies": {
+    "@commitlint/types": "^21.2.3",
+    "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@commitlint/parse": "^21.2.3",
+    "@commitlint/test": "^21.2.0",
+    "@commitlint/utils": "^21.0.1",
+    "@types/semver": "^7.5.7"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

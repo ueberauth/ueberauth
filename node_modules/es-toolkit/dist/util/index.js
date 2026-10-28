@@ -1,0 +1,16 @@
+Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const require_queue = require("./queue.js");
+const require_attempt = require("./attempt.js");
+const require_attemptAsync = require("./attemptAsync.js");
+const require_defer = require("./defer.js");
+const require_deferAsync = require("./deferAsync.js");
+const require_invariant = require("./invariant.js");
+const require_serialize = require("./serialize/serialize.js");
+exports.Queue = require_queue.Queue;
+exports.assert = require_invariant.invariant;
+exports.attempt = require_attempt.attempt;
+exports.attemptAsync = require_attemptAsync.attemptAsync;
+exports.defer = require_defer.defer;
+exports.deferAsync = require_deferAsync.deferAsync;
+exports.invariant = require_invariant.invariant;
+exports.serialize = require_serialize.serialize;

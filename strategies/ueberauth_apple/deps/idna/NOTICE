@@ -1,0 +1,11 @@
+This file is part of erlang-idna released under the MIT license.
+See the LICENSE for more information
+
+Copyright 2014-2020 Benoît Chesneau <bchesneau@gmail.com>
+Copyright 2009-2014 Tim Fletcher
+
+Others:
+
+* idna_ucs.erl:
+Under the Apache 2 license
+Copyright Ericsson AB 2005-2016. All Rights Reserved

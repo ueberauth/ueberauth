@@ -1,0 +1,1 @@
+{application,ueberauth_facebook,[{modules,['Elixir.Ueberauth.Strategy.Facebook','Elixir.Ueberauth.Strategy.Facebook.OAuth','Elixir.UeberauthFacebook']},{optional_applications,[]},{applications,[kernel,stdlib,elixir,logger,ueberauth,oauth2,credo]},{description,"ueberauth_facebook"},{registered,[]},{vsn,"0.10.0"}]}.

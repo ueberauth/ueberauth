@@ -1,0 +1,17 @@
+import { toNumber } from "../util/toNumber.mjs";
+import { toInteger } from "../util/toInteger.mjs";
+// src/compat/_internal/decimalAdjust.ts
+function decimalAdjust(type, number, precision = 0) {
+	number = toNumber(number);
+	if (Object.is(number, -0)) number = "-0";
+	precision = Math.min(toInteger(precision), 292);
+	if (precision && Number.isFinite(Number(number))) {
+		const [magnitude, exponent = 0] = number.toString().split("e");
+		let adjustedValue = Math[type](Number(`${magnitude}e${Number(exponent) + precision}`));
+		if (Object.is(adjustedValue, -0)) adjustedValue = "-0";
+		const [newMagnitude, newExponent = 0] = adjustedValue.toString().split("e");
+		return Number(`${newMagnitude}e${Number(newExponent) - precision}`);
+	}
+	return Math[type](Number(number));
+}
+export { decimalAdjust };

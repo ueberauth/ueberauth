@@ -1,0 +1,80 @@
+%% -*- erlang -*-
+%%%
+%%% This file is part of mimerl released under the MIT license.
+%%% See the LICENSE for more information.
+-module(mimerl).
+
+-export([extension/1]).
+-export([web_extension/1]).
+-export([filename/1]).
+-export([web/1]).
+-export([mime_to_exts/1]).
+
+%% @doc Transform an extension to a mimetype
+%%
+%%      Example:
+%%
+%% ```
+%% 1> mimerl:extension(<<"c">>).
+%% <<"text/x-c">>
+%% '''
+-spec extension(binary()) -> binary().
+extension(Ext) ->
+    extensions(Ext).
+
+%% @doc transform a web extension to a mimetype
+web_extension(Ext) ->
+    web_extensions(Ext).
+
+
+%% @doc Return the mimetype for any file by looking at its extension.
+%% Example:
+%%
+%% ```
+%% 1> mimerl:filename(<<"test.cpp">>).
+%% <<"text/x-c">>
+%% '''
+-spec filename(file:filename_all()) -> binary().
+filename(Path) ->
+	case filename:extension(Path) of
+		<<>> -> <<"application/octet-stream">>;
+		<< $., Ext/binary >> -> extension(Ext)
+	end.
+
+web(Path) ->
+    case filename:extension(Path) of
+		<<>> -> <<"application/octet-stream">>;
+		<< $., Ext/binary >> -> web_extension(Ext)
+	end.
+
+%% @doc Return the list of extensions for a mimetype.
+%% Example:
+%%
+%% ```
+%% 1> mimerl:mime_to_exts(<<"text/plain">>).
+%% [<<"txt">>,<<"text">>,<<"conf">>,<<"def">>,<<"list">>,<<"log">>,<<"in">>]
+%% '''
+-spec mime_to_exts(binary()) -> [binary()].
+mime_to_exts(Mimetype) ->
+    mimetypes(Mimetype).
+
+
+%% GENERATED
+
+web_extensions(<<"css">>) -> {<<"text">>, <<"css">>};
+web_extensions(<<"gif">>) -> {<<"image">>, <<"gif">>};
+web_extensions(<<"html">>) -> {<<"text">>, <<"html">>};
+web_extensions(<<"htm">>) -> {<<"text">>, <<"html">>};
+web_extensions(<<"ico">>) -> {<<"image">>, <<"x-icon">>};
+web_extensions(<<"jpeg">>) -> {<<"image">>, <<"jpeg">>};
+web_extensions(<<"jpg">>) -> {<<"image">>, <<"jpeg">>};
+web_extensions(<<"js">>) -> {<<"application">>, <<"javascript">>};
+web_extensions(<<"mp3">>) -> {<<"audio">>, <<"mpeg">>};
+web_extensions(<<"mp4">>) -> {<<"video">>, <<"mp4">>};
+web_extensions(<<"ogg">>) -> {<<"audio">>, <<"ogg">>};
+web_extensions(<<"ogv">>) -> {<<"video">>, <<"ogg">>};
+web_extensions(<<"png">>) -> {<<"image">>, <<"png">>};
+web_extensions(<<"svg">>) -> {<<"image">>, <<"svg+xml">>};
+web_extensions(<<"wav">>) -> {<<"audio">>, <<"x-wav">>};
+web_extensions(<<"webm">>) -> {<<"video">>, <<"webm">>};
+web_extensions(_) -> {<<"application">>, <<"octet-stream">>}.

@@ -1,0 +1,26 @@
+%% -*- mode: erlang; tab-width: 4; indent-tabs-mode: 1; st-rulers: [70] -*-
+%% vim: ts=4 sw=4 ft=erlang noet
+{application, jose, [
+	{description, "JSON Object Signing and Encryption (JOSE) for Erlang and Elixir."},
+	{vsn, "1.11.13"},
+	{id, "git"},
+	{mod, {'jose_app', []}},
+	{registered, []},
+	{applications, [
+		kernel,
+		stdlib,
+		crypto,
+		asn1,
+		public_key
+	]},
+	{modules, []},
+	{maintainers, ["Andrew Bennett"]},
+	{licenses, ["MIT"]},
+	{links, [{"Github", "https://github.com/potatosalad/erlang-jose"}]},
+	{env, [
+		{crypto_fallback, false},
+		{pbes2_count_maximum, 10000},
+		{zip_size_maximum, 1048576}
+	]}
+]}.
+

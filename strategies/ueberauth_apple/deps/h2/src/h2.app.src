@@ -1,0 +1,10 @@
+{application,h2,
+             [{description,"HTTP/2 protocol library for Erlang"},
+              {vsn,"0.12.5"},
+              {registered,[h2_sup]},
+              {mod,{h2_app,[]}},
+              {applications,[kernel,stdlib,ssl,crypto,public_key]},
+              {env,[]},
+              {modules,[]},
+              {licenses,["Apache-2.0"]},
+              {links,[{"GitHub","https://github.com/benoitc/erlang_h2"}]}]}.

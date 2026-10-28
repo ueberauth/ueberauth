@@ -1,0 +1,14 @@
+/**
+ * Performs a `SameValueZero` comparison between two values to determine if they are equivalent.
+ *
+ * @param value The value to compare.
+ * @param other The other value to compare.
+ * @returns Returns `true` if the values are equivalent, else `false`.
+ *
+ * @example
+ * eq(1, 1); // true
+ * eq(0, -0); // true
+ * eq(NaN, NaN); // true
+ * eq('a', Object('a')); // false
+ */
+export declare function eq(value: any, other: any): boolean;

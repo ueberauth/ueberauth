@@ -1,0 +1,29 @@
+# CHANGELOG
+
+== 6.1.1 - 2020-12-06
+
+- fix license information
+
+== 6.1.0 - 2020-12-05
+
+- update to Unicode 13.0.0
+- bump unicode_util_compat to 0.7.0
+- remove support of Erlang < 19.3
+- remove support of rebar 2
+
+== 6.0.1 - 2020-05-14
+
+- bump to unicode_compat 0.5.0
+
+== 6.0.0 - 2018-08-30
+
+- IDNA 2008 support [RFC5981](https://tools.ietf.org/html/rfc5891)
+- International Domain Name validation
+- fix [Punycode](https://tools.ietf.org/html/rfc3492) algorithm
+
+Breaking changes:
+- `idna:to_ascii/1` in 5.1.x did not encode or enforce rules if the input is already all ascii
+
+== 5.1.2 - 2018-06-09
+
+- support build with rebar 2

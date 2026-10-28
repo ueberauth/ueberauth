@@ -1,0 +1,12 @@
+// src/compat/util/stubObject.ts
+/**
+* Returns an empty object.
+*
+* @returns An empty object.
+* @example
+* stubObject() // Returns {}
+*/
+function stubObject() {
+	return {};
+}
+exports.stubObject = stubObject;

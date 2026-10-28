@@ -1,0 +1,26 @@
+hackney
+-------
+
+2012-2025 (c) Benoît Chesneau <bchesneau@pm.me>
+
+hackney is released under the Apache 2 license. See the LICENSE file for
+the complete license.
+
+
+Third parties
+-------------
+
+*) Some part of the code from the cowboy project under ISC license:
+Copyright (c) 2011-2012, Loicïc Hoguin <essen@ninenines.eu>
+
+*) hackney_pool is based on lhttpc_manager code from the lhttpc project
+under BSD.
+Copyright (c) 2009, Erlang Training and Consulting Ltd.
+
+*) mk-ca-bundle.pl from the curl project. under BSD license
+Copyright (C) 1998 - 2014, Daniel Stenberg, <daniel@haxx.se>, et al.
+
+*) hackney_trace (C) 2015 under the Erlang Public License
+
+*) hackney_cidr is based on inet_cidr 1.2.1. vendored for customer purpose.
+Copyright (c) 2024, Enki Multimedia , MIT License

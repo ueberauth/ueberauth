@@ -1,0 +1,1 @@
+{application,ham,[{modules,['Elixir.Ham','Elixir.Ham.Cache','Elixir.Ham.TypeChecker','Elixir.Ham.TypeEngine','Elixir.Ham.TypeMatchError','Elixir.Ham.Utils']},{optional_applications,[]},{applications,[kernel,stdlib,elixir]},{description,"ham"},{registered,[]},{vsn,"0.3.2"}]}.

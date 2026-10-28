@@ -1,0 +1,62 @@
+{
+	"name": "global-directory",
+	"version": "5.0.0",
+	"description": "Get the directory of globally installed packages and binaries",
+	"license": "MIT",
+	"repository": "sindresorhus/global-directory",
+	"funding": "https://github.com/sponsors/sindresorhus",
+	"author": {
+		"name": "Sindre Sorhus",
+		"email": "sindresorhus@gmail.com",
+		"url": "https://sindresorhus.com"
+	},
+	"type": "module",
+	"exports": {
+		"types": "./index.d.ts",
+		"default": "./index.js"
+	},
+	"sideEffects": false,
+	"engines": {
+		"node": ">=20"
+	},
+	"scripts": {
+		"test": "xo && ava && tsd"
+	},
+	"files": [
+		"index.js",
+		"index.d.ts"
+	],
+	"keywords": [
+		"global",
+		"prefix",
+		"path",
+		"paths",
+		"npm",
+		"yarn",
+		"pnpm",
+		"node",
+		"modules",
+		"node-modules",
+		"package",
+		"packages",
+		"binary",
+		"binaries",
+		"bin",
+		"directory",
+		"directories",
+		"npmrc",
+		"rc",
+		"config",
+		"root",
+		"resolve"
+	],
+	"dependencies": {
+		"ini": "6.0.0"
+	},
+	"devDependencies": {
+		"ava": "^6.4.1",
+		"execa": "^9.6.1",
+		"tsd": "^0.33.0",
+		"xo": "^1.2.3"
+	}
+}

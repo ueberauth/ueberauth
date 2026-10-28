@@ -1,0 +1,34 @@
+{
+  "name": "argue-cli",
+  "type": "module",
+  "version": "3.2.0",
+  "description": "A thin and strongly typed CLI arguments parser for Node.js.",
+  "author": "dangreen",
+  "license": "MIT",
+  "funding": "https://ko-fi.com/dangreen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TrigenSoftware/Argue.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TrigenSoftware/Argue/issues"
+  },
+  "keywords": [
+    "cli",
+    "arguments",
+    "parser",
+    "console",
+    "terminal"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "types": "./dist/index.d.ts",
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ]
+}

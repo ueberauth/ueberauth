@@ -1,0 +1,8 @@
+{application,idna,
+             [{description,"A pure Erlang IDNA implementation"},
+              {vsn,"6.1.1"},
+              {modules,[]},
+              {registered,[]},
+              {applications,[kernel,stdlib,unicode_util_compat]},
+              {licenses,["MIT"]},
+              {links,[{"Github","https://github.com/benoitc/erlang-idna"}]}]}.

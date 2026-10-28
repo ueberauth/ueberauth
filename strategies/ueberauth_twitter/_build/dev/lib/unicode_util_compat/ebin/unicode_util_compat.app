@@ -1,0 +1,11 @@
+{application,unicode_util_compat,
+             [{description,"unicode_util compatibility library for Erlang < 20"},
+              {vsn,"0.7.1"},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {env,[]},
+              {modules,[string_compat,unicode_util_compat]},
+              {licenses,["Apache 2.0"]},
+              {links,[{"Github",
+                       "https://github.com/benoitc/unicode_util_compat"}]},
+              {files,["src","rebar.config","README.md","LICENSE"]}]}.

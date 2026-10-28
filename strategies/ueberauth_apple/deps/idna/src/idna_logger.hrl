@@ -1,0 +1,7 @@
+-ifdef('OTP_RELEASE').
+-include_lib("kernel/include/logger.hrl").
+-else.
+-define(LOG_INFO(Format, Args), error_logger:info_msg(Format, Args)).
+-define(LOG_ERROR(Format, Args), error_logger:error_msg(Format, Args)).
+-define(LOG_WARNING(Format, Args), error_logger:warning_msg(Format, Args)).
+-endif.

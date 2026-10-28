@@ -1,0 +1,13 @@
+{application,idna,
+             [{description,"A pure Erlang IDNA implementation"},
+              {vsn,"7.1.0"},
+              {modules,[idna,idna_bidi,idna_context,idna_data,idna_mapping,
+                        idna_table,idna_ucs,punycode]},
+              {registered,[]},
+              {applications,[kernel,stdlib]},
+              {licenses,["MIT"]},
+              {links,[{"GitHub","https://github.com/benoitc/erlang-idna"},
+                      {"Changelog",
+                       "https://github.com/benoitc/erlang-idna/blob/master/CHANGELOG"}]},
+              {doc,#{main => "readme",
+                     extras => ["README.md","CHANGELOG","LICENSE"]}}]}.

@@ -1,0 +1,17 @@
+import { wrapAnsi } from "./_internal/wrapAnsi.mjs";
+// src/server/colors/green.ts
+/**
+* Green foreground. Wraps text with ANSI codes.
+*
+* @param text - The text to style.
+* @returns The styled text.
+*
+* @example
+* import { colors } from 'es-toolkit/server';
+*
+* console.log(colors.green('hello'));
+*/
+function green(text) {
+	return wrapAnsi("\x1B[32m", "\x1B[39m", text);
+}
+export { green };

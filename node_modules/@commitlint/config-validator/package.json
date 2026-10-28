@@ -1,0 +1,47 @@
+{
+  "name": "@commitlint/config-validator",
+  "version": "21.2.3",
+  "gitHead": "95d40569d2592bf9719bc27da2d51fc6b801e4ef",
+  "description": "config validator for commitlint.config.js",
+  "keywords": [
+    "commitlint",
+    "conventional-changelog",
+    "core",
+    "library"
+  ],
+  "homepage": "https://commitlint.js.org/",
+  "bugs": {
+    "url": "https://github.com/conventional-changelog/commitlint/issues"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Mario Nebl",
+    "email": "hello@herebecode.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/conventional-changelog/commitlint.git",
+    "directory": "@commitlint/config-validator"
+  },
+  "files": [
+    "lib/"
+  ],
+  "type": "module",
+  "main": "lib/validate.js",
+  "types": "lib/validate.d.ts",
+  "scripts": {
+    "deps": "dep-check",
+    "pkg": "pkg-check --skip-import"
+  },
+  "dependencies": {
+    "@commitlint/types": "^21.2.3",
+    "ajv": "^8.11.0"
+  },
+  "devDependencies": {
+    "@commitlint/utils": "^21.0.1",
+    "@types/node": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

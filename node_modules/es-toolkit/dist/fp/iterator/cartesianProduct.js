@@ -1,0 +1,27 @@
+const require_cartesianProduct = require("../../iterator/cartesianProduct.js");
+// src/fp/iterator/cartesianProduct.ts
+/**
+* Creates a function that lazily takes the Cartesian product of the piped
+* iterator and `other`, for use with {@link pipe}. Every element of the piped
+* iterator is paired with every element of `other`, with `other` advancing
+* fastest. `other` is buffered into an array when iteration starts, while the
+* piped iterator is consumed lazily, so it may be infinite.
+*
+* @template T - The type of elements produced by the piped iterator.
+* @template U - The type of elements produced by `other`.
+* @param other - The iterator to take the product with.
+* @returns A function mapping an `Iterator<T>` to a lazy `IteratorObject<[T, U]>`.
+*
+* @example
+* import { pipe } from 'es-toolkit/fp';
+* import { cartesianProduct, toArray } from 'es-toolkit/fp/iterator';
+*
+* pipe([1, 2].values(), cartesianProduct(['a', 'b'].values()), toArray());
+* // => [[1, 'a'], [1, 'b'], [2, 'a'], [2, 'b']]
+*/
+function cartesianProduct(other) {
+	return function cartesianProductInIterator(source) {
+		return require_cartesianProduct.cartesianProduct(source, other);
+	};
+}
+exports.cartesianProduct = cartesianProduct;

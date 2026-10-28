@@ -1,0 +1,1 @@
+{application,oauther,[{modules,['Elixir.OAuther','Elixir.OAuther.Credentials']},{optional_applications,[]},{applications,[kernel,stdlib,elixir,crypto,public_key]},{description,"A library to authenticate using the OAuth 1.0 protocol."},{registered,[]},{vsn,"1.3.0"}]}.
