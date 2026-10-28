@@ -5,7 +5,7 @@ defmodule UeberauthApple do
   For more information, see the [Overview](README.md).
   """
 
-  @default_expires_in 86400 * 180
+  @default_expires_in 86_400 * 180
 
   @doc """
   Generate a Client Secret from the given options.

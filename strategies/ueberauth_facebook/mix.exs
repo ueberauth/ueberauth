@@ -1,7 +1,8 @@
 defmodule Ueberauth.Facebook.Mixfile do
   use Mix.Project
 
-  @source_url "https://github.com/ueberauth/ueberauth_facebook"
+  @source_url "https://github.com/ueberauth/ueberauth"
+  @source_path "strategies/ueberauth_facebook"
   @version "0.10.0"
 
   def project do
@@ -9,7 +10,7 @@ defmodule Ueberauth.Facebook.Mixfile do
       app: :ueberauth_facebook,
       version: @version,
       name: "Überauth Facebook",
-      elixir: "~> 1.3",
+      elixir: "~> 1.14",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: package(),
@@ -26,15 +27,16 @@ defmodule Ueberauth.Facebook.Mixfile do
 
   defp deps do
     [
-      {:ueberauth, "~> 0.7"},
+      ueberauth_dep(),
       {:oauth2, "~> 1.0 or ~> 2.0"},
-      {:credo, "~> 0.8.10", only: [:dev, :test]},
+      {:credo, ">= 0.0.0", only: [:dev, :test]},
       {:ex_doc, ">= 0.24.2", only: :dev, runtime: false}
     ]
   end
 
   defp docs do
     [
+      source_url_pattern: "#{@source_url}/blob/ueberauth_facebook-v#{@version}/#{@source_path}/%{path}#L%{line}",
       extras: [
         "CHANGELOG.md",
         "CONTRIBUTING.md",
@@ -43,8 +45,7 @@ defmodule Ueberauth.Facebook.Mixfile do
       ],
       main: "readme",
       source_url: @source_url,
-      source_ref: "v#{@version}",
-      homepage_url: @source_url,
+      homepage_url: "#{@source_url}/tree/main/#{@source_path}",
       formatters: ["html"]
     ]
   end
@@ -57,8 +58,16 @@ defmodule Ueberauth.Facebook.Mixfile do
       licenses: ["MIT"],
       links: %{
         Changelog: "https://hexdocs.pm/ueberauth_facebook/changelog.html",
-        GitHub: @source_url
+        GitHub: "#{@source_url}/tree/main/#{@source_path}"
       }
     ]
+  end
+
+  # Develop and test against the core library in this repository. Set
+  # HEX_PUBLISH to build the package against the published Hex release.
+  defp ueberauth_dep do
+    if System.get_env("HEX_PUBLISH"),
+      do: {:ueberauth, "~> 0.7"},
+      else: {:ueberauth, path: "../.."}
   end
 end

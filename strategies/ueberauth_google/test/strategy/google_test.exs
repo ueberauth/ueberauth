@@ -1,10 +1,12 @@
 defmodule Ueberauth.Strategy.GoogleTest do
   use ExUnit.Case, async: true
-  use Plug.Test
+  import Plug.Test
 
   import Mock
   import Plug.Conn
   import Ueberauth.Strategy.Helpers
+
+  @secret_key_base String.duplicate("test-secret", 8)
 
   setup_with_mocks([
     {OAuth2.Client, [:passthrough],
@@ -15,10 +17,17 @@ defmodule Ueberauth.Strategy.GoogleTest do
   ]) do
     # Create a connection with Ueberauth's CSRF cookies so they can be recycled during tests
     routes = Ueberauth.init([])
-    csrf_conn = conn(:get, "/auth/google", %{}) |> Ueberauth.call(routes)
+    csrf_conn = test_conn(:get, "/auth/google", %{}) |> Ueberauth.call(routes)
     csrf_state = with_state_param([], csrf_conn) |> Keyword.get(:state)
 
     {:ok, csrf_conn: csrf_conn, csrf_state: csrf_state}
+  end
+
+  # Ueberauth signs the state cookie, which requires a secret_key_base.
+  defp test_conn(method, path, params) do
+    method
+    |> conn(path, params)
+    |> Map.put(:secret_key_base, @secret_key_base)
   end
 
   def set_options(routes, conn, opt) do
@@ -68,7 +77,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
   end
 
   test "handle_request! redirects to appropriate auth uri" do
-    conn = conn(:get, "/auth/google", %{hl: "es"})
+    conn = test_conn(:get, "/auth/google", %{hl: "es"})
     # Make sure the hd and scope params are included for good measure
     routes = Ueberauth.init() |> set_options(conn, hd: "example.com", default_scope: "email openid")
 
@@ -93,7 +102,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
 
   test "handle_callback! assigns required fields on successful auth", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
     conn =
-      conn(:get, "/auth/google/callback", %{code: "success_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+      test_conn(:get, "/auth/google/callback", %{code: "success_code", state: csrf_state})
+      |> set_csrf_cookies(csrf_conn)
 
     routes = Ueberauth.init([])
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
@@ -104,7 +114,9 @@ defmodule Ueberauth.Strategy.GoogleTest do
   end
 
   test "uid_field is picked according to the specified option", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
-    conn = conn(:get, "/auth/google/callback", %{code: "uid_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+    conn =
+      test_conn(:get, "/auth/google/callback", %{code: "uid_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+
     routes = Ueberauth.init() |> set_options(conn, uid_field: "uid_field")
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
     assert auth.info.name == "Daphne Blake"
@@ -113,7 +125,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
 
   test "userinfo is fetched according to userinfo_endpoint", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
     conn =
-      conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+      test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
+      |> set_csrf_cookies(csrf_conn)
 
     routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: "example.com/shaggy")
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
@@ -122,7 +135,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
 
   test "userinfo can be set via runtime config with default", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
     conn =
-      conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+      test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
+      |> set_csrf_cookies(csrf_conn)
 
     routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: {:system, "NOT_SET", "example.com/shaggy"})
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
@@ -131,7 +145,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
 
   test "userinfo uses default library value if runtime env not found", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
     conn =
-      conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+      test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
+      |> set_csrf_cookies(csrf_conn)
 
     routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: {:system, "NOT_SET"})
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
@@ -140,7 +155,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
 
   test "userinfo can be set via runtime config", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
     conn =
-      conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+      test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
+      |> set_csrf_cookies(csrf_conn)
 
     routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: {:system, "UEBERAUTH_SCOOBY_DOO"})
     System.put_env("UEBERAUTH_SCOOBY_DOO", "example.com/scooby")
@@ -150,7 +166,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
   end
 
   test "state param is present in the redirect uri" do
-    conn = conn(:get, "/auth/google", %{})
+    conn = test_conn(:get, "/auth/google", %{})
 
     routes = Ueberauth.init()
     resp = Ueberauth.call(conn, routes)
@@ -165,7 +181,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
   describe "error handling" do
     test "handle_callback! handles Oauth2.Error", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
       conn =
-        conn(:get, "/auth/google/callback", %{code: "oauth2_error", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+        test_conn(:get, "/auth/google/callback", %{code: "oauth2_error", state: csrf_state})
+        |> set_csrf_cookies(csrf_conn)
 
       routes = Ueberauth.init([])
       assert %Plug.Conn{assigns: %{ueberauth_failure: failure}} = Ueberauth.call(conn, routes)
@@ -174,7 +191,8 @@ defmodule Ueberauth.Strategy.GoogleTest do
 
     test "handle_callback! handles error response", %{csrf_state: csrf_state, csrf_conn: csrf_conn} do
       conn =
-        conn(:get, "/auth/google/callback", %{code: "error_response", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
+        test_conn(:get, "/auth/google/callback", %{code: "error_response", state: csrf_state})
+        |> set_csrf_cookies(csrf_conn)
 
       routes = Ueberauth.init([])
       assert %Plug.Conn{assigns: %{ueberauth_failure: failure}} = Ueberauth.call(conn, routes)
@@ -189,7 +207,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
       csrf_conn: csrf_conn
     } do
       conn =
-        conn(:get, "/auth/google/callback", %{code: "error_response_no_description", state: csrf_state})
+        test_conn(:get, "/auth/google/callback", %{code: "error_response_no_description", state: csrf_state})
         |> set_csrf_cookies(csrf_conn)
 
       routes = Ueberauth.init([])

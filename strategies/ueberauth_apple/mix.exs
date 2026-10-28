@@ -2,7 +2,8 @@ defmodule UeberauthApple.Mixfile do
   use Mix.Project
 
   @version "0.7.0"
-  @url "https://github.com/ueberauth/ueberauth_apple"
+  @source_url "https://github.com/ueberauth/ueberauth"
+  @source_path "strategies/ueberauth_apple"
 
   def project do
     [
@@ -14,8 +15,8 @@ defmodule UeberauthApple.Mixfile do
       elixirc_paths: elixirc_paths(Mix.env()),
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
-      source_url: @url,
-      homepage_url: @url,
+      source_url: @source_url,
+      homepage_url: "#{@source_url}/tree/main/#{@source_path}",
       description: description(),
       deps: deps(),
       docs: docs()
@@ -28,19 +29,20 @@ defmodule UeberauthApple.Mixfile do
 
   defp deps do
     [
-      {:credo, "~> 1.6", only: [:dev, :test]},
+      {:credo, ">= 0.0.0", only: [:dev, :test]},
       {:ex_doc, "~> 0.40", only: :dev},
       {:httpoison, "~> 3.0"},
       {:jose, "~> 1.0"},
       {:makeup_html, ">= 0.0.0", only: :dev, runtime: false},
       {:mimic, "~> 2.3.0", only: :test},
       {:oauth2, "~> 2.0"},
-      {:ueberauth, "~> 0.10"}
+      ueberauth_dep()
     ]
   end
 
   defp docs do
     [
+      source_url_pattern: "#{@source_url}/blob/ueberauth_apple-v#{@version}/#{@source_path}/%{path}#L%{line}",
       main: "readme",
       extras: [
         "README.md": [title: "Overview"],
@@ -64,7 +66,15 @@ defmodule UeberauthApple.Mixfile do
       files: ["lib", "mix.exs", "README.md", "LICENSE"],
       maintainers: ["AJ Foster"],
       licenses: ["MIT"],
-      links: %{GitHub: @url}
+      links: %{GitHub: "#{@source_url}/tree/main/#{@source_path}"}
     ]
+  end
+
+  # Develop and test against the core library in this repository. Set
+  # HEX_PUBLISH to build the package against the published Hex release.
+  defp ueberauth_dep do
+    if System.get_env("HEX_PUBLISH"),
+      do: {:ueberauth, "~> 0.10"},
+      else: {:ueberauth, path: "../.."}
   end
 end

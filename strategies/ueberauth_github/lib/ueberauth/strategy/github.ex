@@ -231,7 +231,7 @@ defmodule Ueberauth.Strategy.Github do
   end
 
   defp maybe_get_primary_email(user) do
-    if user["emails"] && Enum.count(user["emails"]) > 0 do
+    if user["emails"] && !Enum.empty?(user["emails"]) do
       Enum.find(user["emails"], & &1["primary"])["email"]
     end
   end
