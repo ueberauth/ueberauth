@@ -216,7 +216,7 @@ defmodule Ueberauth do
           identity: {Ueberauth.Strategies.Identity, [trust_forwarded_headers: true]}
         ]
 
-  Ueberauth 0.12.0 will ignore forwarded headers unless
+  Ueberauth 0.13.0 will ignore forwarded headers unless
   `trust_forwarded_headers: true` is set.
 
   #### Http Methods

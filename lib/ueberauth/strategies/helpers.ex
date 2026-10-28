@@ -303,7 +303,7 @@ defmodule Ueberauth.Strategy.Helpers do
       in your provider options or in `config :ueberauth, Ueberauth`. Otherwise set \
       it to `false`, or use Plug.RewriteOn to apply proxy headers before Ueberauth runs.
 
-      Ueberauth 0.12.0 will ignore these headers unless `trust_forwarded_headers: true` is set.
+      Ueberauth 0.13.0 will ignore these headers unless `trust_forwarded_headers: true` is set.
       """)
     end
   end
