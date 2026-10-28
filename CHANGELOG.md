@@ -25,6 +25,23 @@
 - Fix the `set_errors!` example in the `Ueberauth.Strategy` docs, typos, and the Guardian link.
 - Update the locked `plug_crypto` to 2.2.1, which fixes EEF-CVE-2026-105963 / GHSA-ffw9-w85g-f2vh. Ueberauth signs the state cookie with `secret_key_base`, so applications should update `plug_crypto` as well (`mix deps.update plug_crypto`). [#220](https://github.com/ueberauth/ueberauth/pull/220)
 
+## [0.12.0](https://github.com/ueberauth/ueberauth/compare/v0.11.0...v0.12.0) (2026-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* forwarded headers are ignored unless `trust_forwarded_headers: true` is set; use Plug.RewriteOn behind a proxy. The state cookie is renamed, so in-flight logins must restart. `init/1` no longer returns the route list; tests that edit it should use `Ueberauth.routes/1`.
+
+### Features
+
+* add Ueberauth.Strategy.Test for testing authentication flows ([#246](https://github.com/ueberauth/ueberauth/issues/246)) ([eea5644](https://github.com/ueberauth/ueberauth/commit/eea56442b4e03c03845724ce73342e185d12343a))
+* ignore forwarded headers, per-provider state cookies, runtime config ([#248](https://github.com/ueberauth/ueberauth/issues/248)) ([89e9017](https://github.com/ueberauth/ueberauth/commit/89e9017a0d56721cac34b5c868acf9f4eb583ea4))
+
+
+### Bug Fixes
+
+* harden state cookie and URL building for 0.11.1 ([#221](https://github.com/ueberauth/ueberauth/issues/221)) ([3b2fb40](https://github.com/ueberauth/ueberauth/commit/3b2fb403400dd9b17caf0ebc342c9661c5345ffe))
+
 ## 0.11.0 - 2026-10-11
 
 - Sign and verify the OAuth state cookie, rejecting unsigned or tampered cookies before the provider callback. Protected strategies now require a stable host-provided `conn.secret_key_base` (a strong binary secret) across both phases and all application instances. Restart in-flight OAuth flows after upgrading. [#217](https://github.com/ueberauth/ueberauth/pull/217)
