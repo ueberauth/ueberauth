@@ -20,9 +20,7 @@ defmodule Ueberauth.Facebook.Mixfile do
   end
 
   def application do
-    [
-      applications: [:logger, :oauth2, :ueberauth]
-    ]
+    [extra_applications: [:logger]]
   end
 
   defp deps do
@@ -36,7 +34,8 @@ defmodule Ueberauth.Facebook.Mixfile do
 
   defp docs do
     [
-      source_url_pattern: "#{@source_url}/blob/ueberauth_facebook-v#{@version}/#{@source_path}/%{path}#L%{line}",
+      source_url_pattern:
+        "#{@source_url}/blob/ueberauth_facebook-v#{@version}/#{@source_path}/%{path}#L%{line}",
       extras: [
         "CHANGELOG.md",
         "CONTRIBUTING.md",

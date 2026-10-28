@@ -42,7 +42,8 @@ defmodule UeberauthApple.Mixfile do
 
   defp docs do
     [
-      source_url_pattern: "#{@source_url}/blob/ueberauth_apple-v#{@version}/#{@source_path}/%{path}#L%{line}",
+      source_url_pattern:
+        "#{@source_url}/blob/ueberauth_apple-v#{@version}/#{@source_path}/%{path}#L%{line}",
       main: "readme",
       extras: [
         "README.md": [title: "Overview"],

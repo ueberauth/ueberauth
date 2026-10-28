@@ -20,9 +20,7 @@ defmodule Ueberauth.Github.Mixfile do
   end
 
   def application do
-    [
-      applications: [:logger, :ueberauth, :oauth2]
-    ]
+    [extra_applications: [:logger]]
   end
 
   defp deps do
@@ -36,7 +34,8 @@ defmodule Ueberauth.Github.Mixfile do
 
   defp docs do
     [
-      source_url_pattern: "#{@source_url}/blob/ueberauth_github-v#{@version}/#{@source_path}/%{path}#L%{line}",
+      source_url_pattern:
+        "#{@source_url}/blob/ueberauth_github-v#{@version}/#{@source_path}/%{path}#L%{line}",
       extras: [
         "CHANGELOG.md": [title: "Changelog"],
         "CONTRIBUTING.md": [title: "Contributing"],

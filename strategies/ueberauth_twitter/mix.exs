@@ -22,7 +22,7 @@ defmodule UeberauthTwitter.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :httpoison, :oauther, :ueberauth]]
+    [extra_applications: [:logger]]
   end
 
   defp deps do
@@ -32,7 +32,6 @@ defmodule UeberauthTwitter.Mixfile do
       ueberauth_dep(),
 
       # dev/test dependencies
-      {:earmark, ">= 0.0.0", only: :dev},
       {:ex_doc, "~> 0.18", only: :dev},
       {:credo, ">= 0.0.0", only: [:dev, :test]}
     ]
@@ -40,7 +39,8 @@ defmodule UeberauthTwitter.Mixfile do
 
   defp docs do
     [
-      source_url_pattern: "#{@source_url}/blob/ueberauth_twitter-v#{@version}/#{@source_path}/%{path}#L%{line}",
+      source_url_pattern:
+        "#{@source_url}/blob/ueberauth_twitter-v#{@version}/#{@source_path}/%{path}#L%{line}",
       extras: [
         "CHANGELOG.md": [],
         "CONTRIBUTING.md": [title: "Contributing"],
