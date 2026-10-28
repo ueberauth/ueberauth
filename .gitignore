@@ -27,3 +27,6 @@ ueberauth-*.tar
 
 # Misc.
 .DS_Store
+
+# Local commitlint install.
+/node_modules/
