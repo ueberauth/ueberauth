@@ -2,6 +2,22 @@
 
 ## (Unreleased)
 
+## [0.13.0](https://github.com/ueberauth/ueberauth/compare/ueberauth_google-v0.12.1...ueberauth_google-v0.13.0) (2026-10-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* forwarded headers are ignored unless `trust_forwarded_headers: true` is set; use Plug.RewriteOn behind a proxy. The state cookie is renamed, so in-flight logins must restart. `init/1` no longer returns the route list; tests that edit it should use `Ueberauth.routes/1`.
+
+### Features
+
+* ignore forwarded headers, per-provider state cookies, runtime config ([#248](https://github.com/ueberauth/ueberauth/issues/248)) ([89e9017](https://github.com/ueberauth/ueberauth/commit/89e9017a0d56721cac34b5c868acf9f4eb583ea4))
+
+
+### Bug Fixes
+
+* Log the error body (ueberauth/ueberauth_google[#106](https://github.com/ueberauth/ueberauth/issues/106)) ([fd485c9](https://github.com/ueberauth/ueberauth/commit/fd485c99cc4bd187b445c4f3bea2ba58bcbe0540))
+
 ## v0.12.1
 
 - Fix scope splitting [104](https://github.com/ueberauth/ueberauth_google/pull/104)
