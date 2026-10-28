@@ -10,7 +10,7 @@ defmodule Ueberauth do
   flow, collecting the information from a login form, etc). It does not
   authenticate each request, that's up to your application. You could issue a
   token or put the result into a session for your applications needs. Libraries
-  like [Guardian](https://github.com/hassox/guardian) can help you with that
+  like [Guardian](https://github.com/ueberauth/guardian) can help you with that
   aspect of authentication.
 
   The two phases are `request` and `callback`. These phases are implemented by
@@ -173,12 +173,6 @@ defmodule Ueberauth do
 
   By default, Ueberauth uses your `Plug.Conn` scheme.
 
-  A custom scheme can be provided through the request header `X-Forwarded-Proto`.
-
-  For example, in Nginx you can set it.
-
-      proxy_set_header X-Forwarded-Proto $scheme;
-
   Another option is to override this via options to your strategy.
 
       providers: [
@@ -194,6 +188,36 @@ defmodule Ueberauth do
       providers: [
         identity: {Ueberauth.Strategies.Identity, [callback_port: 4000]}
       ]
+
+  #### Running Behind a Proxy
+
+  Ueberauth currently reads the `X-Forwarded-Host` and `X-Forwarded-Proto`
+  request headers when it builds request and callback URLs. Any client can
+  send these headers, so they can change the `redirect_uri` sent to your
+  OAuth provider. If a forwarded header changes a URL and you have not set
+  `:trust_forwarded_headers`, Ueberauth logs a warning once.
+
+  The recommended setup is to set `trust_forwarded_headers: false` and let
+  `Plug.RewriteOn` apply your proxy's headers to the connection before
+  Ueberauth runs:
+
+      plug Plug.RewriteOn, [:x_forwarded_host, :x_forwarded_port, :x_forwarded_proto]
+
+  Only use `Plug.RewriteOn` when every request passes through a proxy you
+  control that overwrites these headers.
+
+  If a proxy you control sets these headers and you want Ueberauth to keep
+  reading them directly, set `trust_forwarded_headers: true`. Set it globally
+  or per provider:
+
+      config :ueberauth, Ueberauth,
+        trust_forwarded_headers: false,
+        providers: [
+          identity: {Ueberauth.Strategies.Identity, [trust_forwarded_headers: true]}
+        ]
+
+  Ueberauth 0.12.0 will ignore forwarded headers unless
+  `trust_forwarded_headers: true` is set.
 
   #### Http Methods
 
@@ -273,7 +297,7 @@ defmodule Ueberauth do
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
     providers = get_providers(environment, options)
     base_path = get_base_path(environment, options)
-    Enum.flat_map(providers, &build_routes(base_path, &1))
+    Enum.flat_map(providers, &build_routes(environment, base_path, &1))
   end
 
   @doc """
@@ -314,7 +338,13 @@ defmodule Ueberauth do
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
     base_path = get_base_path(environment, options)
 
-    to_options = build_strategy_options(base_path, {provider_name, {provider, provider_options}})
+    to_options =
+      build_strategy_options(
+        environment,
+        base_path,
+        {provider_name, {provider, provider_options}}
+      )
+
     run(conn, {provider, :run_request, to_options})
   end
 
@@ -339,7 +369,13 @@ defmodule Ueberauth do
     environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
     base_path = get_base_path(environment, options)
 
-    to_options = build_strategy_options(base_path, {provider_name, {provider, provider_options}})
+    to_options =
+      build_strategy_options(
+        environment,
+        base_path,
+        {provider_name, {provider, provider_options}}
+      )
+
     run(conn, {provider, :run_callback, to_options})
   end
 
@@ -367,7 +403,7 @@ defmodule Ueberauth do
     |> Strategy.run_callback(module)
   end
 
-  defp build_routes(base_path, strategy) do
+  defp build_routes(environment, base_path, strategy) do
     #
     # Given a Strategy (passed as providers in environment) and a base_path,
     # build a list of routes that can be used later on in `call/2`.
@@ -375,7 +411,7 @@ defmodule Ueberauth do
     # as there are callback methods.
 
     {_, {module, _}} = strategy
-    strategy_options = build_strategy_options(base_path, strategy)
+    strategy_options = build_strategy_options(environment, base_path, strategy)
 
     request_mfa = {module, :run_request, strategy_options}
     request_route = {{strategy_options.request_path, "GET"}, request_mfa}
@@ -411,7 +447,22 @@ defmodule Ueberauth do
     # Used within `init/1`. Return a filtered Keyword list of providers,
     # taking into account whether the providers have been filtered via options.
 
-    {:ok, providers} = Keyword.fetch(environment, :providers)
+    providers =
+      case Keyword.fetch(environment, :providers) do
+        {:ok, providers} ->
+          providers
+
+        :error ->
+          raise ArgumentError, """
+          no Ueberauth providers are configured. Add them to your config, for example:
+
+              config :ueberauth, Ueberauth,
+                providers: [github: {Ueberauth.Strategy.Github, []}]
+
+          If you pass `otp_app: :my_app` to the Ueberauth plug, providers can also be set
+          under `config :my_app, Ueberauth`.
+          """
+      end
 
     case Keyword.get(options, :providers, :all) do
       :all -> providers
@@ -427,7 +478,7 @@ defmodule Ueberauth do
     Keyword.get(options, :base_path, Keyword.get(environment, :base_path, "/auth"))
   end
 
-  defp build_strategy_options(base_path, strategy) do
+  defp build_strategy_options(environment, base_path, strategy) do
     #
     # Used within `build_routes/2`. Form an internal struct which holds
     # specifics that are expected by downstream Strategies when they are run.
@@ -446,7 +497,13 @@ defmodule Ueberauth do
       callback_methods: get_callback_methods(options),
       options: options,
       callback_url: Keyword.get(options, :callback_url),
-      callback_params: Keyword.get(options, :callback_params)
+      callback_params: Keyword.get(options, :callback_params),
+      trust_forwarded_headers:
+        Keyword.get(
+          options,
+          :trust_forwarded_headers,
+          Keyword.get(environment, :trust_forwarded_headers)
+        )
     }
   end
 
