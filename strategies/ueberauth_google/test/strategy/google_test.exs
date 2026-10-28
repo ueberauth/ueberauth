@@ -79,7 +79,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
   test "handle_request! redirects to appropriate auth uri" do
     conn = test_conn(:get, "/auth/google", %{hl: "es"})
     # Make sure the hd and scope params are included for good measure
-    routes = Ueberauth.init() |> set_options(conn, hd: "example.com", default_scope: "email openid")
+    routes = Ueberauth.routes() |> set_options(conn, hd: "example.com", default_scope: "email openid")
 
     resp = Ueberauth.call(conn, routes)
 
@@ -117,7 +117,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
     conn =
       test_conn(:get, "/auth/google/callback", %{code: "uid_code", state: csrf_state}) |> set_csrf_cookies(csrf_conn)
 
-    routes = Ueberauth.init() |> set_options(conn, uid_field: "uid_field")
+    routes = Ueberauth.routes() |> set_options(conn, uid_field: "uid_field")
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
     assert auth.info.name == "Daphne Blake"
     assert auth.uid == "1234_daphne"
@@ -128,7 +128,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
       test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
       |> set_csrf_cookies(csrf_conn)
 
-    routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: "example.com/shaggy")
+    routes = Ueberauth.routes() |> set_options(conn, userinfo_endpoint: "example.com/shaggy")
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
     assert auth.info.name == "Norville Rogers"
   end
@@ -138,7 +138,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
       test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
       |> set_csrf_cookies(csrf_conn)
 
-    routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: {:system, "NOT_SET", "example.com/shaggy"})
+    routes = Ueberauth.routes() |> set_options(conn, userinfo_endpoint: {:system, "NOT_SET", "example.com/shaggy"})
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
     assert auth.info.name == "Norville Rogers"
   end
@@ -148,7 +148,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
       test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
       |> set_csrf_cookies(csrf_conn)
 
-    routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: {:system, "NOT_SET"})
+    routes = Ueberauth.routes() |> set_options(conn, userinfo_endpoint: {:system, "NOT_SET"})
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
     assert auth.info.name == "Velma Dinkley"
   end
@@ -158,7 +158,7 @@ defmodule Ueberauth.Strategy.GoogleTest do
       test_conn(:get, "/auth/google/callback", %{code: "userinfo_code", state: csrf_state})
       |> set_csrf_cookies(csrf_conn)
 
-    routes = Ueberauth.init() |> set_options(conn, userinfo_endpoint: {:system, "UEBERAUTH_SCOOBY_DOO"})
+    routes = Ueberauth.routes() |> set_options(conn, userinfo_endpoint: {:system, "UEBERAUTH_SCOOBY_DOO"})
     System.put_env("UEBERAUTH_SCOOBY_DOO", "example.com/scooby")
     assert %Plug.Conn{assigns: %{ueberauth_auth: auth}} = Ueberauth.call(conn, routes)
     assert auth.info.name == "Scooby Doo"
