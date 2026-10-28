@@ -4,8 +4,8 @@
 [![Module Version](https://img.shields.io/hexpm/v/ueberauth_facebook.svg)](https://hex.pm/packages/ueberauth_facebook)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_facebook/)
 [![Total Download](https://img.shields.io/hexpm/dt/ueberauth_facebook.svg)](https://hex.pm/packages/ueberauth_facebook)
-[![License](https://img.shields.io/hexpm/l/ueberauth_facebook.svg)](https://github.com/ueberauth/ueberauth_facebook/blob/master/LICENSE)
-[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth_facebook.svg)](https://github.com/ueberauth/ueberauth_facebook/commits/master)
+[![License](https://img.shields.io/hexpm/l/ueberauth_facebook.svg)](https://github.com/ueberauth/ueberauth/blob/main/strategies/ueberauth_facebook/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg?path=strategies%2Fueberauth_facebook)](https://github.com/ueberauth/ueberauth/commits/main/strategies/ueberauth_facebook)
 
 > Facebook OAuth2 strategy for Überauth.
 

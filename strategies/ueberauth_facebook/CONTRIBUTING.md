@@ -1,11 +1,9 @@
 # Contributing
 
 ## Pull Requests Welcome
-1. Fork ueberauth_facebook
-2. Create a topic branch
-3. Make logically-grouped commits with clear commit messages
-4. Push commits to your fork
-5. Open a pull request against ueberauth_facebook/master
+This strategy lives in the [Überauth repository](https://github.com/ueberauth/ueberauth).
+See its [contributing guide](https://github.com/ueberauth/ueberauth/blob/main/CONTRIBUTING.md)
+for how to open a pull request.
 
 ## Issues
 

@@ -13,7 +13,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
     steps:
       - name: Run Release Please
         id: release
@@ -23,9 +23,15 @@ jobs:
           manifest-file: .release-please-manifest.json
 
   # Releases created with GITHUB_TOKEN do not trigger the `release` event,
-  # so publish to Hex directly once Release Please cuts a release.
+  # so publish each released package to Hex directly.
   publish:
     needs: release-please
-    if: needs.release-please.outputs.release_created == 'true'
+    if: needs.release-please.outputs.paths_released != '[]' && needs.release-please.outputs.paths_released != ''
+    strategy:
+      fail-fast: false
+      matrix:
+        path: ${{ fromJSON(needs.release-please.outputs.paths_released) }}
     uses: ./.github/workflows/release.yml
+    with:
+      path: ${{ matrix.path }}
     secrets: inherit

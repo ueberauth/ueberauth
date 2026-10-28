@@ -32,15 +32,15 @@ If you're interested in doing something specific, here are some guidelines:
 
 ### Security Issues
 
-If you find a security-related issue with this project, please refrain from opening a public issue and instead [create a private security report](https://github.com/ueberauth/ueberauth_apple/security).
+If you find a security-related issue with this project, please refrain from opening a public issue and instead [create a private security report](https://github.com/ueberauth/ueberauth/security).
 
 ### Bugs and Blockers
 
-Please use [GitHub Issues](https://github.com/ueberauth/ueberauth_apple/issues) to report reproducible bugs.
+Please use [GitHub Issues](https://github.com/ueberauth/ueberauth/issues) to report reproducible bugs.
 
 ### Feature Requests and Ideas
 
-Please use [GitHub Discussions](https://github.com/ueberauth/ueberauth_apple/discussions) to share requests and ideas for improvements to the library.
+Please use [GitHub Discussions](https://github.com/ueberauth/ueberauth/discussions) to share requests and ideas for improvements to the library.
 
 ### Implementing Changes
 
@@ -48,17 +48,8 @@ If you've decided to take on the implementation of a new feature or fix, please 
 
 ## Releases
 
-For maintainers, the process of releasing this package to [Hex.pm](https://hex.pm/packages/ueberauth_apple) centers around git tags.
-To make a new release:
-
-1. Update the Changelog with a new header that has today's date and the new version.
-  Include any missing notes from changes since the last release, and any additional upgrade instructions users may need.
-2. Update the `@version` number in `mix.exs`.
-  The form should be `X.Y.Z`, with optional suffixes, but no leading `v`.
-3. Update the **Quick Start** installation instructions in `README.md` to have the newest non-suffixed version number.
-4. Update the **Installation** instructions in `guides/getting-started.md` to have the newest non-suffixed version number.
-5. Commit the above changes with a generic commit message, such as `Release X.Y.Z`.
-6. Tag the commit as `X.Y.Z`, with optional suffixes, but no leading `v`.
-7. Push the commits and tag (for example, `git push origin main --tags`).
-8. Observe the GitHub Action titled **Release**.
-  This action automatically publishes the package to Hex.pm.
+This package is released with [Release Please](https://github.com/googleapis/release-please) from the
+[Überauth repository](https://github.com/ueberauth/ueberauth). Merging its release pull request for
+`ueberauth_apple` updates the changelog and `@version`, tags the release as `ueberauth_apple-vX.Y.Z`,
+and publishes it to [Hex.pm](https://hex.pm/packages/ueberauth_apple). Update the version shown in the
+**Quick Start** section of `README.md` and in `guides/getting-started.md` in that pull request.

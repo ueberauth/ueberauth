@@ -4,8 +4,8 @@
 [![Module Version](https://img.shields.io/hexpm/v/ueberauth_github.svg)](https://hex.pm/packages/ueberauth_github)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_github/)
 [![Total Download](https://img.shields.io/hexpm/dt/ueberauth_github.svg)](https://hex.pm/packages/ueberauth_github)
-[![License](https://img.shields.io/hexpm/l/ueberauth_github.svg)](https://github.com/ueberauth/ueberauth_github/blob/master/LICENSE.md)
-[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth_github.svg)](https://github.com/ueberauth/ueberauth_github/commits/master)
+[![License](https://img.shields.io/hexpm/l/ueberauth_github.svg)](https://github.com/ueberauth/ueberauth/blob/main/strategies/ueberauth_github/LICENSE.md)
+[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg?path=strategies%2Fueberauth_github)](https://github.com/ueberauth/ueberauth/commits/main/strategies/ueberauth_github)
 
 > GitHub OAuth2 strategy for Überauth.
 

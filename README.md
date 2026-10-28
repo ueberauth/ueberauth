@@ -27,12 +27,22 @@ like [Guardian](https://github.com/ueberauth/guardian) for authentication.
 ## Integration with Phoenix
 
 To integrate `Ueberauth` with your Phoenix application, the first step
-is to choose your strategy. There are several under [our organization on
-GitHub](https://github.com/ueberauth) and more on [Hex.pm](https://hex.pm).
-See the [Wiki](https://github.com/ueberauth/ueberauth/wiki/List-of-Strategies)
-for a complete list.
+is to choose your strategy. The strategies maintained by the Überauth team
+live in this repository under [`strategies/`](strategies):
 
-For this example, we will use [the GitHub strategy](https://github.com/ueberauth/ueberauth_github).
+| Strategy | Hex package |
+| --- | --- |
+| [Apple](strategies/ueberauth_apple) | [`ueberauth_apple`](https://hex.pm/packages/ueberauth_apple) |
+| [Facebook](strategies/ueberauth_facebook) | [`ueberauth_facebook`](https://hex.pm/packages/ueberauth_facebook) |
+| [GitHub](strategies/ueberauth_github) | [`ueberauth_github`](https://hex.pm/packages/ueberauth_github) |
+| [Google](strategies/ueberauth_google) | [`ueberauth_google`](https://hex.pm/packages/ueberauth_google) |
+| [Twitter](strategies/ueberauth_twitter) | [`ueberauth_twitter`](https://hex.pm/packages/ueberauth_twitter) |
+
+There are many more on [Hex.pm](https://hex.pm). See the
+[Wiki](https://github.com/ueberauth/ueberauth/wiki/List-of-Strategies) for a
+complete list.
+
+For this example, we will use [the GitHub strategy](strategies/ueberauth_github).
 You just need to follow a series of steps:
 
 1.  Setup your application at [GitHub Developer](https://developer.github.com).

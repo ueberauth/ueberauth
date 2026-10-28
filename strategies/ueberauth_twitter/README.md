@@ -3,8 +3,8 @@
 [![Module Version](https://img.shields.io/hexpm/v/ueberauth_twitter.svg)](https://hex.pm/packages/ueberauth_twitter)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_twitter/)
 [![Total Download](https://img.shields.io/hexpm/dt/ueberauth_twitter.svg)](https://hex.pm/packages/ueberauth_twitter)
-[![License](https://img.shields.io/hexpm/l/ueberauth_twitter.svg)](https://github.com/ueberauth/ueberauth_twitter/blob/master/LICENSE.md)
-[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth_twitter.svg)](https://github.com/ueberauth/ueberauth_twitter/commits/master)
+[![License](https://img.shields.io/hexpm/l/ueberauth_twitter.svg)](https://github.com/ueberauth/ueberauth/blob/main/strategies/ueberauth_twitter/LICENSE.md)
+[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg?path=strategies%2Fueberauth_twitter)](https://github.com/ueberauth/ueberauth/commits/main/strategies/ueberauth_twitter)
 
 > Twitter strategy for Überauth.
 

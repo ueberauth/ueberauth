@@ -1,12 +1,12 @@
 # Überauth Google
 
-[![Continuous Integration](https://github.com/ueberauth/ueberauth_google/actions/workflows/ci.yml/badge.svg)](https://github.com/ueberauth/ueberauth_google/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/ueberauth/ueberauth/actions/workflows/ci.yml/badge.svg)](https://github.com/ueberauth/ueberauth/actions/workflows/ci.yml)
 [![Build Status](https://travis-ci.org/ueberauth/ueberauth_google.svg?branch=master)](https://travis-ci.org/ueberauth/ueberauth_google)
 [![Module Version](https://img.shields.io/hexpm/v/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_google/)
 [![Total Download](https://img.shields.io/hexpm/dt/ueberauth_google.svg)](https://hex.pm/packages/ueberauth_google)
-[![License](https://img.shields.io/hexpm/l/ueberauth_google.svg)](https://github.com/ueberauth/ueberauth_google/blob/master/LICENSE)
-[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth_google.svg)](https://github.com/ueberauth/ueberauth_google/commits/master)
+[![License](https://img.shields.io/hexpm/l/ueberauth_google.svg)](https://github.com/ueberauth/ueberauth/blob/main/strategies/ueberauth_google/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg?path=strategies%2Fueberauth_google)](https://github.com/ueberauth/ueberauth/commits/main/strategies/ueberauth_google)
 
 
 > Google OAuth2 strategy for Überauth.
@@ -149,4 +149,4 @@ config :ueberauth, Ueberauth,
 
 Copyright (c) 2015 Sean Callan
 
-Released under the MIT License, which can be found in the repository in [LICENSE](https://github.com/ueberauth/ueberauth_google/blob/master/LICENSE).
+Released under the MIT License, which can be found in the repository in [LICENSE](https://github.com/ueberauth/ueberauth/blob/main/strategies/ueberauth_google/LICENSE).

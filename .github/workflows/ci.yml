@@ -116,3 +116,54 @@ jobs:
 
       - name: Run Dialyzer
         run: mix dialyzer --format github
+
+  Strategies:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        strategy:
+          - ueberauth_apple
+          - ueberauth_facebook
+          - ueberauth_github
+          - ueberauth_google
+          - ueberauth_twitter
+    defaults:
+      run:
+        working-directory: strategies/${{ matrix.strategy }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          version-file: .tool-versions
+          version-type: strict
+
+      - name: Install Dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+
+      - name: Run Formatter
+        run: mix format --check-formatted
+
+      - name: Run Credo
+        run: mix credo
+
+      - name: Compile Without Warnings
+        run: MIX_ENV=test mix compile --warnings-as-errors --force
+
+      # Tests run against ueberauth from this checkout, so core changes
+      # that break a strategy fail here.
+      - name: Run Tests
+        run: mix test
+
+      - name: Build Hex Package
+        env:
+          HEX_PUBLISH: "1"
+        run: |
+          mix deps.get
+          mix hex.build
