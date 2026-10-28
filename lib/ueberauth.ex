@@ -191,33 +191,38 @@ defmodule Ueberauth do
 
   #### Running Behind a Proxy
 
-  Ueberauth currently reads the `X-Forwarded-Host` and `X-Forwarded-Proto`
-  request headers when it builds request and callback URLs. Any client can
-  send these headers, so they can change the `redirect_uri` sent to your
-  OAuth provider. If a forwarded header changes a URL and you have not set
-  `:trust_forwarded_headers`, Ueberauth logs a warning once.
+  Ueberauth builds request and callback URLs from the connection's scheme,
+  host and port. It ignores the `X-Forwarded-Host` and `X-Forwarded-Proto`
+  request headers by default, because any client can send them to change
+  the `redirect_uri` sent to your OAuth provider.
 
-  The recommended setup is to set `trust_forwarded_headers: false` and let
-  `Plug.RewriteOn` apply your proxy's headers to the connection before
-  Ueberauth runs:
+  If your application runs behind a proxy, use `Plug.RewriteOn` to apply the
+  proxy's headers to the connection before Ueberauth runs:
 
       plug Plug.RewriteOn, [:x_forwarded_host, :x_forwarded_port, :x_forwarded_proto]
 
   Only use `Plug.RewriteOn` when every request passes through a proxy you
-  control that overwrites these headers.
+  control that overwrites these headers. Alternatively, set the URL parts
+  explicitly with the `:callback_scheme`, `:callback_port` or `:callback_url`
+  provider options.
 
-  If a proxy you control sets these headers and you want Ueberauth to keep
-  reading them directly, set `trust_forwarded_headers: true`. Set it globally
-  or per provider:
+  The `trust_forwarded_headers: true` option makes Ueberauth read the
+  forwarded headers itself, as versions before 0.13.0 did. It is deprecated
+  and will be removed in a future release. It can be set globally or per
+  provider:
 
       config :ueberauth, Ueberauth,
-        trust_forwarded_headers: false,
         providers: [
           identity: {Ueberauth.Strategies.Identity, [trust_forwarded_headers: true]}
         ]
 
-  Ueberauth 0.13.0 will ignore forwarded headers unless
-  `trust_forwarded_headers: true` is set.
+  #### Runtime Configuration
+
+  Provider configuration is read from the application environment on each
+  request, so values set in `config/runtime.exs` take effect even when
+  Phoenix initializes plugs at compile time. Only the `:otp_app`,
+  `:providers` and `:base_path` options passed to `plug Ueberauth` are fixed
+  when the plug is initialized.
 
   #### Http Methods
 
@@ -291,20 +296,25 @@ defmodule Ueberauth do
 
   @doc """
   Implements `c:Plug.init/1`
+
+  Accepts the `:otp_app`, `:providers` and `:base_path` options. Provider
+  configuration is read when a request arrives, not here, because Phoenix may
+  call `init/1` at compile time.
   """
   @impl Plug
   def init(options \\ []) do
-    environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
-    providers = get_providers(environment, options)
-    base_path = get_base_path(environment, options)
-    Enum.flat_map(providers, &build_routes(environment, base_path, &1))
+    Map.new(Keyword.take(options, [:otp_app, :providers, :base_path]))
   end
 
   @doc """
   Implements `c:Plug.call/2`
   """
   @impl Plug
-  def call(conn, routes) do
+  def call(conn, %{} = options) do
+    call(conn, routes(Keyword.new(options)))
+  end
+
+  def call(conn, routes) when is_list(routes) do
     route_prefix = Path.join(["/" | conn.script_name])
     route_path = Path.relative_to(conn.request_path, route_prefix)
     route_key = {normalize_route_path(route_path), conn.method}
@@ -313,6 +323,22 @@ defmodule Ueberauth do
       {_, route_mfa} -> run(conn, route_mfa)
       _ -> conn
     end
+  end
+
+  @doc """
+  Builds the route table from the current application configuration.
+
+  Accepts the same options as `init/1`. `call/2` builds the routes on every
+  request. It also accepts the result of this function in place of the
+  result of `init/1`, which lets tests change the options of a route before
+  calling it.
+  """
+  @spec routes(keyword()) :: routes
+  def routes(options \\ []) do
+    environment = get_env([:ueberauth, Keyword.get(options, :otp_app)])
+    providers = get_providers(environment, options)
+    base_path = get_base_path(environment, options)
+    Enum.flat_map(providers, &build_routes(environment, base_path, &1))
   end
 
   @doc """
@@ -444,7 +470,7 @@ defmodule Ueberauth do
 
   defp get_providers(environment, options) do
     #
-    # Used within `init/1`. Return a filtered Keyword list of providers,
+    # Used within `routes/1`. Return a filtered Keyword list of providers,
     # taking into account whether the providers have been filtered via options.
 
     providers =
@@ -472,7 +498,7 @@ defmodule Ueberauth do
 
   defp get_base_path(environment, options) do
     #
-    # Used within `init/1`. Form the base_path from configuration
+    # Used within `routes/1` and the `run_*` functions. Form the base_path from configuration
     # in environment and options.
 
     Keyword.get(options, :base_path, Keyword.get(environment, :base_path, "/auth"))

@@ -7,7 +7,6 @@ defmodule Ueberauth.Strategy.Helpers do
   falling back to defaults.
   """
   import Plug.Conn, except: [request_url: 1]
-  require Logger
   alias Ueberauth.Failure
   alias Ueberauth.Failure.Error
 
@@ -201,21 +200,30 @@ defmodule Ueberauth.Strategy.Helpers do
     end
   end
 
+  @doc """
+  The name of the cookie that holds the state parameter for the current provider.
+
+  Each provider uses its own cookie (for example `"ueberauth.state_param.github"`),
+  so login flows for different providers can run at the same time. When the
+  strategy runs without provider options, the name is `"ueberauth.state_param"`.
+  """
+  @spec state_cookie_name(Plug.Conn.t()) :: String.t()
+  def state_cookie_name(conn) do
+    case from_private(conn, :strategy_name) do
+      nil -> "ueberauth.state_param"
+      name -> "ueberauth.state_param.#{name}"
+    end
+  end
+
   defp from_private(conn, key) do
     opts = conn.private[:ueberauth_request_options]
     if opts, do: opts[key], else: nil
   end
 
+  # Forwarded headers are client-controlled, so they are only read when the
+  # application opts in with `trust_forwarded_headers: true`.
   defp full_url(conn, opts) do
-    case from_private(conn, :trust_forwarded_headers) do
-      nil ->
-        url = build_url(conn, opts, true)
-        unless url == build_url(conn, opts, false), do: warn_untrusted_forwarded_headers()
-        url
-
-      trust_forwarded_headers ->
-        build_url(conn, opts, trust_forwarded_headers)
-    end
+    build_url(conn, opts, from_private(conn, :trust_forwarded_headers) == true)
   end
 
   defp build_url(conn, opts, trust_forwarded_headers) do
@@ -287,26 +295,6 @@ defmodule Ueberauth.Strategy.Helpers do
   end
 
   defp parse_authority(_authority, _default_port), do: nil
-
-  defp warn_untrusted_forwarded_headers do
-    key = {__MODULE__, :warned_untrusted_forwarded_headers}
-
-    unless :persistent_term.get(key, false) do
-      :persistent_term.put(key, true)
-
-      Logger.warning("""
-      Ueberauth built a request or callback URL from the X-Forwarded-Host or \
-      X-Forwarded-Proto header. Any client can send these headers, so they can \
-      change the redirect_uri sent to your OAuth provider.
-
-      If a proxy you control sets these headers, set `trust_forwarded_headers: true` \
-      in your provider options or in `config :ueberauth, Ueberauth`. Otherwise set \
-      it to `false`, or use Plug.RewriteOn to apply proxy headers before Ueberauth runs.
-
-      Ueberauth 0.13.0 will ignore these headers unless `trust_forwarded_headers: true` is set.
-      """)
-    end
-  end
 
   defp normalize_port(scheme, 80), do: URI.default_port(scheme)
   defp normalize_port(_, port), do: port

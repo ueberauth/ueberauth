@@ -28,7 +28,7 @@ defmodule Ueberauth.Strategy.TestTest do
     test "does not set a state cookie" do
       conn = :get |> conn("/auth/test") |> request()
 
-      refute Map.has_key?(conn.resp_cookies, "ueberauth.state_param")
+      refute Map.has_key?(conn.resp_cookies, "ueberauth.state_param.test")
     end
   end
 

@@ -1,9 +1,6 @@
 defmodule UeberauthTest do
   use ExUnit.Case, async: true
 
-  # Legacy forwarded-header tests trigger the trust_forwarded_headers warning.
-  @moduletag :capture_log
-
   import Plug.Conn
   import Plug.Test
 
@@ -12,6 +9,7 @@ defmodule UeberauthTest do
   doctest Ueberauth
 
   @secret_key_base String.duplicate("test-secret", 8)
+  @state_cookie "ueberauth.state_param.simple-provider"
   @opts Support.SpecRouter.init([])
   @session_options Plug.Session.init(
                      store: Plug.Session.COOKIE,
@@ -185,7 +183,7 @@ defmodule UeberauthTest do
              "https://www.example.com:5555/auth/provider/callback"
   end
 
-  test "callback_url forwarded protocol" do
+  test "callback_url forwarded protocol when trusted" do
     conn = %{
       (conn(:get, "/")
        |> put_req_header("x-forwarded-proto", "https"))
@@ -193,13 +191,17 @@ defmodule UeberauthTest do
         port: 80
     }
 
-    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+    conn =
+      put_private(conn, :ueberauth_request_options,
+        callback_path: "/auth/provider/callback",
+        trust_forwarded_headers: true
+      )
 
     assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
              "https://www.example.com/auth/provider/callback"
   end
 
-  test "callback_url uses forwarded host" do
+  test "callback_url uses forwarded host when trusted" do
     conn = %{
       (conn(:get, "/")
        |> put_req_header("x-forwarded-host", "changelog.com"))
@@ -207,7 +209,11 @@ defmodule UeberauthTest do
         port: 80
     }
 
-    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+    conn =
+      put_private(conn, :ueberauth_request_options,
+        callback_path: "/auth/provider/callback",
+        trust_forwarded_headers: true
+      )
 
     assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
              "http://changelog.com/auth/provider/callback"
@@ -241,7 +247,7 @@ defmodule UeberauthTest do
              "http://changelog.com:3333/auth/provider/callback"
   end
 
-  test "callback_url uses forwarded host with custom port" do
+  test "callback_url uses forwarded host with custom port when trusted" do
     conn = %{
       (conn(:get, "/")
        |> put_req_header("x-forwarded-host", "changelog.com:8088"))
@@ -249,7 +255,11 @@ defmodule UeberauthTest do
         port: 80
     }
 
-    conn = put_private(conn, :ueberauth_request_options, callback_path: "/auth/provider/callback")
+    conn =
+      put_private(conn, :ueberauth_request_options,
+        callback_path: "/auth/provider/callback",
+        trust_forwarded_headers: true
+      )
 
     assert Ueberauth.Strategy.Helpers.callback_url(conn) ==
              "http://changelog.com:8088/auth/provider/callback"
@@ -348,10 +358,10 @@ defmodule UeberauthTest do
       )
       |> Plug.Conn.fetch_cookies()
 
-    assert conn.resp_cookies["ueberauth.state_param"].value !=
+    assert conn.resp_cookies[@state_cookie].value !=
              conn.private[:ueberauth_state_param]
 
-    assert conn.resp_cookies["ueberauth.state_param"].same_site == "Lax"
+    assert conn.resp_cookies[@state_cookie].same_site == "Lax"
     assert conn.private[:ueberauth_state_param] != nil
   end
 
@@ -365,14 +375,14 @@ defmodule UeberauthTest do
          [callback_path: "/oauth/simple-provider/callback"]}
       )
 
-    assert conn.resp_cookies["ueberauth.state_param"][:same_site] == "None"
+    assert conn.resp_cookies[@state_cookie][:same_site] == "None"
   end
 
   defp state_cookie_header(conn) do
     conn
     |> send_resp(200, "")
     |> get_resp_header("set-cookie")
-    |> Enum.find(&String.starts_with?(&1, "ueberauth.state_param="))
+    |> Enum.find(&String.starts_with?(&1, "#{@state_cookie}="))
   end
 
   test "run_request marks a SameSite=None state cookie as Secure" do
@@ -381,7 +391,7 @@ defmodule UeberauthTest do
       |> Map.put(:secret_key_base, @secret_key_base)
       |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCustomCookieSameSite, []})
 
-    assert conn.resp_cookies["ueberauth.state_param"].secure == true
+    assert conn.resp_cookies[@state_cookie].secure == true
     assert state_cookie_header(conn) =~ "; secure"
     assert state_cookie_header(conn) =~ "; SameSite=None"
   end
@@ -393,8 +403,8 @@ defmodule UeberauthTest do
       |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
     end
 
-    assert run.(:https).resp_cookies["ueberauth.state_param"].secure == true
-    assert run.(:http).resp_cookies["ueberauth.state_param"].secure == false
+    assert run.(:https).resp_cookies[@state_cookie].secure == true
+    assert run.(:http).resp_cookies[@state_cookie].secure == false
   end
 
   test "run_request expires the state cookie after 10 minutes by default" do
@@ -403,7 +413,7 @@ defmodule UeberauthTest do
       |> Map.put(:secret_key_base, @secret_key_base)
       |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
 
-    assert conn.resp_cookies["ueberauth.state_param"].max_age == 600
+    assert conn.resp_cookies[@state_cookie].max_age == 600
     assert state_cookie_header(conn) =~ "; max-age=600"
   end
 
@@ -413,7 +423,69 @@ defmodule UeberauthTest do
       |> Map.put(:secret_key_base, @secret_key_base)
       |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCustomCookieMaxAge, []})
 
-    assert conn.resp_cookies["ueberauth.state_param"].max_age == 1800
+    assert conn.resp_cookies[@state_cookie].max_age == 1800
+  end
+
+  test "run_request scopes the state cookie to the provider" do
+    conn =
+      conn(:get, "/auth/simple-provider")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
+
+    assert conn.resp_cookies[@state_cookie].path == "/auth/simple-provider"
+    assert state_cookie_header(conn) =~ "; path=/auth/simple-provider;"
+  end
+
+  test "run_request uses the root path when the callback is outside the request path" do
+    conn =
+      conn(:get, "/auth/simple-provider")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.ProviderWithCsrfAttackEnabled,
+         [callback_path: "/oauth/simple-provider/callback"]}
+      )
+
+    assert conn.resp_cookies[@state_cookie].path == "/"
+  end
+
+  test "run_request uses the root path when callback_url is outside the request path" do
+    conn =
+      conn(:get, "/auth/simple-provider")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request(
+        "simple-provider",
+        {Support.ProviderWithCsrfAttackEnabled,
+         [callback_url: "https://www.example.com/oauth/callback"]}
+      )
+
+    assert conn.resp_cookies[@state_cookie].path == "/"
+  end
+
+  test "concurrent flows for different providers keep separate state cookies" do
+    request = fn provider ->
+      conn(:get, "/auth/#{provider}")
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> Ueberauth.run_request(provider, {Support.ProviderWithCsrfAttackEnabled, []})
+    end
+
+    first = request.("first")
+    second = request.("second")
+
+    callback =
+      conn(:get, "/auth/first/callback",
+        code: "simple-code",
+        state: first.private[:ueberauth_state_param]
+      )
+      |> Map.put(:secret_key_base, @secret_key_base)
+      |> recycle_cookies(first)
+      |> recycle_cookies(second)
+      |> Ueberauth.run_callback("first", {Support.ProviderWithCsrfAttackEnabled, []})
+
+    assert callback.assigns[:ueberauth_auth] != nil
+    assert callback.resp_cookies["ueberauth.state_param.first"].max_age == 0
+    assert callback.resp_cookies["ueberauth.state_param.first"].path == "/auth/first"
+    refute Map.has_key?(callback.resp_cookies, "ueberauth.state_param.second")
   end
 
   test "run_request with state param disabled" do
@@ -425,7 +497,7 @@ defmodule UeberauthTest do
       )
 
     assert conn.private[:ueberauth_state_param] == nil
-    refute Map.has_key?(conn.resp_cookies, "ueberauth.state_param")
+    refute Map.has_key?(conn.resp_cookies, @state_cookie)
   end
 
   test "run_callback" do
@@ -466,7 +538,7 @@ defmodule UeberauthTest do
       |> Ueberauth.run_callback("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
 
     assert List.first(conn.assigns.ueberauth_failure.errors).message_key == "csrf_attack"
-    assert conn.resp_cookies["ueberauth.state_param"].max_age == 0
+    assert conn.resp_cookies[@state_cookie].max_age == 0
   end
 
   test "run_callback rejects a non-string state param" do
@@ -510,7 +582,7 @@ defmodule UeberauthTest do
         state: state
       )
       |> Map.put(:secret_key_base, @secret_key_base)
-      |> put_req_cookie("ueberauth.state_param", conn.resp_cookies["ueberauth.state_param"].value)
+      |> put_req_cookie(@state_cookie, conn.resp_cookies[@state_cookie].value)
       |> Plug.Session.call(@session_options)
       |> Ueberauth.run_callback(
         "simple-provider",
@@ -519,7 +591,7 @@ defmodule UeberauthTest do
 
     assert conn.halted == true
     assert fetch_cookies(conn).cookies == %{}
-    assert conn.resp_cookies["ueberauth.state_param"].max_age == 0
+    assert conn.resp_cookies[@state_cookie].max_age == 0
     assert conn.resp_body =~ ~s|http://localhost/fetch_user?code=#{code}|
   end
 
@@ -540,18 +612,18 @@ defmodule UeberauthTest do
       |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
 
     state = request.private[:ueberauth_state_param]
-    cookie = request.resp_cookies["ueberauth.state_param"].value
+    cookie = request.resp_cookies[@state_cookie].value
 
     for fetched? <- [false, true] do
       callback =
         conn(:get, "/oauth/simple-provider/callback", state: state, code: "simple-code")
         |> Map.put(:secret_key_base, @secret_key_base)
-        |> put_req_cookie("ueberauth.state_param", cookie)
+        |> put_req_cookie(@state_cookie, cookie)
 
       callback = if fetched?, do: fetch_cookies(callback), else: callback
 
-      assert fetch_cookies(callback, signed: ["ueberauth.state_param"]).cookies[
-               "ueberauth.state_param"
+      assert fetch_cookies(callback, signed: [@state_cookie]).cookies[
+               @state_cookie
              ] == state
 
       callback =
@@ -563,7 +635,7 @@ defmodule UeberauthTest do
 
       assert callback.assigns[:ueberauth_auth] != nil
       assert callback.assigns[:ueberauth_failure] == nil
-      assert callback.resp_cookies["ueberauth.state_param"].max_age == 0
+      assert callback.resp_cookies[@state_cookie].max_age == 0
     end
   end
 
@@ -574,7 +646,7 @@ defmodule UeberauthTest do
       |> Ueberauth.run_request("simple-provider", {Support.ProviderWithCsrfAttackEnabled, []})
 
     state = request.private[:ueberauth_state_param]
-    cookie = request.resp_cookies["ueberauth.state_param"].value
+    cookie = request.resp_cookies[@state_cookie].value
 
     for {value, param, secret} <- [
           {state, state, @secret_key_base},
@@ -591,7 +663,7 @@ defmodule UeberauthTest do
         |> Map.put(:secret_key_base, secret)
 
       callback =
-        if value, do: put_req_cookie(callback, "ueberauth.state_param", value), else: callback
+        if value, do: put_req_cookie(callback, @state_cookie, value), else: callback
 
       callback = if fetched?, do: fetch_cookies(callback), else: callback
 

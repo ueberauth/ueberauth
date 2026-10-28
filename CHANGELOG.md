@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+### Breaking changes (0.13.0)
+
+These changes ship in the release after the one that adds the `trust_forwarded_headers` warning below.
+
+- Ignore the `X-Forwarded-Host` and `X-Forwarded-Proto` headers when building request and callback URLs, unless `trust_forwarded_headers: true` is set. The option is deprecated.
+- Store the OAuth state in a cookie per provider, named `ueberauth.state_param.<provider>`, so login flows for different providers no longer overwrite each other. The cookie's path is the provider's request path when the callback is below it, and `/` otherwise. Strategies that read the cookie should use `Ueberauth.Strategy.Helpers.state_cookie_name/1`.
+- Read provider configuration on each request instead of in `Ueberauth.init/1`, so values from `config/runtime.exs` apply when Phoenix initializes plugs at compile time. `init/1` now returns only the `:otp_app`, `:providers` and `:base_path` options, and a missing `:providers` config raises on the first request. Use the new `Ueberauth.routes/1` where tests changed the result of `init/1`.
+
+#### Upgrading
+
+1. **Behind a proxy:** add `plug Plug.RewriteOn, [:x_forwarded_host, :x_forwarded_port, :x_forwarded_proto]` before Ueberauth runs (for Phoenix, in the endpoint), or set `:callback_scheme`, `:callback_port` or `:callback_url` on each provider. Setting `trust_forwarded_headers: true` keeps the old behavior for now.
+2. **In-flight logins:** users who started a login before the deploy must start it again, because the state cookie name changed.
+3. **Tests:** replace `Ueberauth.init()` with `Ueberauth.routes()` where a test edits the route list before calling `Ueberauth.call/2`, and replace the `"ueberauth.state_param"` cookie name with `"ueberauth.state_param.<provider>"`.
+
+### Fixes and warnings
+
 - Mark the OAuth state cookie `Secure` when the request is HTTPS or `state_param_cookie_same_site` is `"None"`. Browsers drop `SameSite=None` cookies without `Secure`, so strategies using that option previously failed every callback with `csrf_attack`.
 - Expire the OAuth state cookie after 10 minutes by default. Configure with the `state_param_cookie_max_age` strategy option (seconds).
 - Delete the state cookie when the CSRF check fails, and compare the state param in constant time.

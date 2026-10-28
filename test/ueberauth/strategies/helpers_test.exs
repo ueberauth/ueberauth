@@ -1,20 +1,11 @@
 defmodule Ueberauth.Strategy.HelpersTest do
-  # Not async: the forwarded-header warning is logged once per VM, tracked in
-  # :persistent_term, which these tests reset.
+  # Not async: sets application config for :ueberauth_helpers_test.
   use ExUnit.Case, async: false
 
-  import ExUnit.CaptureLog
   import Plug.Conn
   import Plug.Test
 
   alias Ueberauth.Strategy.Helpers
-
-  @warned_key {Helpers, :warned_untrusted_forwarded_headers}
-
-  setup do
-    :persistent_term.erase(@warned_key)
-    on_exit(fn -> :persistent_term.erase(@warned_key) end)
-  end
 
   defp conn_with_options(headers, options) do
     conn =
@@ -28,42 +19,39 @@ defmodule Ueberauth.Strategy.HelpersTest do
   describe "callback_url/1 with forwarded headers" do
     @forwarded [{"x-forwarded-host", "proxy.example.org"}, {"x-forwarded-proto", "https"}]
 
-    test "uses the headers and warns once when trust_forwarded_headers is not set" do
+    test "ignores the headers when trust_forwarded_headers is not set" do
       conn = conn_with_options(@forwarded, [])
-
-      log =
-        capture_log(fn ->
-          assert Helpers.callback_url(conn) == "https://proxy.example.org/auth/p/callback"
-        end)
-
-      assert log =~ "X-Forwarded-Host or X-Forwarded-Proto"
-      assert log =~ "trust_forwarded_headers"
-
-      assert capture_log(fn -> Helpers.callback_url(conn) end) == ""
-    end
-
-    test "does not warn when no forwarded header changes the URL" do
-      conn = conn_with_options([{"x-forwarded-proto", "http"}], [])
-
-      assert capture_log(fn ->
-               assert Helpers.callback_url(conn) == "http://www.example.com/auth/p/callback"
-             end) == ""
+      assert Helpers.callback_url(conn) == "http://www.example.com/auth/p/callback"
     end
 
     test "ignores the headers when trust_forwarded_headers is false" do
       conn = conn_with_options(@forwarded, trust_forwarded_headers: false)
-
-      assert capture_log(fn ->
-               assert Helpers.callback_url(conn) == "http://www.example.com/auth/p/callback"
-             end) == ""
+      assert Helpers.callback_url(conn) == "http://www.example.com/auth/p/callback"
     end
 
-    test "uses the headers without warning when trust_forwarded_headers is true" do
+    test "uses the headers when trust_forwarded_headers is true" do
       conn = conn_with_options(@forwarded, trust_forwarded_headers: true)
+      assert Helpers.callback_url(conn) == "https://proxy.example.org/auth/p/callback"
+    end
 
-      assert capture_log(fn ->
-               assert Helpers.callback_url(conn) == "https://proxy.example.org/auth/p/callback"
-             end) == ""
+    test "uses values applied by Plug.RewriteOn" do
+      conn =
+        [{"x-forwarded-host", "proxy.example.org"}, {"x-forwarded-proto", "https"}]
+        |> conn_with_options([])
+        |> Plug.RewriteOn.call(Plug.RewriteOn.init([:x_forwarded_host, :x_forwarded_proto]))
+
+      assert Helpers.callback_url(conn) == "https://proxy.example.org/auth/p/callback"
+    end
+  end
+
+  describe "state_cookie_name/1" do
+    test "includes the provider name" do
+      conn = put_private(conn(:get, "/"), :ueberauth_request_options, strategy_name: :github)
+      assert Helpers.state_cookie_name(conn) == "ueberauth.state_param.github"
+    end
+
+    test "falls back to the shared name without provider options" do
+      assert Helpers.state_cookie_name(conn(:get, "/")) == "ueberauth.state_param"
     end
   end
 

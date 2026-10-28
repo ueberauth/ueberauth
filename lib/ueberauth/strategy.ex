@@ -168,7 +168,6 @@ defmodule Ueberauth.Strategy do
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Extra
 
-  @state_param_cookie_name "ueberauth.state_param"
   @state_param_cookie_max_age 10 * 60
 
   @doc """
@@ -297,6 +296,13 @@ defmodule Ueberauth.Strategy do
           state_param_cookie_same_site: "None"
         # …
       end
+
+  Each provider stores its state in its own cookie, named
+  `ueberauth.state_param.<provider>` (see
+  `Ueberauth.Strategy.Helpers.state_cookie_name/1`), so users can start login
+  flows for different providers at the same time. The cookie's path is the
+  provider's request path when the callback path is below it (as with the
+  default `/auth/:provider` and `/auth/:provider/callback`), and `/` otherwise.
 
   The state cookie is marked `Secure` when the request is served over HTTPS
   or when `:state_param_cookie_same_site` is `"None"`, since browsers reject
@@ -441,8 +447,9 @@ defmodule Ueberauth.Strategy do
     same_site = get_state_param_cookie_same_site(strategy)
 
     conn
-    |> Conn.put_resp_cookie(@state_param_cookie_name, state,
+    |> Conn.put_resp_cookie(Helpers.state_cookie_name(conn), state,
       sign: true,
+      path: state_cookie_path(conn),
       same_site: same_site,
       secure: secure_state_cookie?(conn, same_site),
       max_age: get_state_param_cookie_max_age(strategy)
@@ -455,15 +462,46 @@ defmodule Ueberauth.Strategy do
     conn.scheme == :https or String.downcase(to_string(same_site)) == "none"
   end
 
+  # Scope the cookie to the provider's request path when the callback is
+  # served below it (the default `/auth/:provider` and `/auth/:provider/callback`).
+  defp state_cookie_path(conn) do
+    # Read the options directly: the strategy can run without them, in which
+    # case there is no provider path to scope the cookie to.
+    options = conn.private[:ueberauth_request_options] || []
+    request_path = options[:request_path]
+    callback_paths = [options[:callback_path], callback_url_path(options[:options])]
+
+    if is_binary(request_path) and request_path not in ["", "/"] and
+         Enum.all?(callback_paths, &within_path?(&1, request_path)) do
+      request_path
+    else
+      "/"
+    end
+  end
+
+  defp callback_url_path(options) when is_list(options) do
+    case Keyword.get(options, :callback_url) do
+      url when is_binary(url) -> URI.parse(url).path || "/"
+      _ -> nil
+    end
+  end
+
+  defp callback_url_path(_options), do: nil
+
+  defp within_path?(nil, _prefix), do: true
+  defp within_path?(path, prefix), do: path == prefix or String.starts_with?(path, prefix <> "/")
+
   defp get_state_cookie(conn) do
+    name = Helpers.state_cookie_name(conn)
+
     conn
-    |> Conn.fetch_cookies(signed: [@state_param_cookie_name])
+    |> Conn.fetch_cookies(signed: [name])
     |> Map.get(:cookies)
-    |> Map.get(@state_param_cookie_name)
+    |> Map.get(name)
   end
 
   defp remove_state_cookie(conn) do
-    Conn.delete_resp_cookie(conn, @state_param_cookie_name)
+    Conn.delete_resp_cookie(conn, Helpers.state_cookie_name(conn), path: state_cookie_path(conn))
   end
 
   defp create_state_param do

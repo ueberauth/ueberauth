@@ -49,7 +49,7 @@ defmodule Ueberauth.Strategy.AppleTest do
           strategy_name: :apple
         })
         |> put_private(:ueberauth_state_param, "state-abc123")
-        |> put_resp_cookie("ueberauth.state_param", "state-abc123")
+        |> put_resp_cookie("ueberauth.state_param.apple", "state-abc123")
 
       %{conn: conn}
     end
@@ -92,7 +92,7 @@ defmodule Ueberauth.Strategy.AppleTest do
       conn = Apple.handle_request!(conn)
       assert {_status, headers, _body} = sent_resp(conn)
       assert %{"location" => sign_in_page, "set-cookie" => cookie} = Enum.into(headers, %{})
-      assert cookie =~ "ueberauth.state_param=state-abc123"
+      assert cookie =~ "ueberauth.state_param.apple=state-abc123"
       assert cookie =~ "secure"
       assert cookie =~ "SameSite=None"
 
@@ -159,7 +159,7 @@ defmodule Ueberauth.Strategy.AppleTest do
           strategy: Ueberauth.Strategy.Apple,
           strategy_name: :apple
         })
-        |> put_req_cookie("ueberauth.state_param", "nonce-abc123")
+        |> put_req_cookie("ueberauth.state_param.apple", "nonce-abc123")
 
       token = sign_id_token()
 
