@@ -5,7 +5,7 @@ on:
     types: [opened, reopened, synchronize]
   push:
     branches:
-      - 'master'
+      - 'main'
 jobs:
   Test:
     runs-on: ubuntu-latest

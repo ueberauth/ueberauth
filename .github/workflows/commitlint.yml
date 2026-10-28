@@ -1,0 +1,29 @@
+name: Commitlint
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  # PRs are squash merged, so the PR title becomes the commit on main.
+  PR-Title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Install Commitlint
+        run: npm install --no-save @commitlint/cli@21.2.4 @commitlint/config-conventional@21.2.4
+
+      - name: Lint PR Title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: echo "$PR_TITLE" | npx --no-install commitlint --verbose

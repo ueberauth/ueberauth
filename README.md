@@ -1,13 +1,13 @@
 # Überauth
 
 [![Continuous Integration](https://github.com/ueberauth/ueberauth/actions/workflows/ci.yml/badge.svg)](https://github.com/ueberauth/ueberauth/actions/workflows/ci.yml)
-[![Codecov](https://codecov.io/gh/ueberauth/ueberauth/branch/master/graph/badge.svg)](https://codecov.io/gh/ueberauth/ueberauth)
+[![Codecov](https://codecov.io/gh/ueberauth/ueberauth/branch/main/graph/badge.svg)](https://codecov.io/gh/ueberauth/ueberauth)
 [![Inline docs](http://inch-ci.org/github/ueberauth/ueberauth.svg)](http://inch-ci.org/github/ueberauth/ueberauth)
 [![Hex Version](http://img.shields.io/hexpm/v/ueberauth.svg)](https://hex.pm/packages/ueberauth)
 [![Hex docs](http://img.shields.io/badge/hex.pm-docs-green.svg)](https://hexdocs.pm/ueberauth)
 [![Total Download](https://img.shields.io/hexpm/dt/ueberauth.svg)](https://hex.pm/packages/ueberauth)
-[![License](https://img.shields.io/hexpm/l/ueberauth.svg)](https://github.com/ueberauth/ueberauth/blob/master/LICENSE)
-[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg)](https://github.com/ueberauth/ueberauth/commits/master)
+[![License](https://img.shields.io/hexpm/l/ueberauth.svg)](https://github.com/ueberauth/ueberauth/blob/main/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg)](https://github.com/ueberauth/ueberauth/commits/main)
 
 > An Elixir Authentication System for Plug-based Web Applications
 
@@ -257,4 +257,4 @@ modify the behaviour of the strategy.
 
 Copyright (c) 2015 Sonny Scroggin
 
-Released under the MIT License, which can be found in the repository in [`LICENSE`](https://raw.githubusercontent.com/ueberauth/ueberauth/master/LICENSE).
+Released under the MIT License, which can be found in the repository in [`LICENSE`](https://raw.githubusercontent.com/ueberauth/ueberauth/main/LICENSE).
