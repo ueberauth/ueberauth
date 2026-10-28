@@ -55,12 +55,25 @@ defmodule Ueberauth.Strategy.Apple do
   @spec modify_ueberauth_state_cookie(Plug.Conn.t(), keyword) :: Plug.Conn.t()
   defp modify_ueberauth_state_cookie(conn, params) do
     if Keyword.get(params, :response_mode) == "form_post" do
-      state_cookie = conn.resp_cookies["ueberauth.state_param"]
+      cookie_name = ueberauth_state_cookie_name(conn)
+      state_cookie = conn.resp_cookies[cookie_name]
       modified_cookie = Map.merge(state_cookie, %{same_site: "None", secure: true})
 
-      %{conn | resp_cookies: Map.put(conn.resp_cookies, "ueberauth.state_param", modified_cookie)}
+      %{conn | resp_cookies: Map.put(conn.resp_cookies, cookie_name, modified_cookie)}
     else
       conn
+    end
+  end
+
+  # Ueberauth 0.13 names the state cookie per provider; older versions share one name.
+  @spec ueberauth_state_cookie_name(Plug.Conn.t()) :: String.t()
+  defp ueberauth_state_cookie_name(conn) do
+    helpers = Ueberauth.Strategy.Helpers
+
+    if Code.ensure_loaded?(helpers) and function_exported?(helpers, :state_cookie_name, 1) do
+      helpers.state_cookie_name(conn)
+    else
+      "ueberauth.state_param"
     end
   end
 
@@ -89,7 +102,7 @@ defmodule Ueberauth.Strategy.Apple do
       conn
       |> Plug.Conn.fetch_cookies()
       |> Plug.Conn.get_cookies()
-      |> Map.get("ueberauth.state_param")
+      |> Map.get(ueberauth_state_cookie_name(conn))
 
     opts =
       oauth_client_options_from_conn(conn)
