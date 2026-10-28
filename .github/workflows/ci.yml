@@ -11,14 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      # Supported Elixir/OTP pairs that hex.pm publishes builds for on
-      # ubuntu-latest (26.04), which has no OTP 24 or 25 builds.
+      # The three most recent Elixir minors, each paired with the OTP
+      # versions hex.pm publishes builds for on ubuntu-latest (26.04).
       matrix:
         include:
-          - { elixir: "1.15", otp: "26" }
-          - { elixir: "1.16", otp: "26" }
-          - { elixir: "1.17", otp: "26" }
-          - { elixir: "1.17", otp: "27" }
           - { elixir: "1.18", otp: "26" }
           - { elixir: "1.18", otp: "27" }
           - { elixir: "1.18", otp: "28" }
