@@ -1,6 +1,6 @@
 {
   ".": "0.11.0",
-  "strategies/ueberauth_apple": "0.7.0",
+  "strategies/ueberauth_apple": "0.8.0",
   "strategies/ueberauth_facebook": "0.10.0",
   "strategies/ueberauth_github": "0.8.3",
   "strategies/ueberauth_google": "0.12.1",
