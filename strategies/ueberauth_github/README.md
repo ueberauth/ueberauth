@@ -4,7 +4,7 @@
 [![Module Version](https://img.shields.io/hexpm/v/ueberauth_github.svg)](https://hex.pm/packages/ueberauth_github)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_github/)
 [![Total Download](https://img.shields.io/hexpm/dt/ueberauth_github.svg)](https://hex.pm/packages/ueberauth_github)
-[![License](https://img.shields.io/hexpm/l/ueberauth_github.svg)](https://github.com/ueberauth/ueberauth/blob/main/strategies/ueberauth_github/LICENSE.md)
+[![License](https://img.shields.io/hexpm/l/ueberauth_github.svg)](https://github.com/ueberauth/ueberauth/blob/main/strategies/ueberauth_github/LICENSE)
 [![Last Updated](https://img.shields.io/github/last-commit/ueberauth/ueberauth.svg?path=strategies%2Fueberauth_github)](https://github.com/ueberauth/ueberauth/commits/main/strategies/ueberauth_github)
 
 > GitHub OAuth2 strategy for Überauth.
@@ -139,4 +139,4 @@ config :ueberauth, Ueberauth,
 
 Copyright (c) 2015 Daniel Neighman
 
-This library is released under the MIT License. See the [LICENSE.md](./LICENSE.md) file
+This library is released under the MIT License. See the [LICENSE](./LICENSE) file
