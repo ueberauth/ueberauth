@@ -3,7 +3,7 @@ defmodule UeberauthGoogle.Mixfile do
 
   @source_url "https://github.com/ueberauth/ueberauth"
   @source_path "strategies/ueberauth_google"
-  @version "0.12.1"
+  @version "0.13.0"
 
   def project do
     [
